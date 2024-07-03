@@ -88,6 +88,9 @@ create_vscode_settings() {
             "source.organizeImports": "always"
         }
     },
+    "[ignore]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
     "editor.tabSize": 3,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
@@ -210,8 +213,8 @@ create_virtual_env() {
     fi
 
     # Set the global Python version using pyenv
-    pyenv install -s 3.12.4
-    pyenv global 3.12.4
+    pyenv install -s 3.12
+    pyenv global 3.12
 
     # Create the virtual environment
     python -m venv env
