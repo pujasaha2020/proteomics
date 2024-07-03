@@ -101,6 +101,14 @@ create_vscode_settings() {
     "python.languageServer": "Pylance",
     "black-formatter.args": ["--line-length=88"],
     "pylint.args": ["--max-line-length=88"],
+    "cSpell.userWords": [
+        "boxsdk",
+        "isort",
+        "proteomics",
+        "Pylance",
+        "Pylint",
+        "tggo"
+    ],
 }
 EOF
     )
