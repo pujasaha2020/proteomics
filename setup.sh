@@ -182,7 +182,7 @@ jobs:
 create_gitignore() {
     local gitignore_content='.vscode/
 .github/
-.gitignore/
+.gitignore
 env/
 __pycache__/
 *.pyc
