@@ -273,8 +273,17 @@ create_gitignore
 # Create and set up the virtual environment
 create_virtual_env
 
-# Add the current module to the Python path
-echo "export PYTHONPATH=\"$(pwd)/src:\$PYTHONPATH\"" >>env/bin/activate
+# Set PYTHONPATH if it is not already set
+if [ -z "${PYTHONPATH}" ]; then
+    echo "export PYTHONPATH=\"$(pwd)" >>env/bin/activate
+else
+    echo "export PYTHONPATH=\"$(pwd):\$PYTHONPATH\"" >>env/bin/activate
+fi
+
+# If $(pwd)/src exists, add it to PYTHONPATH
+if [ -d "$(pwd)/src" ]; then
+    echo "export PYTHONPATH=\"$(pwd)/src:\$PYTHONPATH\"" >>env/bin/activate
+fi
 
 # First access to Box (assuming box/oauth2.py is necessary)
 if [ -f "box/oauth2.py" ]; then
