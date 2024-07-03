@@ -28,7 +28,7 @@ eval "$(pyenv init -)"
 
     if [[ "$SHELL" == */zsh ]]; then
         echo "$pyenv_config" >>"$HOME/.zshrc"
-        source "$HOME/.zshrc"
+        zsh -c 'source "$HOME/.zshrc"'
     elif [[ "$SHELL" == */bash ]]; then
         echo "$pyenv_config" >>"$HOME/.bashrc"
         source "$HOME/.bashrc"
