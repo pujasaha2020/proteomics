@@ -36,6 +36,7 @@ install_pyenv() {
         echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >>~/.zshrc
         echo 'eval "$(pyenv init -)"' >>~/.zshrc
         zsh -c 'source "$HOME/.zshrc"'
+        exec "$SHELL"
     fi
 }
 
