@@ -77,6 +77,7 @@ create_vscode_settings() {
         "**/__pycache__": true,
         ".github": true,
         ".vscode": true,
+        ".mypy_cache",
         "env": true
     },
     "files.autoSaveWhenNoErrors": true,
@@ -201,6 +202,7 @@ create_gitignore() {
 .gitignore
 env/
 __pycache__/
+.mypy_cache/
 *.pyc
 *.pyo
 *.pyd
