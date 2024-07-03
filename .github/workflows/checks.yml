@@ -32,3 +32,12 @@ jobs:
 
             - name: Run Black
               run: black --check .
+
+            - name: Run Pylint
+              run: pylint **/*.py
+
+            - name: Run Isort
+              run: isort --check-only .
+
+            - name: Run Mypy
+              run: mypy .
