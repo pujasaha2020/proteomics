@@ -10,7 +10,7 @@ This repository documents the project and saves scripts for data construction an
 Clone the repository:
 
 ```shell
-git clone https://github.com/AdrienSpecht/plasmatime
+git clone https://github.com/AdrienSpecht/proteomics
 ```
 
 Run setup.sh:
