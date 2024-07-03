@@ -274,6 +274,7 @@ create_gitignore
 create_virtual_env
 
 # Set PYTHONPATH if it is not already set
+echo "$PYTHONPATH"
 if [ -z "$PYTHONPATH" ]; then
     echo "export PYTHONPATH=\"$(pwd)" >>env/bin/activate
 else
