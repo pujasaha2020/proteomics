@@ -12,7 +12,6 @@ FOLDER_ID = "200099021915"
 
 
 def save_tokens(access_token: str, refresh_token: str):
-    """Save tokens into a token.yaml"""
     tokens = {"access_token": access_token, "refresh_token": refresh_token}
     with open("box/tokens.yaml", "w", encoding="utf-8") as f:
         yaml.dump(tokens, f)
