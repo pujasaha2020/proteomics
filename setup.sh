@@ -131,50 +131,54 @@ create_github_workflow() {
 on: [push, pull_request]
 
 jobs:
-  checks:
-    runs-on: ubuntu-latest
+    checks:
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v3
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.12"
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+            - name: Cache dependencies
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.cache/pip
+                  key: ${{ runner.os }}-pip-${{ hashFiles('\''**/requirements.txt'\'') }}
+                  restore-keys: |
+                      ${{ runner.os }}-pip-
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install black pylint isort mypy pytest
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
+                  pip install black pylint isort mypy pytest
+                  python -m pip install types-PyYAML
 
-    - name: Run Black
-      run: black --check .
+            - name: Run Black
+              run: black --check .
 
-    - name: Run Pylint
-      run: pylint **/*.py
+            - name: Run Pylint
+              run: pylint **/*.py
 
-    - name: Run Isort
-      run: isort --check-only .
+            - name: Run Isort
+              run: isort --check-only .
 
-    - name: Run Mypy
-      run: mypy .
+            - name: Run Mypy
+              run: mypy .
 
-    - name: Run Tests
-      run: |
-        if ls tests/*.py 1> /dev/null 2>&1; then
-          pytest
-        else
-          echo "No test files found"
-        fi
+            - name: Run Tests
+              run: |
+                  if ls tests/*.py 1> /dev/null 2>&1; then
+                      pytest
+                  else
+                      echo "No test files found"
+                  fi
+
 '
 
     # Create the .github/workflows directory if it doesn't exist
@@ -192,7 +196,6 @@ jobs:
 # Function to create .gitignore
 create_gitignore() {
     local gitignore_content='.vscode/
-.github/
 .gitignore
 env/
 __pycache__/
