@@ -11,18 +11,6 @@ command_exists() {
 }
 
 #######################################################
-# Function to update shell configuration files
-update_shell_config() {
-    local shell_config=$1
-    {
-        echo 'export PYENV_ROOT="$HOME/.pyenv"'
-        echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"'
-        echo 'eval "$(pyenv init -)"'
-        echo 'eval "$(pyenv virtualenv-init -)"'
-    } >>"$shell_config"
-}
-
-#######################################################
 # Function to install pyenv
 install_pyenv() {
     if ! command_exists pyenv; then
@@ -30,14 +18,25 @@ install_pyenv() {
         curl https://pyenv.run | bash
     fi
 
-    # Update shell configuration files
-    update_shell_config "$HOME/.bash_profile"
-    update_shell_config "$HOME/.bashrc"
-    update_shell_config "$HOME/.zshrc"
-
-    # Source the updated shell configuration
-    bash -c 'source "$HOME/.bash_profile"'
+    # Add to .bashrc
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >>~/.bashrc
+    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >>~/.bashrc
+    echo 'eval "$(pyenv init -)"' >>~/.bashrc
     bash -c 'source "$HOME/.bashrc"'
+    # Add to .profile
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >>~/.profile
+    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >>~/.profile
+    echo 'eval "$(pyenv init -)"' >>~/.profile
+    bash -c 'source "$HOME/.profile"'
+    # Add to .bash_profile
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >>~/.bash_profile
+    echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >>~/.bash_profile
+    echo 'eval "$(pyenv init -)"' >>~/.bash_profile
+    bash -c 'source "$HOME/.bash_profile"'
+    # Add to .zsh
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >>~/.zshrc
+    echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >>~/.zshrc
+    echo 'eval "$(pyenv init -)"' >>~/.zshrc
     zsh -c 'source "$HOME/.zshrc"'
 }
 
