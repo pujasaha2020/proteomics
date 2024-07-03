@@ -26,16 +26,9 @@ eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 '
 
-    if [[ "$SHELL" == */zsh ]]; then
-        echo "$pyenv_config" >>"$HOME/.zshrc"
-        zsh -c 'source "$HOME/.zshrc"'
-    elif [[ "$SHELL" == */bash ]]; then
-        echo "$pyenv_config" >>"$HOME/.bashrc"
-        source "$HOME/.bashrc"
-    else
-        echo "Unsupported shell. Please add pyenv to your shell configuration manually."
-    fi
-
+    echo "$pyenv_config" >>"$HOME/.zshrc"
+    echo 'export PATH="/usr/local/gfortran/lib:$PATH"' >>"$HOME/.zshrc"
+    zsh -c 'source "$HOME/.zshrc"'
 }
 
 #######################################################
