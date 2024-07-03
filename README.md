@@ -20,7 +20,7 @@ cd proteomics
 ./setup.sh
 ```
 
-The setup.sh script automates the initial configuration of your development environment to ensure consistency and efficiency. It installs essential tools such as pyenv for Python version management and VSCode extensions to streamline your coding workflow:
+The `setup.sh` script automates the initial configuration of your development environment to ensure consistency and efficiency. It installs essential tools such as pyenv for Python version management and VSCode extensions to streamline your coding workflow:
 
 -   isort: Automatically sorts Python imports.
 -   pylint: Linter for code errors and standards.
