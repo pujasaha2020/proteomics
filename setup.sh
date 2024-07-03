@@ -11,6 +11,18 @@ command_exists() {
 }
 
 #######################################################
+# Function to update shell configuration files
+update_shell_config() {
+    local shell_config=$1
+    {
+        echo 'export PYENV_ROOT="$HOME/.pyenv"'
+        echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"'
+        echo 'eval "$(pyenv init -)"'
+        echo 'eval "$(pyenv virtualenv-init -)"'
+    } >>"$shell_config"
+}
+
+#######################################################
 # Function to install pyenv
 install_pyenv() {
     if ! command_exists pyenv; then
@@ -18,16 +30,14 @@ install_pyenv() {
         curl https://pyenv.run | bash
     fi
 
-    # Add pyenv to bashrc/zshrc
-    local pyenv_config='
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-'
+    # Update shell configuration files
+    update_shell_config "$HOME/.bash_profile"
+    update_shell_config "$HOME/.bashrc"
+    update_shell_config "$HOME/.zshrc"
 
-    echo "$pyenv_config" >>"$HOME/.zshrc"
-    echo 'export PATH="/usr/local/gfortran/lib:$PATH"' >>"$HOME/.zshrc"
+    # Source the updated shell configuration
+    bash -c 'source "$HOME/.bash_profile"'
+    bash -c 'source "$HOME/.bashrc"'
     zsh -c 'source "$HOME/.zshrc"'
 }
 
