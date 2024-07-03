@@ -1,4 +1,6 @@
-"""ensure access to box folder"""
+"""Ensure access to box folder"""
+
+from typing import Optional
 
 import yaml
 from boxsdk import Client, OAuth2
@@ -11,14 +13,14 @@ FOLDER_ID = "200099021915"
 ###################################################
 
 
-def save_tokens(access_token: Client, refresh_token: str):
+def save_tokens(access_token: str, refresh_token: str) -> None:
     """Save tokens into a token.yaml"""
     tokens = {"access_token": access_token, "refresh_token": refresh_token}
     with open("box/tokens.yaml", "w", encoding="utf-8") as f:
         yaml.dump(tokens, f)
 
 
-def load_tokens():
+def load_tokens() -> tuple[Optional[str], Optional[str]]:
     """Load tokens from tokens.yaml"""
     try:
         with open("box/tokens.yaml", "r", encoding="utf-8") as f:

@@ -42,7 +42,7 @@ install_vscode_extensions() {
     code --install-extension ms-python.python
     code --install-extension ms-python.isort
     code --install-extension ms-python.pylint
-    code --install-extension ms-python.vscode-mypy
+    code --install-extension ms-python.mypy-type-checker
     code --install-extension ms-python.vscode-pylance
     code --install-extension streetsidesoftware.code-spell-checker
     code --install-extension ms-python.black-formatter
@@ -238,6 +238,7 @@ create_virtual_env() {
         pip install --upgrade pip
         pip install -r requirements.txt
         echo "Installed packages from requirements.txt."
+        python -m pip install types-PyYAML
     else
         echo "requirements.txt not found. Skipping package installation."
     fi
