@@ -1,6 +1,6 @@
+"""ensure access to box folder"""
+
 import yaml
-
-
 from boxsdk import Client, OAuth2
 
 ###################################################
@@ -11,15 +11,15 @@ FOLDER_ID = "200099021915"
 ###################################################
 
 
-# Function to save tokens to a file
-def save_tokens(access_token, refresh_token):
+def save_tokens(access_token: str, refresh_token: str):
+    """Save tokens into a token.yaml"""
     tokens = {"access_token": access_token, "refresh_token": refresh_token}
     with open("box/tokens.yaml", "w", encoding="utf-8") as f:
         yaml.dump(tokens, f)
 
 
-# Function to load tokens from a file
 def load_tokens():
+    """Load tokens from tokens.yaml"""
     try:
         with open("box/tokens.yaml", "r", encoding="utf-8") as f:
             tokens = yaml.safe_load(f)
@@ -28,9 +28,8 @@ def load_tokens():
         return None, None
 
 
-# Function to authenticate and get a Box client
-def get_box_client():
-
+def get_box_client() -> Client:
+    """Get box client"""
     oauth2 = OAuth2(
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
@@ -54,6 +53,7 @@ def get_box_client():
 
 
 def get_box_folder():
+    """Get box folder to proteomics"""
     client = get_box_client()
     return client.folder(folder_id=FOLDER_ID).get()
 
