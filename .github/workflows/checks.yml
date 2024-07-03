@@ -46,6 +46,6 @@ jobs:
             - name: Run Tests
               run: |
                   if ls tests/*.py 1> /dev/null 2>&1; then
-                    pytest
+                      pytest
                   else
-                    echo "No test files found"
+                      echo "No test files found"
