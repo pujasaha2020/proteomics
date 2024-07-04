@@ -36,6 +36,9 @@ jobs:
                   pip install black pylint isort mypy
                   python -m pip install types-PyYAML
 
+            - name: Print Directory Structure before
+              run: ls -R $GITHUB_WORKSPACE
+
             - name: Verify PYTHONPATH before
               run: echo $PYTHONPATH
 
@@ -45,7 +48,7 @@ jobs:
             - name: Verify PYTHONPATH after
               run: echo ${{ env.PYTHONPATH }}
 
-            - name: Print Directory Structure
+            - name: Print Directory Structure after
               run: ls -R $GITHUB_WORKSPACE
 
             - name: Run Black
