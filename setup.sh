@@ -273,12 +273,8 @@ create_gitignore
 # Create and set up the virtual environment
 create_virtual_env
 
-# Set PYTHONPATH if it is not already set
-if [ -z "$PYTHONPATH" ]; then
-    echo "export PYTHONPATH=\"$(pwd)\"" >>env/bin/activate
-else
-    echo "export PYTHONPATH=\"$(pwd):\$PYTHONPATH\"" >>env/bin/activate
-fi
+# Set PYTHONPATH
+echo "export PYTHONPATH=\"$(pwd)\"" >>env/bin/activate
 
 # If $(pwd)/src exists, add it to PYTHONPATH
 if [ -d "$(pwd)/src" ]; then
