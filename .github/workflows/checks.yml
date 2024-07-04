@@ -37,10 +37,10 @@ jobs:
                   python -m pip install types-PyYAML
 
             - name: Verify PYTHONPATH before
-              run: echo ${{ env.PYTHONPATH }}
+              run: echo $PYTHONPATH
 
             - name: Set PYTHONPATH
-              run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+              run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
             - name: Verify PYTHONPATH after
               run: echo ${{ env.PYTHONPATH }}
@@ -49,13 +49,13 @@ jobs:
               run: black --check .
 
             - name: Run Pylint
-              run: pylint **/*.py
+              run: pylint .
 
             - name: Run Isort
               run: isort --check-only .
 
             - name: Run Mypy
-              run: mypy **/*.py
+              run: mypy .
 
     tests:
         runs-on: ubuntu-latest
