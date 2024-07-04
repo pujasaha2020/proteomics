@@ -17,7 +17,12 @@ jobs:
 
             - name: Checkout repository
               uses: actions/checkout@v4
+            - name: Print GITHUB_WORKSPACE after checkout
+              run: |
+                  echo "GITHUB_WORKSPACE after checkout: $GITHUB_WORKSPACE"
 
+            - name: Print Directory Structure after checkout
+              run: ls -R $GITHUB_WORKSPACE
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
