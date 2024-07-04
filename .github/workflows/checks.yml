@@ -42,9 +42,6 @@ jobs:
             - name: Verify PYTHONPATH before
               run: echo $PYTHONPATH
 
-            - name: Set PYTHONPATH
-              run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
             - name: Verify PYTHONPATH after
               run: echo ${{ env.PYTHONPATH }}
 
@@ -61,8 +58,6 @@ jobs:
               run: isort --check-only $(git ls-files '*.py')
 
             - name: Run Mypy
-              env:
-                  PYTHONPATH: ${{ env.PYTHONPATH }}
               run: mypy $(git ls-files '*.py')
 
     tests:
