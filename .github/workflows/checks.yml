@@ -36,10 +36,13 @@ jobs:
                   pip install black pylint isort mypy
                   python -m pip install types-PyYAML
 
-            - name: Set PYTHONPATH
-              run: echo "PYTHONPATH=$GITHUB_WORKSPACE/proteomics" >> $GITHUB_ENV
+            - name: Verify PYTHONPATH before
+              run: echo ${{ env.PYTHONPATH }}
 
-            - name: Verify PYTHONPATH
+            - name: Set PYTHONPATH
+              run: echo "PYTHONPATH=D:/proteomics" >> $GITHUB_ENV
+
+            - name: Verify PYTHONPATH after
               run: echo ${{ env.PYTHONPATH }}
 
             - name: Run Black
