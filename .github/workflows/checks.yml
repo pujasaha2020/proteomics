@@ -12,6 +12,9 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+            - name: Print Directory Structure at the start
+              run: ls -R $GITHUB_WORKSPACE
+
             - name: Checkout repository
               uses: actions/checkout@v4
 
