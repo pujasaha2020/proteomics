@@ -58,6 +58,8 @@ jobs:
               run: isort --check-only $(git ls-files '*.py')
 
             - name: Run Mypy
+              env:
+                  PYTHONPATH: ${{ env.PYTHONPATH }}
               run: mypy $(git ls-files '*.py')
 
     tests:
