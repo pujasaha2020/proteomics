@@ -40,7 +40,7 @@ jobs:
               run: echo ${{ env.PYTHONPATH }}
 
             - name: Set PYTHONPATH
-              run: echo "PYTHONPATH=proteomics" >> $GITHUB_ENV
+              run: echo "PYTHONPATH=$GITHUB_ENV/proteomics" >> $GITHUB_ENV
 
             - name: Verify PYTHONPATH after
               run: echo ${{ env.PYTHONPATH }}
@@ -51,7 +51,7 @@ jobs:
             - name: Run Pylint
               env:
                   PYTHONPATH: ${{ env.PYTHONPATH }}
-              run: pylint **/*.py
+              run: pylint $(git ls-files '*.py')
 
             - name: Run Isort
               run: isort --check-only .
