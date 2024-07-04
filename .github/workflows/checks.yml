@@ -8,7 +8,7 @@ permissions:
     pull-requests: write
 
 jobs:
-    quality:
+    Quality:
         runs-on: ubuntu-latest
 
         steps:
@@ -59,7 +59,7 @@ jobs:
             - name: Run Isort
               run: isort --check-only $(git ls-files '*.py')
 
-    tests:
+    Tests:
         runs-on: ubuntu-latest
 
         steps:
@@ -91,7 +91,8 @@ jobs:
 
             - name: Run Tests
               run: pytest --cov=$GITHUB_WORKSPACE tests/
-
+            - name: List files in the workspace
+              run: ls -la
             - name: Upload coverage data
               uses: actions/upload-artifact@v4
               with:
@@ -99,9 +100,9 @@ jobs:
                   path: .coverage.*
                   if-no-files-found: ignore
 
-    coverage:
-        name: Combine and check coverage
-        needs: tests
+    Coverage:
+        name: Coverage
+        needs: Tests
         runs-on: ubuntu-latest
         steps:
             - name: Check out the repo
