@@ -47,14 +47,13 @@ jobs:
                   pip install black pylint isort mypy
                   python -m pip install types-PyYAML
 
-            - name: Print Directory Structure before
-              run: ls -R $GITHUB_WORKSPACE
-
             - name: Set PYTHONPATH
-              run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+              run: |
+                  echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+                  echo "PYTHONPATH set to: ${GITHUB_WORKSPACE}"
 
-            - name: Print Directory Structure after
-              run: ls -R $GITHUB_WORKSPACE
+            - name: Verify PYTHONPATH
+              run: echo "PYTHONPATH: ${{ env.PYTHONPATH }}"
 
             - name: Run Black
               run: black --check $(git ls-files '*.py')
@@ -66,6 +65,8 @@ jobs:
               run: isort --check-only $(git ls-files '*.py')
 
             - name: Run Mypy
+              env:
+                  PYTHONPATH: ${{ env.PYTHONPATH }}
               run: mypy $(git ls-files '*.py')
 
     tests:
