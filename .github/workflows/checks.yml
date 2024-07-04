@@ -20,6 +20,9 @@ jobs:
               with:
                   python-version: "3.12"
 
+            - name: Print Directory Structure before everything
+              run: ls -R $GITHUB_WORKSPACE
+
             - name: Cache dependencies
               uses: actions/cache@v4
               with:
@@ -39,11 +42,8 @@ jobs:
             - name: Print Directory Structure before
               run: ls -R $GITHUB_WORKSPACE
 
-            - name: Verify PYTHONPATH before
-              run: echo $PYTHONPATH
-
-            - name: Verify PYTHONPATH after
-              run: echo ${{ env.PYTHONPATH }}
+            - name: Set PYTHONPATH
+              run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
             - name: Print Directory Structure after
               run: ls -R $GITHUB_WORKSPACE
