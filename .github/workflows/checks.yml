@@ -55,7 +55,7 @@ jobs:
               run: isort --check-only .
 
             - name: Run Mypy
-              run: mypy .
+              run: mypy **/*.py
 
     tests:
         runs-on: ubuntu-latest
