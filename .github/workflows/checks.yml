@@ -54,7 +54,6 @@ jobs:
             - name: Verify PYTHONPATH
               run: |
                   echo "PYTHONPATH= ${{ env.PYTHONPATH }}"
-                  echo "MYPYPATH= ${{ env.PYTHONPATH }}"
 
             - name: Run Black
               run: black --check $(git ls-files '*.py')
@@ -66,7 +65,7 @@ jobs:
               run: isort --check-only $(git ls-files '*.py')
 
             - name: Run Mypy
-              run: mypy --show-traceback $(git ls-files '*.py')
+              run: mypy $GITHUB_WORKSPACE
 
     tests:
         runs-on: ubuntu-latest
