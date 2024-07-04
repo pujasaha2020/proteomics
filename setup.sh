@@ -70,7 +70,9 @@ create_vscode_settings() {
         "**/__pycache__": true,
         ".github": true,
         ".vscode": true,
-        ".mypy_cache",
+        ".mypy_cache": true,
+        ".pytest_cache": true,
+        ".coverage": true,
         "env": true
     },
     "files.autoSaveWhenNoErrors": true,
@@ -201,7 +203,9 @@ __pycache__/
 *.pyd
 *.DS_Store
 .env
-box/*.yaml
+box/*.yaml,
+.pytest_cache,
+.coverage
 '
 
     # Create the .gitignore file
@@ -235,7 +239,7 @@ create_virtual_env() {
         pip install --upgrade pip
         pip install -r requirements.txt
         echo "Installed packages from requirements.txt."
-        python -m pip install types-PyYAML
+        python -m pip install types-PyYAML coverage pytest-cov
     else
         echo "requirements.txt not found. Skipping package installation."
     fi
