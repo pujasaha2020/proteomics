@@ -50,10 +50,7 @@ jobs:
             - name: Set PYTHONPATH
               run: |
                   echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
-                  echo "PYTHONPATH set to: ${GITHUB_WORKSPACE}"
-
-            - name: Verify PYTHONPATH
-              run: echo "PYTHONPATH= ${{ env.PYTHONPATH }}"
+                  echo "MYPYPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV"
 
             - name: Run Black
               run: black --check $(git ls-files '*.py')
@@ -65,8 +62,6 @@ jobs:
               run: isort --check-only $(git ls-files '*.py')
 
             - name: Run Mypy
-              env:
-                  PYTHONPATH: ${{ env.PYTHONPATH }}
               run: mypy --show-traceback $(git ls-files '*.py')
 
     tests:
