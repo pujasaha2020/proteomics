@@ -90,7 +90,7 @@ jobs:
               run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
 
             - name: Run Tests
-              run: pytest tests/
+              run: pytest --cov=$GITHUB_WORKSPACE tests/
 
             - name: Upload coverage data
               uses: actions/upload-artifact@v4
