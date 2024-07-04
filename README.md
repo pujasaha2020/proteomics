@@ -2,7 +2,7 @@
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-312/)
 ![GitHub Actions](https://github.com/AdrienSpecht/proteomics/actions/workflows/checks.yml/badge.svg)
-
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/94f9182f0a9c3c48c35477c65f056c4d/raw/covbadge.json)
 This repository documents the project and saves scripts for data construction and data analysis.
 
 ## ⚙️ Installation
