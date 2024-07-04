@@ -38,7 +38,9 @@ jobs:
 
             - name: Set pythonpath
               run: |
+                  echo $GITHUB_ENV
                   echo "PYTHONPATH=$(pwd)/proteomics" >> $GITHUB_ENV
+                  echo $GITHUB_ENV
                   echo $PYTHONPATH
 
             - name: Run Black
@@ -80,10 +82,13 @@ jobs:
                   pip install -r requirements.txt
                   pip install pytest pytest-cov
 
-            - name: Set pythonpath
+            - name: Set PYTHONPATH
               run: |
                   echo "PYTHONPATH=$(pwd)/proteomics" >> $GITHUB_ENV
-                  echo $PYTHONPATH
+                  echo "PYTHONPATH=/home/runner/work/your_repo/your_repo" >> $GITHUB_ENV
+
+            - name: Verify PYTHONPATH
+              run: echo $PYTHONPATH
             - name: Run Tests
               run: |
                   if ls tests/*.py 1> /dev/null 2>&1; then
