@@ -49,6 +49,8 @@ jobs:
               run: black --check .
 
             - name: Run Pylint
+              env:
+                  PYTHONPATH: ${{ env.PYTHONPATH }}
               run: pylint **/*.py
 
             - name: Run Isort
