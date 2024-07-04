@@ -50,7 +50,11 @@ jobs:
             - name: Set PYTHONPATH
               run: |
                   echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
-                  echo "MYPYPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV"
+
+            - name: Verify PYTHONPATH
+              run: |
+                  echo "PYTHONPATH= ${{ env.PYTHONPATH }}"
+                  echo "MYPYPATH= ${{ env.PYTHONPATH }}"
 
             - name: Run Black
               run: black --check $(git ls-files '*.py')
