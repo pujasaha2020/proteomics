@@ -36,6 +36,10 @@ jobs:
                   pip install black pylint isort mypy pytest pytest-cov
                   python -m pip install types-PyYAML
 
+            - name: set pythonpath
+              run: |
+                  echo "PYTHONPATH=proteomics" >> $GITHUB_ENV
+
             - name: Run Black
               run: black --check .
 
