@@ -161,7 +161,7 @@ jobs:
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
                   gistID: 94f9182f0a9c3c48c35477c65f056c4d
-                  filename: ${{ github.repository }}_${{ env.BRANCH }}.txt
+                  filename: gistfile1.txt
                   label: Coverage
                   message: ${{ env.total }}%
                   minColorRange: 50
