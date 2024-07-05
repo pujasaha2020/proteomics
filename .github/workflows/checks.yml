@@ -91,10 +91,15 @@ jobs:
 
             - name: Run tests and coverage
               run: |
-                  pytest tests --cov=$(pwd)
+                  pytest --cache-clear --cov=$(pwd) tests/ >> pytest-coverage.txt
 
             - name: List files in the workspace
               run: ls -R $GITHUB_ENV
+
+            - name: pytest-coverage-commentator
+              uses: coroo/pytest-coverage-commentator@v1.0.2
+              with:
+                  pytest-coverage: pytest-coverage.txt
 
             - name: Upload coverage data
               uses: actions/upload-artifact@v4
@@ -156,7 +161,9 @@ jobs:
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
                   gistID: 94f9182f0a9c3c48c35477c65f056c4d
-                  filename: ${{ github.repository }}_covbadge.json
+                  7c164bf79114b45cdd9e127777702d8d
+                  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
+                  filename: ${{ github.repository }}_${{ env.BRANCH }}.txt
                   label: Coverage
                   message: ${{ env.total }}%
                   minColorRange: 50
