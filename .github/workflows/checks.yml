@@ -103,6 +103,9 @@ jobs:
                   path: .coverage
                   if-no-files-found: ignore
 
+            - name: Verify coverage file before upload
+              run: ls -l .coverage
+
     Coverage:
         name: Coverage
         needs: Tests
@@ -125,12 +128,14 @@ jobs:
               with:
                   name: coverage-data
 
+            - name: Verify coverage file after tests
+              run: ls -l .coverage
+
             - name: List files in the workspace
               run: ls -R $GITHUB_ENV
 
             - name: Combine coverage and fail it it’s under 20 %
               run: |
-                  python -m coverage combine
                   python -m coverage html --skip-covered --skip-empty
 
                   # Report and write to summary.
