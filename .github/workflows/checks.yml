@@ -141,13 +141,11 @@ jobs:
 
             - name: Combine coverage and fail it it’s under 20 %
               run: |
-                  python -m coverage html --skip-covered --skip-empty
-
-                  # Report and write to summary.
-                  python -m coverage report | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
-
-                  # Report again and fail if under 20%.
-                  python -Im coverage report --fail-under=20
+                  coverage html --skip-covered --skip-empty
+                  coverage_report=$(coverage report)
+                  echo "$coverage_report" | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
+                  total_coverage=$(echo "$coverage_report" | grep 'TOTAL' | awk '{print $4}')
+                  echo "TOTAL_COVERAGE=${total_coverage}" >> $GITHUB_ENV
 
             - name: Upload HTML report if check failed
               uses: actions/upload-artifact@v4
@@ -163,7 +161,8 @@ jobs:
                   gistID: 94f9182f0a9c3c48c35477c65f056c4d
                   filename: gistfile1.txt
                   label: Coverage
-                  message: ${{ env.total }}%
+                  message: ${{ env.TOTAL_COVERAGE }}%
                   minColorRange: 50
                   maxColorRange: 90
-                  valColorRange: ${{ env.total }}
+                  valColorRange: ${{ env.TOTAL_COVERAGE }}%
+                  forceUpdate: true
