@@ -161,8 +161,6 @@ jobs:
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
                   gistID: 94f9182f0a9c3c48c35477c65f056c4d
-                  7c164bf79114b45cdd9e127777702d8d
-                  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
                   filename: ${{ github.repository }}_${{ env.BRANCH }}.txt
                   label: Coverage
                   message: ${{ env.total }}%
