@@ -126,7 +126,7 @@ jobs:
                   sanitized_branch_name="${branch_name//\//_}"
                   repo_name="${GITHUB_REPOSITORY#*/}"
                   echo "BADGE_NAME=${repo_name}_${sanitized_branch_name}" >> $GITHUB_ENV
-                  echo "BADGE_NAME=${env.BADGE_NAME}"
+                  echo "BADGE_NAME=${BADGE_NAME}"
 
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
