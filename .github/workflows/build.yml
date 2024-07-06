@@ -119,25 +119,21 @@ jobs:
                   total_coverage=$(echo "$coverage_report" | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
                   echo "TOTAL=${total_coverage}" >> $GITHUB_ENV
 
-            - name: Sanitize branch name
+            - name: Extract badge name
               id: sanitize_branch
               run: |
-                  sanitized_branch_name="${GITHUB_REF#refs/heads/}"
-                  sanitized_branch_name="${sanitized_branch_name//\//_}"
-                  echo "SANITIZED_BRANCH_NAME=${sanitized_branch_name}" >> $GITHUB_ENV
-
-            - name: Extract repository name
-              id: extract_repo
-              run: |
+                  branch_name="${GITHUB_REF#refs/heads/}"
+                  sanitized_branch_name="${branch_name//\//_}"
                   repo_name="${GITHUB_REPOSITORY#*/}"
-                  echo "REPO_NAME=${repo_name}" >> $GITHUB_ENV
+                  echo "BADGE_NAME=${repo_name}_${sanitized_branch_name}" >> $GITHUB_ENV
+                  echo "BADGE_NAME=${env.BADGE_NAME}"
 
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
                   gistID: bfba49c1003e973932c4de7dcc3e969a
-                  filename: ${{ env.REPO_NAME }}_${{ env.SANITIZED_BRANCH_NAME }}.txt
+                  filename: ${{ env.BADGE_NAME }}.txt
                   label: Coverage
                   message: ${{ env.TOTAL }}%
                   minColorRange: 50
@@ -145,20 +141,15 @@ jobs:
                   valColorRange: ${{ env.TOTAL }}
                   forceUpdate: true
 
-            - name: Generate badge URL
-              run: |
-                  badge_url="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/${{ env.REPO_NAME }}_${{ env.SANITIZED_BRANCH_NAME }}.txt"
-                  echo "BADGE_URL=${badge_url}" >> $GITHUB_ENV
-
             - name: Check if README needs update
               run: |
-                  if grep -q "![Coverage](${{ env.BADGE_URL }})" README.md; then
+                  if grep -q "${{ env.BADGE_URL }}" README.md; then
                     echo "README is up to date."
                     echo "README_NEEDS_UPDATE=false" >> $GITHUB_ENV
                   else
                     echo "README needs update."
                     echo "README_NEEDS_UPDATE=true" >> $GITHUB_ENV
-                    if grep -q "![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/*.txt)" README.md; then
+                    if grep -q "raw/*.txt" README.md; then
                       echo "Coverage badge absent in README"
                     else
                       echo "Coverage badge present in README"
@@ -170,7 +161,7 @@ jobs:
               if: env.README_NEEDS_UPDATE == 'true'
               run: |
                   echo "Replacing coverage badge URL in README.md"
-                  sed -i "s|![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/*.txt)|![Coverage](${{ env.BADGE_URL }})|" README.md
+                  sed -i "s|raw/*.txt|raw/${env.BADGE_NAME}" README.md
                   echo "Updated README:"
                   cat README.md
 
