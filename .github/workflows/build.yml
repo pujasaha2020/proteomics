@@ -143,7 +143,7 @@ jobs:
 
             - name: Check if README needs update
               run: |
-                  if grep -q "${{ env.BADGE_URL }}" README.md; then
+                  if grep -q "${{ env.BADGE_NAME }}" README.md; then
                     echo "README is up to date."
                     echo "README_NEEDS_UPDATE=false" >> $GITHUB_ENV
                   else
@@ -161,7 +161,7 @@ jobs:
               if: env.README_NEEDS_UPDATE == 'true'
               run: |
                   echo "Replacing coverage badge URL in README.md"
-                  sed -i "s|raw/*.txt|raw/${env.BADGE_NAME}" README.md
+                  sed -i "s|raw/*.txt|raw/${BADGE_NAME}" README.md
                   echo "Updated README:"
                   cat README.md
 
