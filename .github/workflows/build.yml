@@ -1,4 +1,4 @@
-name: Checks
+name: Lint, Format & Test
 
 on: [push, pull_request]
 
@@ -142,7 +142,7 @@ jobs:
               uses: schneegans/dynamic-badges-action@v1.7.0
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
-                  gistID: 94f9182f0a9c3c48c35477c65f056c4d
+                  gistID: bfba49c1003e973932c4de7dcc3e969a
                   filename: ${{ env.REPO_NAME }}_${{ env.SANITIZED_BRANCH_NAME }}.txt
                   label: Coverage
                   message: ${{ env.TOTAL }}%
