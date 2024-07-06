@@ -122,8 +122,8 @@ jobs:
                   coverage_report=$(coverage report)
                   echo "$coverage_report" | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
                   total_coverage=$(echo "$coverage_report" | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
-                  echo "total=${total_coverage}" >> $GITHUB_ENV
-                  python -Im coverage report --fail-under=20
+                  echo "TOTAL=${total_coverage}" >> $GITHUB_ENV
+                  python -Im coverage report --fail-under=50
 
             - name: Upload HTML report if check failed
               uses: actions/upload-artifact@v4
@@ -131,27 +131,29 @@ jobs:
                   name: html-report
                   path: htmlcov
               if: ${{ failure() }}
+
             - name: Sanitize branch name
+              id: sanitize_branch
               run: |
                   sanitized_branch_name="${GITHUB_REF#refs/heads/}"
                   sanitized_branch_name="${sanitized_branch_name//\//_}"
                   echo "SANITIZED_BRANCH_NAME=${sanitized_branch_name}" >> $GITHUB_ENV
 
-            - name: Debugging
+            - name: Extract repository name
+              id: extract_repo
               run: |
-                  echo "Branch: ${{ github.ref_name }}"
-                  echo "Sanitized Branch: ${{ env.SANITIZED_BRANCH_NAME }}"
-                  echo "Gist file: ${{ github.repository }}_${{ env.SANITIZED_BRANCH_NAME }}.txt"
+                  repo_name="${GITHUB_REPOSITORY#*/}"
+                  echo "REPO_NAME=${repo_name}" >> $GITHUB_ENV
 
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
                   gistID: 94f9182f0a9c3c48c35477c65f056c4d
-                  filename: ${{ github.repository }}_${{ env.SANITIZED_BRANCH_NAME }}.txt
+                  filename: ${{ env.REPO_NAME }}_${{ env.SANITIZED_BRANCH_NAME }}.txt
                   label: Coverage
-                  message: ${{ env.total }}%
+                  message: ${{ env.TOTAL }}%
                   minColorRange: 50
                   maxColorRange: 90
-                  valColorRange: ${{ env.total }}
+                  valColorRange: ${{ env.TOTAL }}
                   forceUpdate: true
