@@ -31,3 +31,11 @@ The `setup.sh` script automates the initial configuration of your development en
 -   shell-format: Formatter for shell scripts.
 
 The script also creates a virtual environment from the `requirements.txt`, sets up configuration files for VSCode and Python. This ensures that everyone has a consistent workspace, reducing setup time, review time, and facilitating smoother collaboration.
+
+## 💫 Quick Start
+
+Before using any scripts or tools, activate the virtual environment:
+
+```shell
+source env/bin/activate
+```
