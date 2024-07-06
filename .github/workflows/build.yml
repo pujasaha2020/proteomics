@@ -155,14 +155,14 @@ jobs:
                   if grep -q "![Coverage](${{ env.BADGE_URL }})" README.md; then
                     echo "README is up to date."
                     echo "README_NEEDS_UPDATE=false" >> $GITHUB_ENV
-                    if grep -q "![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/*.txt)" README.md; then
-                      echo "Coverage badge present in README"
-                    else
-                      echo "Coverage badge absent in README"
-                    fi
                   else
                     echo "README needs update."
                     echo "README_NEEDS_UPDATE=true" >> $GITHUB_ENV
+                    if grep -q "![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/*.txt)" README.md; then
+                      echo "Coverage badge absent in README"
+                    else
+                      echo "Coverage badge present in README"
+                    fi
                   fi
               shell: bash
 
