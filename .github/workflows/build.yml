@@ -165,7 +165,7 @@ jobs:
               if: env.README_NEEDS_UPDATE == 'true'
               run: |
                   echo "Replacing coverage badge URL in README.md"
-                  sed -i "s|![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/.*)|![Coverage](${BADGE_URL})|" README.md
+                  sed -i 's|![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/.*)|![Coverage]('${{ env.BADGE_URL }}')|' README.md
                   echo "Updated README:"
                   cat README.md
 
