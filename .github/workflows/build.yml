@@ -139,8 +139,8 @@ jobs:
                   filename: ${{ env.BADGE_NAME }}.txt
                   label: Coverage
                   message: ${{ env.TOTAL }}%
-                  minColorRange: 50
-                  maxColorRange: 90
+                  minColorRange: 30
+                  maxColorRange: 80
                   valColorRange: ${{ env.TOTAL }}
                   forceUpdate: true
 
