@@ -132,6 +132,11 @@ jobs:
                   path: htmlcov
               if: ${{ failure() }}
 
+            - name: Debugging
+              run: |
+                  echo "Branch: ${{ github.ref_name }}"
+                  echo "Coverage: ${{ env.TOTAL_COVERAGE }}"
+
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
               with:
