@@ -140,7 +140,8 @@ jobs:
             - name: Debugging
               run: |
                   echo "Branch: ${{ github.ref_name }}"
-                  echo "Coverage: ${{ env.total }}"
+                  echo "Clean Branch: ${{ env.branch }}"
+
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
               with:
