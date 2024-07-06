@@ -132,17 +132,21 @@ jobs:
                   path: htmlcov
               if: ${{ failure() }}
 
+            - name: Sanitize branch name
+              run: |
+                  branch_name=$(echo "${GITHUB_REF##*/}" | tr '/' '_')
+                  echo "filename=${branch_name}_cov" >> $GITHUB_ENV
+
             - name: Debugging
               run: |
                   echo "Branch: ${{ github.ref_name }}"
-                  echo "Coverage: ${{ env.TOTAL_COVERAGE }}"
-
+                  echo "Coverage: ${{ env.total }}"
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
                   gistID: 94f9182f0a9c3c48c35477c65f056c4d
-                  filename: ${{ github.ref_name }}_coverage.txt
+                  filename: ${{ env.filename }}.txt
                   label: Coverage
                   message: ${{ env.total }}%
                   minColorRange: 50
