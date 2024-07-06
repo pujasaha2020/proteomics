@@ -158,6 +158,11 @@ jobs:
               run: |
                   sed -i "s|raw/.*.txt|raw/${BADGE_NAME}.txt|" README.md
 
+            - name: Checkout branch for commit
+              if: github.event_name == 'pull_request'
+              run: |
+                  git checkout -b ${GITHUB_HEAD_REF} ${GITHUB_SHA}
+
             - name: Commit updated README
               if: env.README_NEEDS_UPDATE == 'true'
               run: |
@@ -165,6 +170,6 @@ jobs:
                   git config --global user.email 'github-actions@github.com'
                   git add README.md
                   git commit -m "Update coverage badge URL"
-                  git push
+                  git push origin HEAD:${{ github.head_ref }}
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
