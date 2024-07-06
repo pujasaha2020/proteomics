@@ -134,8 +134,8 @@ jobs:
 
             - name: Sanitize branch name
               run: |
-                  branch_name=$(echo "${GITHUB_REF##*/}" | tr '/' '_')
-                  echo "filename=${branch_name}_cov" >> $GITHUB_ENV
+                  clean_branch=$(echo "${GITHUB_REF##*/}" | tr '/' '_')
+                  echo "branch=${clean_branch}" >> $GITHUB_ENV
 
             - name: Debugging
               run: |
@@ -146,7 +146,7 @@ jobs:
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
                   gistID: 94f9182f0a9c3c48c35477c65f056c4d
-                  filename: ${{ env.filename }}.txt
+                  filename: ${{ github.repository }}_${{ env.branch }}.txt
                   label: Coverage
                   message: ${{ env.total }}%
                   minColorRange: 50
