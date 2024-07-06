@@ -78,9 +78,15 @@ jobs:
             - name: Set PYTHONPATH
               run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
 
+            - name: Create .coveragerc
+              run: |
+                  echo "[run]" > .coveragerc
+                  echo "omit = tests/*" >> .coveragerc
+
             - name: Run tests and coverage
               run: |
-                  pytest --cov=$(pwd) tests/
+                  source env/bin/activate
+                  pytest --cov=$(pwd) --cov-config=.coveragerc tests/
 
             - name: Upload coverage data
               uses: actions/upload-artifact@v4
