@@ -12,4 +12,7 @@ For detailed guidance on using the Box Python SDK and OAuth 2.0, please refer to
 -   [Box Python SDK GitHub Repository](https://github.com/box/box-python-sdk-gen):
     The official GitHub repository for the Box Python SDK. Here, you can find the source code, examples, and documentation to help you utilize the SDK to its fullest. The repository includes information on installing the SDK, using its various features, and troubleshooting common issues.
 
+-   [Box Python SDK GENERATED](https://pypi.org/project/box-sdk-gen/):
+    This is an incoming package to use Box Cloud, but is still under development.
+
 By following these resources, you can gain a deeper understanding of how to authenticate with Box using OAuth 2.0 and leverage the full capabilities of the Box Python SDK.
