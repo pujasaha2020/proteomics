@@ -122,75 +122,6 @@ EOF
 }
 
 #######################################################
-# Function to create .github/workflows/checks.yml
-create_github_workflow() {
-    local checks_yml_content='name: Checks
-
-on: [push, pull_request]
-
-jobs:
-    checks:
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.12"
-
-            - name: Cache dependencies
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      ~/.cache/pip
-                  key: ${{ runner.os }}-pip-${{ hashFiles('\''**/requirements.txt'\'') }}
-                  restore-keys: |
-                      ${{ runner.os }}-pip-
-
-            - name: Install dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
-                  pip install black pylint isort mypy pytest
-                  python -m pip install types-PyYAML
-
-            - name: Run Black
-              run: black --check .
-
-            - name: Run Pylint
-              run: pylint **/*.py
-
-            - name: Run Isort
-              run: isort --check-only .
-
-            - name: Run Mypy
-              run: mypy .
-
-            - name: Run Tests
-              run: |
-                  if ls tests/*.py 1> /dev/null 2>&1; then
-                      pytest
-                  else
-                      echo "No test files found"
-                  fi
-
-'
-
-    # Create the .github/workflows directory if it doesn't exist
-    mkdir -p .github/workflows
-
-    # Write the content to the checks.yml file
-    echo "$checks_yml_content" >.github/workflows/checks.yml
-
-    echo "GitHub Action saved."
-    echo "----------------------------"
-
-}
-
-#######################################################
 # Function to create .gitignore
 create_gitignore() {
     local gitignore_content='.vscode/
@@ -203,8 +134,8 @@ __pycache__/
 *.pyd
 *.DS_Store
 .env
-box/*.yaml,
-.pytest_cache,
+box/*.yaml
+.pytest_cache
 .coverage
 '
 
@@ -267,9 +198,6 @@ install_vscode_extensions
 
 # Create .vscode/settings.json
 create_vscode_settings
-
-# Create .github/workflows/checks.yml
-create_github_workflow
 
 # Create .gitignore
 create_gitignore
