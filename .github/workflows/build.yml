@@ -48,7 +48,10 @@ jobs:
             - name: Run Isort
               run: isort --check-only $(git ls-files '*.py')
 
-    Tests:
+            - name: Run mypy
+              run: mypy $(pwd)
+
+    Test:
         runs-on: ubuntu-latest
 
         steps:
@@ -91,7 +94,7 @@ jobs:
 
     Coverage:
         name: Coverage
-        needs: Tests
+        needs: Test
         runs-on: ubuntu-latest
         steps:
             - name: Check out the repo
@@ -120,13 +123,11 @@ jobs:
                   echo "TOTAL=${total_coverage}" >> $GITHUB_ENV
 
             - name: Extract badge name
-              id: sanitize_branch
               run: |
                   branch_name="${GITHUB_REF#refs/heads/}"
                   sanitized_branch_name="${branch_name//\//_}"
                   repo_name="${GITHUB_REPOSITORY#*/}"
                   echo "BADGE_NAME=${repo_name}_${sanitized_branch_name}" >> $GITHUB_ENV
-                  echo "BADGE_NAME=${BADGE_NAME}"
 
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
@@ -144,27 +145,16 @@ jobs:
             - name: Check if README needs update
               run: |
                   if grep -q "${{ env.BADGE_NAME }}" README.md; then
-                    echo "README is up to date."
                     echo "README_NEEDS_UPDATE=false" >> $GITHUB_ENV
                   else
-                    echo "README needs update."
                     echo "README_NEEDS_UPDATE=true" >> $GITHUB_ENV
-                    if grep -q "raw/*.txt" README.md; then
-                      echo "Coverage badge absent in README"
-                    else
-                      echo "Coverage badge present in README"
-                    fi
                   fi
               shell: bash
 
             - name: Update README with badge URL
               if: env.README_NEEDS_UPDATE == 'true'
               run: |
-                  echo "Replacing coverage badge URL in README.md"
-                  echo "raw/${BADGE_NAME}.txt"
                   sed -i "s|raw/.*.txt|raw/${BADGE_NAME}.txt|" README.md
-                  echo "Updated README:"
-                  cat README.md
 
             - name: Commit updated README
               if: env.README_NEEDS_UPDATE == 'true'
