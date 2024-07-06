@@ -155,6 +155,11 @@ jobs:
                   if grep -q "![Coverage](${{ env.BADGE_URL }})" README.md; then
                     echo "README is up to date."
                     echo "README_NEEDS_UPDATE=false" >> $GITHUB_ENV
+                    if grep -q "![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/*.txt)" README.md; then
+                      echo "Coverage badge present in README"
+                    else
+                      echo "Coverage badge absent in README"
+                    fi
                   else
                     echo "README needs update."
                     echo "README_NEEDS_UPDATE=true" >> $GITHUB_ENV
@@ -165,7 +170,7 @@ jobs:
               if: env.README_NEEDS_UPDATE == 'true'
               run: |
                   echo "Replacing coverage badge URL in README.md"
-                  sed -i 's|![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/.*.txt)|![Coverage]('${{ env.BADGE_URL }}')|' README.md
+                  sed -i "s|![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/AdrienSpecht/bfba49c1003e973932c4de7dcc3e969a/raw/*.txt)|![Coverage](${{ env.BADGE_URL }})|" README.md
                   echo "Updated README:"
                   cat README.md
 
