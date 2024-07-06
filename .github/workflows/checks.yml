@@ -141,6 +141,7 @@ jobs:
               run: |
                   echo "Branch: ${{ github.ref_name }}"
                   echo "Sanitized Branch: ${{ env.SANITIZED_BRANCH_NAME }}"
+                  echo "Gist file: ${{ github.repository }}_${{ env.SANITIZED_BRANCH_NAME }}.txt"
 
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
