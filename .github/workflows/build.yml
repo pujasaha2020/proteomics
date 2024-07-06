@@ -161,7 +161,8 @@ jobs:
               if: env.README_NEEDS_UPDATE == 'true'
               run: |
                   echo "Replacing coverage badge URL in README.md"
-                  sed -i "s|raw/*.txt|raw/${BADGE_NAME}|" README.md
+                  echo "raw/${BADGE_NAME}.txt"
+                  sed -i "s|raw/.*.txt|raw/${BADGE_NAME}.txt|" README.md
                   echo "Updated README:"
                   cat README.md
 
