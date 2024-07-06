@@ -30,4 +30,4 @@ The `setup.sh` script automates the initial configuration of your development en
 -   black: Code formatter adhering to [PEP 8](https://pep8.org/).
 -   shell-format: Formatter for shell scripts.
 
-The script also creates a virtual environment from the `requirements.txt`, sets up configuration files for VSCode and GitHub Actions, and configures your Python path. This ensures that everyone has a consistent workspace, reducing setup time, review time, and facilitating smoother collaboration.
+The script also creates a virtual environment from the `requirements.txt`, sets up configuration files for VSCode and Python. This ensures that everyone has a consistent workspace, reducing setup time, review time, and facilitating smoother collaboration.
