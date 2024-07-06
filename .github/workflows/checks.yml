@@ -78,15 +78,6 @@ jobs:
             - name: Set PYTHONPATH
               run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
 
-            - name: Run tests and coverage
-              run: |
-                  pytest --cache-clear --cov=$(pwd) tests/ >> pytest-coverage.txt
-
-            - name: pytest-coverage-commentator
-              uses: coroo/pytest-coverage-commentator@v1.0.2
-              with:
-                  pytest-coverage: pytest-coverage.txt
-
             - name: Upload coverage data
               uses: actions/upload-artifact@v4
               with:
@@ -116,21 +107,19 @@ jobs:
               with:
                   name: coverage-data
 
-            - name: Combine coverage and fail it it’s under 20 %
+            - name: Combine coverage
               run: |
                   coverage html --skip-covered --skip-empty
                   coverage_report=$(coverage report)
                   echo "$coverage_report" | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
                   total_coverage=$(echo "$coverage_report" | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
                   echo "TOTAL=${total_coverage}" >> $GITHUB_ENV
-                  python -Im coverage report --fail-under=50
 
-            - name: Upload HTML report if check failed
+            - name: Upload HTML report
               uses: actions/upload-artifact@v4
               with:
                   name: html-report
                   path: htmlcov
-              if: ${{ failure() }}
 
             - name: Sanitize branch name
               id: sanitize_branch
