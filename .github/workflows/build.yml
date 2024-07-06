@@ -85,7 +85,6 @@ jobs:
 
             - name: Run tests and coverage
               run: |
-                  source env/bin/activate
                   pytest --cov=$(pwd) --cov-config=.coveragerc tests/
 
             - name: Upload coverage data
