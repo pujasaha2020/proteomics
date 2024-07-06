@@ -131,18 +131,23 @@ jobs:
                   name: html-report
                   path: htmlcov
               if: ${{ failure() }}
+            - name: Sanitize branch name
+              run: |
+                  sanitized_branch_name="${GITHUB_REF#refs/heads/}"
+                  sanitized_branch_name="${sanitized_branch_name//\//_}"
+                  echo "SANITIZED_BRANCH_NAME=${sanitized_branch_name}" >> $GITHUB_ENV
 
             - name: Debugging
               run: |
                   echo "Branch: ${{ github.ref_name }}"
-                  echo "Clean Branch: ${{ github.ref_name//\//_ }}"
+                  echo "Sanitized Branch: ${{ env.SANITIZED_BRANCH_NAME }}"
 
             - name: Create badge
               uses: schneegans/dynamic-badges-action@v1.7.0
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
                   gistID: 94f9182f0a9c3c48c35477c65f056c4d
-                  filename: ${{ github.repository }}_${{ github.ref_name//\//_ }}.txt
+                  filename: ${{ github.repository }}_${{ SANITIZED_BRANCH_NAME }}.txt
                   label: Coverage
                   message: ${{ env.total }}%
                   minColorRange: 50
