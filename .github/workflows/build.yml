@@ -119,12 +119,6 @@ jobs:
                   total_coverage=$(echo "$coverage_report" | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
                   echo "TOTAL=${total_coverage}" >> $GITHUB_ENV
 
-            - name: Upload HTML report
-              uses: actions/upload-artifact@v4
-              with:
-                  name: html-report
-                  path: htmlcov
-
             - name: Sanitize branch name
               id: sanitize_branch
               run: |
@@ -164,6 +158,7 @@ jobs:
                   else
                     echo "README needs update."
                     echo "README_NEEDS_UPDATE=true" >> $GITHUB_ENV
+                  fi
               shell: bash
 
             - name: Update README with badge URL
