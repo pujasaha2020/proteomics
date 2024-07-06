@@ -32,6 +32,8 @@ The `setup.sh` script automates the initial configuration of your development en
 
 The script also creates a virtual environment from the `requirements.txt`, sets up configuration files for VSCode and Python. This ensures that everyone has a consistent workspace, reducing setup time, review time, and facilitating smoother collaboration.
 
+Note that you might need to close and restart VSCode to activate the extensions.
+
 ## 💫 Quick Start
 
 Before using any scripts or tools, activate the virtual environment:
