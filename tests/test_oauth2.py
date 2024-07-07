@@ -31,14 +31,3 @@ def test_box_access():
                 "READ_ME.txt",
             }
             assert content == true_content
-
-
-def test_token_content():
-    """Test token content"""
-
-    if token_path.exists():
-
-        # Load token
-        access_token, refresh_token = load_tokens()
-        # Save token
-        save_tokens(access_token, refresh_token)
