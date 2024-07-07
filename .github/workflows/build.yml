@@ -125,6 +125,7 @@ jobs:
                   echo "TOTAL=${total_coverage}" >> $GITHUB_ENV
 
             - name: Extract badge name
+              if: github.event_name == 'push'
               run: |
                   branch_name="${GITHUB_REF#refs/heads/}"
                   sanitized_branch_name="${branch_name//\//_}"
@@ -132,6 +133,7 @@ jobs:
                   echo "BADGE_NAME=${repo_name}_${sanitized_branch_name}" >> $GITHUB_ENV
 
             - name: Create badge
+              if: github.event_name == 'push'
               uses: schneegans/dynamic-badges-action@v1.7.0
               with:
                   auth: ${{ secrets.GIST_TOKEN }}
@@ -145,6 +147,7 @@ jobs:
                   forceUpdate: true
 
             - name: Check if README needs update
+              if: github.event_name == 'push'
               run: |
                   if grep -q "${{ env.BADGE_NAME }}" README.md; then
                     echo "README_NEEDS_UPDATE=false" >> $GITHUB_ENV
@@ -154,22 +157,17 @@ jobs:
               shell: bash
 
             - name: Update README with badge URL
-              if: env.README_NEEDS_UPDATE == 'true'
+              if: github.event_name == 'push' && env.README_NEEDS_UPDATE == 'true'
               run: |
                   sed -i "s|raw/.*.txt|raw/${BADGE_NAME}.txt|" README.md
 
-            - name: Checkout branch for commit
-              if: github.event_name == 'pull_request'
-              run: |
-                  git checkout -b ${GITHUB_HEAD_REF} ${GITHUB_SHA}
-
             - name: Commit updated README
-              if: env.README_NEEDS_UPDATE == 'true'
+              if: github.event_name == 'push' && env.README_NEEDS_UPDATE == 'true'
               run: |
                   git config --global user.name 'github-actions'
                   git config --global user.email 'github-actions@github.com'
                   git add README.md
                   git commit -m "Update coverage badge URL"
-                  git push origin HEAD:${{ github.head_ref }}
+                  git push
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
