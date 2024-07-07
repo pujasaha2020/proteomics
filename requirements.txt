@@ -1,0 +1,5 @@
+pyyaml==6.0.1
+boxsdk==3.11.0
+pandas==2.2.2
+matplotlib==3.9.1
+ipykernel==6.29.5
