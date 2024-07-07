@@ -3,6 +3,8 @@
 import warnings
 from pathlib import Path
 
+from box.oauth2 import get_box_folder
+
 # Define the path to the tokens
 token_path = Path("../box/tokens.yaml")
 
