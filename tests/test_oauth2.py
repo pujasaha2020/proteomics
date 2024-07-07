@@ -3,16 +3,16 @@
 import warnings
 from pathlib import Path
 
-from box.oauth2 import get_box_folder
+from box.oauth2 import get_box_folder, load_tokens, save_tokens
+
+# Define the path to the tokens
+token_path = Path("../box/tokens.yaml")
 
 
 def test_box_access():
     """Test access to Box proteomics folder"""
 
-    # Define the path to the tokens
-    tokens = Path("../box/tokens.yaml")
-
-    if tokens.exists():
+    if token_path.exists():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
 
@@ -31,3 +31,14 @@ def test_box_access():
                 "READ_ME.txt",
             }
             assert content == true_content
+
+
+def test_token_content():
+    """Test token content"""
+
+    if token_path.exists():
+
+        # Load token
+        access_token, refresh_token = load_tokens()
+        # Save token
+        save_tokens(access_token, refresh_token)
