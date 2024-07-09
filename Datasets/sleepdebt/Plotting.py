@@ -199,7 +199,7 @@ def get_title(exp):
         return "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
     elif pro == "protocol8_9":
         return "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
-    elif pro == "protocol9:
+    elif pro == "protocol9":
         return "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
     elif pro == "protocol10":
         return "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
