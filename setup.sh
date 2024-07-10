@@ -89,7 +89,7 @@ create_vscode_settings() {
     "[ignore]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
-    "editor.tabSize": 3,
+    "editor.tabSize": 4,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "notebook.formatOnSave.enabled": true,
