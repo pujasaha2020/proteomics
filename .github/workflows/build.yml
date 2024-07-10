@@ -81,8 +81,7 @@ jobs:
             - name: Create .coveragerc
               run: |
                   echo "[run]" > .coveragerc
-                  echo "omit = tests/*" >> .coveragerc
-                  echo "omit = box/*" >> .coveragerc
+                  echo "omit = tests/*, box/*" >> .coveragerc
 
             - name: Run tests and coverage
               run: |
