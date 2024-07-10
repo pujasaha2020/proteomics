@@ -16,7 +16,6 @@ class BoxManager:
     """Provide user with utility functions for box"""
 
     def __init__(self):
-        # show current pwd
         self.token_path = Path("box/tokens.yaml")
         if self.token_path.exists():
             self.client = get_box_client()
