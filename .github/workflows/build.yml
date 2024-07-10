@@ -82,21 +82,7 @@ jobs:
               run: |
                   echo "[run]" > .coveragerc
                   echo "omit = tests/*" >> .coveragerc
-
-            - name: Print environment variables
-              run: printenv
-
-            - name: List directory contents
-              run: ls -R
-
-            - name: Check Python version
-              run: python --version
-
-            - name: Check installed packages
-              run: pip list
-
-            - name: Discover tests
-              run: pytest --collect-only
+                  echo "omit = box/*" >> .coveragerc
 
             - name: Run tests and coverage
               run: |
