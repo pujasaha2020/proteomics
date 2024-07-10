@@ -26,7 +26,6 @@ class BoxManager:
     Provide user with utility functions for Box.
 
     The root folder is called 'proteomics' and is structured as follows:
-
     - raw_data: contains cortisol, melatonin, proteins, and temperature data.
     - doc: contains additional information from labs / companies.
     - archives: contains useful formatted datasets.
