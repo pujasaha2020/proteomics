@@ -170,7 +170,7 @@ create_virtual_env() {
         pip install --upgrade pip
         pip install -r requirements.txt
         echo "Installed packages from requirements.txt."
-        python -m pip install types-PyYAML coverage pytest-cov
+        python -m pip install types-PyYAML coverage pytest-cov pytest-mock
     else
         echo "requirements.txt not found. Skipping package installation."
     fi
