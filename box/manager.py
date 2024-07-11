@@ -48,8 +48,6 @@ class BoxManager:
         if self.token_path.exists():
             self.client = get_box_client()
             self.proteomics = self.client.folder(folder_id=FOLDER_ID).get()
-        else:
-            print("Box token file is not accessible.")
 
     def get_id(self, path: Path, folder: Folder) -> str:
         """Get box file id (recursive)"""
