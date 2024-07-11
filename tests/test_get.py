@@ -9,16 +9,23 @@ from utils.get import get_box, get_debt, get_proteomics, get_somalogic
 
 # Apply the filterwarnings marker to all tests in this file
 pytestmark = pytest.mark.filterwarnings("ignore:Package 'boxsdk'*:DeprecationWarning")
+TOKEN_PATH = Path("box/tokens.yaml")
 
 
 def test_get_box():
     """Test get_box function"""
-    box = get_box()
-    assert isinstance(box, BoxManager)
+    if not TOKEN_PATH.exists():
+        with pytest.raises(ValueError):
+            get_box()
+    else:
+        box = get_box()
+        assert isinstance(box, BoxManager)
 
 
 def test_get_proteomics():
     """Test get_proteomics function"""
+    if not TOKEN_PATH.exists():
+        pytest.skip("Box token file is not accessible, skipping box tests.")
     box = get_box()
     # Test with default path
     get_proteomics(box)
@@ -30,6 +37,8 @@ def test_get_proteomics():
 
 def test_get_somalogic():
     """Test get_somalogic function"""
+    if not TOKEN_PATH.exists():
+        pytest.skip("Box token file is not accessible, skipping box tests.")
     box = get_box()
     # Test with default path
     get_somalogic(box)
@@ -41,6 +50,8 @@ def test_get_somalogic():
 
 def test_get_debt():
     """Test get_debt function"""
+    if not TOKEN_PATH.exists():
+        pytest.skip("Box token file is not accessible, skipping box tests.")
     box = get_box()
     # Test with default path
     get_debt(box)
