@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from box.manager import BoxManager
-from utils.checks import check_debt, check_proteomics, check_somalogic
+from utils.checks import check_df
 
 # Default paths
 PATH = {
@@ -36,10 +36,7 @@ def get_proteomics(box: BoxManager, path: Path = PATH["proteomics"]) -> pd.DataF
         ("ids", "sample_id"): str,
     }
     df = pd.read_csv(file, header=[0, 1], dtype=dtype, low_memory=False)
-    try:
-        check_proteomics(df)
-    except AssertionError as e:
-        raise AssertionError(f"{path} does not meet expected format.") from e
+    check_df(df, "proteomics", path)
     df[("profile", "clock_time")] = pd.to_datetime(
         df.profile.clock_time, format="mixed"
     )
@@ -50,10 +47,7 @@ def get_somalogic(box: BoxManager, path: Path = PATH["somalogic"]) -> pd.DataFra
     """Get somalogic table from Box"""
     file = box.get_file(path)
     df = pd.read_csv(file, index_col=0, low_memory=False)
-    try:
-        check_somalogic(df)
-    except AssertionError as e:
-        raise AssertionError(f"{path} does not meet expected format.") from e
+    check_df(df, "somalogic", path)
     return df
 
 
@@ -68,8 +62,5 @@ def get_debt(box: BoxManager, path: Path = PATH["debt"]) -> pd.DataFrame:
         "sample_id": str,
     }
     df = pd.read_csv(file, dtype=dtype)
-    try:
-        check_debt(df)
-    except AssertionError as e:
-        raise AssertionError(f"{path} does not meet expected format.") from e
+    check_df(df, "debt", path)
     return df

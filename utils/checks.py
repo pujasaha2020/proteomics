@@ -1,6 +1,23 @@
 """Check functions for dataframes"""
 
+from pathlib import Path
+
 import pandas as pd
+
+
+def check_df(df: pd.DataFrame, what: str, path: Path):
+    """Ensure dataframe is correctly formatted"""
+    if what not in {"proteomics", "somalogic", "debt"}:
+        raise ValueError(f"Unknown dataframe type: {what}")
+    check_fun = {
+        "proteomics": check_proteomics,
+        "somalogic": check_somalogic,
+        "debt": check_debt,
+    }
+    try:
+        check_fun[what](df)
+    except AssertionError as e:
+        raise AssertionError(f"{path} does not meet expected format.") from e
 
 
 def check_proteomics(df: pd.DataFrame):
