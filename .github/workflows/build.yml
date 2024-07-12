@@ -34,7 +34,7 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install -r requirements.txt
                   pip install black pylint isort pytest
-                  python -m pip install types-PyYAML
+                  python -m pip install types-PyYAML pytest-mock
 
             - name: Set PYTHONPATH
               run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
