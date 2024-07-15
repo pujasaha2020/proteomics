@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from box.manager import BoxManager
-from utils.checks import check_df
+from utils.check import check_df
 
 # Default paths
 PATH = {
