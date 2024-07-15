@@ -80,8 +80,10 @@ jobs:
 
             - name: Create .coveragerc
               run: |
-                  echo "[run]" > .coveragerc
-                  echo "omit = tests/*, box/*" >> .coveragerc
+                  echo "[run]
+                  omit = tests/*, env/*
+                  [report]
+                  include_namespace_packages = True" > .coveragerc
 
             - name: Run tests and coverage
               run: |
