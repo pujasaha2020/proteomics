@@ -1,9 +1,22 @@
 """Provide user with processing functions"""
 
+import numpy as np
 import pandas as pd
 
 from box.manager import BoxManager
 from utils.get import get_somalogic
+
+
+def drop_samples_without_proteins(df: pd.DataFrame) -> pd.DataFrame:
+    """Drop rows with all NaN proteins"""
+    proteins = [col for col in df.columns if col[0] == "proteins"]
+    return df.dropna(subset=proteins, how="all").reset_index(drop=True)
+
+
+def log_normalize_proteins(df: pd.DataFrame) -> pd.DataFrame:
+    """Log normalize protein values"""
+    df["proteins"] = df.proteins.apply(np.log10)
+    return df
 
 
 def drop_high_cv_proteins(

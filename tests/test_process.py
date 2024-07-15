@@ -1,11 +1,18 @@
 """Tests for the process module"""
 
+import numpy as np
 import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
 
 from box.manager import BoxManager
-from utils.process import bridge_v40_to_v41, drop_high_cv_proteins, drop_old_samples
+from utils.process import (
+    bridge_v40_to_v41,
+    drop_high_cv_proteins,
+    drop_old_samples,
+    drop_samples_without_proteins,
+    log_normalize_proteins,
+)
 
 
 @pytest.fixture(name="somalogic")
@@ -59,7 +66,6 @@ def test_drop_high_cv_proteins(
         ("proteins", "seq_id4"): [10, 11, 12],
     }
     expected_df = pd.DataFrame(expected_data, dtype=float)
-
     result_df = drop_high_cv_proteins(box, df_high_cv, max_cv=0.15)
     pd.testing.assert_frame_equal(result_df, expected_df)
 
@@ -86,7 +92,6 @@ def test_drop_old_samples(df_old: pd.DataFrame):
     protein_names = [f"seq_id{i}" for i in range(2005)]
     index = pd.MultiIndex.from_product([["proteins"], protein_names])
     expected_df = pd.DataFrame(expected_data, index=index, dtype=float).transpose()
-
     result_df = drop_old_samples(df_old)
     pd.testing.assert_frame_equal(result_df, expected_df)
 
@@ -131,6 +136,44 @@ def test_bridge_v40_to_v41(
     }
     expected_df = pd.DataFrame(expected_data, dtype=float)
     expected_df[("infos", "fluid")] = ["edta", "edta", "heparin", "serum"]
-
     result_df = bridge_v40_to_v41(box, df_bridge, min_ccc=0.75)
+    pd.testing.assert_frame_equal(result_df, expected_df)
+
+
+################# DROP SAMPLES WITHOUT PROTEINS #################
+@pytest.fixture(name="df_no_proteins_log")
+def input_df_no_proteins() -> pd.DataFrame:
+    """Return a dataframe without proteins columns"""
+    data = {
+        ("proteins", "seq_id1"): [None, 2, 3],
+        ("proteins", "seq_id2"): [None, 5, 6],
+        ("proteins", "seq_id3"): [None, None, 9],
+        ("infos", "age"): [15, 10, 20],
+    }
+    return pd.DataFrame(data, dtype=float)
+
+
+def test_drop_samples_without_proteins(df_no_proteins_log: pd.DataFrame):
+    """Test drop_samples_without_proteins function"""
+    expected_data = {
+        ("proteins", "seq_id1"): [2, 3],
+        ("proteins", "seq_id2"): [5, 6],
+        ("proteins", "seq_id3"): [None, 9],
+        ("infos", "age"): [10, 20],
+    }
+    expected_df = pd.DataFrame(expected_data, dtype=float)
+    result_df = drop_samples_without_proteins(df_no_proteins_log)
+    pd.testing.assert_frame_equal(result_df, expected_df)
+
+
+def test_log_normalize_proteins(df_no_proteins_log: pd.DataFrame):
+    """Test log_normalize_proteins function"""
+    expected_data = {
+        ("proteins", "seq_id1"): [None, np.log10(2), np.log10(3)],
+        ("proteins", "seq_id2"): [None, np.log10(5), np.log10(6)],
+        ("proteins", "seq_id3"): [None, None, np.log10(9)],
+        ("infos", "age"): [15, 10, 20],
+    }
+    expected_df = pd.DataFrame(expected_data, dtype=float)
+    result_df = log_normalize_proteins(df_no_proteins_log)
     pd.testing.assert_frame_equal(result_df, expected_df)
