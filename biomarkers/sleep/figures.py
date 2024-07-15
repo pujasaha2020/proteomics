@@ -3,7 +3,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib_venn import venn3  # type: ignore
+from matplotlib_venn import venn2, venn3  # type: ignore
+
+# Define the colors
+COLORS = {"acute": "tab:red", "chronic": "tab:green", "sleep": "tab:purple"}
 
 
 def plot_sample_per_subject_per_study(df: pd.DataFrame):
@@ -27,6 +30,7 @@ def plot_specificity_vs_sensitivity(results: pd.DataFrame, max_pvalue: float) ->
     max_candidates.sort()
     my_max_idx = np.argwhere(max_candidates == max_pvalue)[0, 0]
     data: dict[str, list[int]] = {"acute": [], "chronic": []}  # , "sleep": []}
+    proteins = {}
     for candidate in max_candidates:
         buffer = {}
         for key, val in data.items():
@@ -37,12 +41,11 @@ def plot_specificity_vs_sensitivity(results: pd.DataFrame, max_pvalue: float) ->
         if candidate == max_pvalue:
             proteins = buffer.copy()
 
-    my_colors = {"acute": "tab:red", "chronic": "tab:green", "sleep": "tab:purple"}
     plt.figure()
     plt.title(r"Specificity VS Sensibility")
     for key, val in data.items():
         label = f"{key.capitalize()} ({val[my_max_idx]})"
-        plt.plot(max_candidates, val, label=label, color=my_colors[key])
+        plt.plot(max_candidates, val, label=label, color=COLORS[key])
     plt.axvline(x=max_pvalue, ls="--", c="k", label=r"$p_{max}$" + f"={max_pvalue}")
     plt.ylabel("Number of proteins")
     plt.xlabel(r"$p_{fdr}$")
@@ -58,5 +61,11 @@ def plot_venn_diagram(proteins: dict):
     plt.title("Venn diagram of significant proteins")
     my_sets = list(map(set, proteins.values()))
     my_labels = list(map(str.capitalize, proteins.keys()))
-    venn3(my_sets, my_labels)
+    my_colors = list(map(lambda x: COLORS[x], proteins.keys()))
+    if len(my_sets) == 2:
+        venn2(subsets=my_sets, set_labels=my_labels, set_colors=my_colors)
+    elif len(my_sets) == 3:
+        venn3(subsets=my_sets, set_labels=my_labels, set_colors=my_colors)
+    else:
+        raise ValueError("Only 2 or 3 sets are supported")
     plt.show()
