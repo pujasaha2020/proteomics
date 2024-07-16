@@ -35,19 +35,21 @@ def preprocess_data(
     df = log_normalize_proteins(df)
     df = df.droplevel(0, axis=1)
     df = df.merge(debts[["sample_id", "l", "s"]], on="sample_id", how="left")
-    df["sleep"] = (df["state"] == "sleep").astype(int)
+    df["sleep"] = df.state.map({"sleep": 1.0, "wake": 0.0})
     df.rename(columns={"s": "acute", "l": "chronic"}, inplace=True)
     df.dropna(subset=["acute", "chronic", "sleep"], how="any", inplace=True)
     if plot:
         plot_sample_per_subject_per_study(df)
     non_significant = df.groupby("subject").size() < min_group_size
+    if non_significant.all():
+        raise ValueError("All subjects have less than min_group_size samples.")
     df.drop(df.loc[df["subject"].map(non_significant)].index, inplace=True)
     df.dropna(axis=1, how="all", inplace=True)
     proteins = list(set(proteins).intersection(df.columns))
-    return dict(map(lambda p: prepare_lme_data(df, p), proteins))
+    return dict(map(lambda p: prepare_lme_data(p, df), proteins))
 
 
-def prepare_lme_data(df: pd.DataFrame, protein: str) -> tuple[str, pd.DataFrame]:
+def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]:
     """
     Prepare the data for the LME model
     - Drop missing values
@@ -79,6 +81,7 @@ def run_lme_sleep(data: pd.DataFrame) -> dict:
         ("infos", "#samples"): len(data),
         ("infos", "#subjects"): data.subject.nunique(),
         ("infos", "converge"): model.converged,
+        ("infos", "group_var"): model.cov_re.iloc[0, 0],
     }
     for key in ["acute", "chronic", "sleep"]:
         results[(key, "param")] = model.params[key]

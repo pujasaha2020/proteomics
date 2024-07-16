@@ -15,7 +15,7 @@ def drop_samples_without_proteins(df: pd.DataFrame) -> pd.DataFrame:
 
 def log_normalize_proteins(df: pd.DataFrame) -> pd.DataFrame:
     """Log normalize protein values"""
-    df["proteins"] = df.proteins.apply(np.log10)
+    df["proteins"] = df.proteins.astype(float).apply(np.log10)
     return df
 
 

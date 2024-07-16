@@ -39,6 +39,7 @@ def check_proteomics(df: pd.DataFrame):
         ("ids", "experiment"),
         ("ids", "sample_id"),
         ("infos", "fluid"),
+        ("infos", "state"),
     }
     assert required_columns.issubset(df.columns)
 

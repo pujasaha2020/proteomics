@@ -34,7 +34,7 @@ def mock_box(mocker: MockerFixture) -> BoxManager:
     return box
 
 
-################# HIGH CV #################
+#################### HIGH CV ####################
 @pytest.fixture(name="df_high_cv")
 def input_df_high_cv():
     """Return a dataframe with proteins columns"""
@@ -70,7 +70,7 @@ def test_drop_high_cv_proteins(
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
-################# OLD SAMPLES #################
+################## OLD SAMPLES ##################
 @pytest.fixture(name="df_old")
 def input_df_old() -> pd.DataFrame:
     """Return a dataframe with proteins columns"""
@@ -96,7 +96,7 @@ def test_drop_old_samples(df_old: pd.DataFrame):
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
-################# BRIDGE V40 TO V41 #################
+############### BRIDGE V40 TO V41 ###############
 @pytest.fixture(name="df_bridge")
 def input_df_bridge() -> pd.DataFrame:
     """Return a dataframe for bridging v4.0 to v4.1"""
@@ -140,7 +140,7 @@ def test_bridge_v40_to_v41(
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
-################# DROP SAMPLES WITHOUT PROTEINS #################
+########## DROP SAMPLES WITHOUT PROTEINS ########
 @pytest.fixture(name="df_no_proteins_log")
 def input_df_no_proteins() -> pd.DataFrame:
     """Return a dataframe without proteins columns"""
