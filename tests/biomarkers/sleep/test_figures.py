@@ -1,6 +1,5 @@
 """Test the figures functions"""
 
-import matplotlib
 import pytest
 from pytest_mock import MockerFixture
 
