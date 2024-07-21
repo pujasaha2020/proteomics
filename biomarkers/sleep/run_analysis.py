@@ -8,7 +8,7 @@ import pandas as pd
 from tqdm.contrib.concurrent import process_map
 
 from biomarkers.sleep.steps import postprocess_results, preprocess_data, run_lme_sleep
-from utils.get import get_box, get_debt, get_proteomics, get_somalogic
+from utils.get import get_aptamers, get_box, get_debt, get_proteomics
 from utils.save import save_to_csv
 
 
@@ -27,7 +27,7 @@ def run_sleep_analysis(
     box = get_box()
     df = get_proteomics(box)
     debts = get_debt(box)
-    somalogic = get_somalogic(box)
+    aptamers = get_aptamers(box)
     t.append(time.time())
     print(f"Data loaded in {t[-1] - t[-2]:.2f} seconds")
 
@@ -47,7 +47,7 @@ def run_sleep_analysis(
 
     # Postprocess the results
     print("Postprocessing results...")
-    results = postprocess_results(results, somalogic, max_pvalue, plot)
+    results = postprocess_results(results, aptamers, max_pvalue, plot)
     t.append(time.time())
     print(f"Results postprocessed in {t[-1] - t[-2]:.2f} seconds")
 
