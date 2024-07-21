@@ -3,61 +3,82 @@
 import numpy as np
 import pandas as pd
 
-from box.manager import BoxManager
-from utils.get import get_somalogic
+
+def preprocess_proteomics(df: pd.DataFrame, steps: list[dict]):
+    """Preprocess proteomics data"""
+    for step in steps:
+        step["fun"](df, **step["args"])
 
 
-def drop_samples_without_proteins(df: pd.DataFrame) -> pd.DataFrame:
+def drop_samples_without_proteins(df: pd.DataFrame):
     """Drop rows with all NaN proteins"""
     proteins = [col for col in df.columns if col[0] == "proteins"]
-    return df.dropna(subset=proteins, how="all").reset_index(drop=True)
+    df.dropna(subset=proteins, how="all", inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
 
-def log_normalize_proteins(df: pd.DataFrame) -> pd.DataFrame:
+def log_normalize_proteins(df: pd.DataFrame):
     """Log normalize protein values"""
     df["proteins"] = df.proteins.astype(float).apply(np.log10)
-    return df
 
 
 def drop_high_cv_proteins(
-    box: BoxManager, df: pd.DataFrame, max_cv: float = 0.15
-) -> pd.DataFrame:
+    df: pd.DataFrame, aptamers: pd.DataFrame, max_cv: float = 0.15
+):
     """Drop proteins with high coefficient of variation"""
-    somalogic = get_somalogic(box)
     # Get the set of proteins with high CV
-    cd_high_cv = somalogic["Total CV Plasma"] > max_cv
-    high_cv_proteins = set(somalogic[cd_high_cv].index)
+    cd_high_cv = aptamers["Total CV Plasma"] > max_cv
+    high_cv_proteins = set(aptamers[cd_high_cv].index)
     # Drop high CV proteins
     high_cv_proteins_col = pd.MultiIndex.from_product([["proteins"], high_cv_proteins])
     df.drop(columns=high_cv_proteins_col, inplace=True)
-    return df
 
 
-def drop_old_samples(df: pd.DataFrame) -> pd.DataFrame:
+def drop_old_samples(df: pd.DataFrame):
     """Remove samples with less than 2000 proteins"""
     cd_old = df[["proteins"]].notna().sum(axis=1) < 2000
     df.loc[cd_old] = None
     df.dropna(how="all", inplace=True)
-    return df
 
 
-def bridge_v40_to_v41(
-    box: BoxManager, df: pd.DataFrame, min_ccc: float = 0.75
-) -> pd.DataFrame:
+def bridge_v40_to_v41(df: pd.DataFrame, aptamers: pd.DataFrame, min_ccc: float = 0.75):
     """Bridge v4.0 to v4.1"""
     if ("infos", "fluid") not in df.columns:
         raise ValueError("Fluid information is missing")
-    somalogic = get_somalogic(box)
     # Select the samples to bridge
     cd_v40 = df.notna().sum(axis=1) < 6000
     cd_edta = df.infos.fluid == "edta"
     # Ignore bridging value for samples with low/nan CCC
-    cd_no_bridge = somalogic["Plasma Lin's CCC"] < min_ccc
-    cd_no_bridge |= somalogic["Plasma Lin's CCC"].isna()
-    somalogic.loc[cd_no_bridge] = None
-    somalogic = somalogic.reindex(df.proteins.columns, fill_value=None)
+    cd_no_bridge = aptamers["Plasma Lin's CCC"] < min_ccc
+    cd_no_bridge |= aptamers["Plasma Lin's CCC"].isna()
+    aptamers.loc[cd_no_bridge] = None
+    aptamers = aptamers.reindex(df.proteins.columns, fill_value=None)
     # Bridge v4.0 to v4.1
-    ratio = somalogic["Plasma Scalar v4.1 to v4.0"]
-    proteins_v41 = df.loc[cd_v40 & cd_edta, "proteins"].mul(1 / ratio)
+    ratio = aptamers["Plasma Scalar v4.1 to v4.0"]
+    proteins_v41 = df.loc[cd_v40 & cd_edta]["proteins"].mul(1 / ratio)
     df.loc[cd_v40 & cd_edta, "proteins"] = proteins_v41.values
-    return df
+
+
+def optimize_full_dataset(df: pd.DataFrame, sizes: list[list[int]], min_proteins: int):
+    """Use size analysis results to find the best datasets without missing proteins."""
+    if not 0 <= min_proteins <= df[["proteins"]].shape[1]:
+        raise ValueError("Make sure 0 <= min_proteins <= n_proteins")
+    # Find the best dataset size
+    my_sizes = sizes.copy()
+    n_samples, n_proteins = len(df), 0
+    while n_proteins < min_proteins:
+        n_samples, n_proteins = my_sizes.pop(0)
+    # Select samples with less than n_proteins
+    cd_samples = df[["proteins"]].notna().sum(axis=1) >= n_proteins
+    # Select proteins with less than n_samples
+    cd_proteins = df[["proteins"]].notna().sum(axis=0) >= n_samples
+    proteins2drop = cd_proteins[~cd_proteins].index
+    # Drop samples that don't have the required proteins
+    cd_samples &= df.drop(columns=proteins2drop)[["proteins"]].notna().all(axis=1)
+    samples2drop = cd_samples[~cd_samples].index
+    # Drop samples and proteins
+    df.drop(columns=proteins2drop, inplace=True)
+    df.drop(index=samples2drop, inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    if df.empty:
+        raise ValueError("No samples left after optimization.")

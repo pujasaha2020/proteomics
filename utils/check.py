@@ -7,11 +7,11 @@ import pandas as pd
 
 def check_df(df: pd.DataFrame, what: str, path: Path):
     """Ensure dataframe is correctly formatted"""
-    if what not in {"proteomics", "somalogic", "debt"}:
+    if what not in {"proteomics", "aptamer", "debt"}:
         raise ValueError(f"Unknown dataframe type: {what}")
     check_fun = {
         "proteomics": check_proteomics,
-        "somalogic": check_somalogic,
+        "aptamer": check_aptamers,
         "debt": check_debt,
     }
     try:
@@ -21,17 +21,16 @@ def check_df(df: pd.DataFrame, what: str, path: Path):
 
 
 def check_proteomics(df: pd.DataFrame):
-    """Ensure proteomics dataframe is correctly formatted"""
+    """Ensure proteomic dataframe is correctly formatted"""
     expected_toplevel_val = {
         "circadian_phases",
         "ids",
         "infos",
         "profile",
         "proteins",
-        "usage",
     }
     true_toplevel_val = set(df.columns.get_level_values(0).unique())
-    assert expected_toplevel_val == true_toplevel_val
+    assert expected_toplevel_val.issubset(true_toplevel_val)
     required_columns = {
         ("profile", "clock_time"),
         ("ids", "study"),
@@ -44,8 +43,8 @@ def check_proteomics(df: pd.DataFrame):
     assert required_columns.issubset(df.columns)
 
 
-def check_somalogic(df: pd.DataFrame):
-    """Ensure somalogic dataframe is correctly formatted"""
+def check_aptamers(df: pd.DataFrame):
+    """Ensure aptamers dataframe is correctly formatted"""
     # Check index
     assert df.index.name == "SeqId"
     # Check columns

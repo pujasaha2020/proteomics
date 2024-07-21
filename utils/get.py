@@ -1,16 +1,19 @@
 """Provide shortcuts to get relevant data"""
 
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
+import yaml
 
 from box.manager import BoxManager
 from utils.check import check_df
+from utils.process import preprocess_proteomics
 
 # Default paths
 PATH = {
-    "proteomics": Path("archives/data/proteomics_051124_AS.csv"),
-    "somalogic": Path("archives/data/somasupp.csv"),
+    "proteomics": Path("archives/data/proteomics_071924_AS.csv"),
+    "aptamers": Path("archives/data/somasupp.csv"),
     "debt": Path(
         "archives/sleep_debt/SleepDebt_Data/proteomic_with_sleepdebt_mri_5day_mppg_"
         + "dinges_faa_FD_Zeitzer_030124AS_062524PS.csv"
@@ -26,7 +29,11 @@ def get_box() -> BoxManager:
     return box
 
 
-def get_proteomics(box: BoxManager, path: Path = PATH["proteomics"]) -> pd.DataFrame:
+def get_proteomics(
+    box: BoxManager,
+    path: Path = PATH["proteomics"],
+    preprocessing: Optional[list[dict]] = None,
+) -> pd.DataFrame:
     """Get proteomic dataset from Box"""
     file = box.get_file(path)
     dtype = {
@@ -40,14 +47,16 @@ def get_proteomics(box: BoxManager, path: Path = PATH["proteomics"]) -> pd.DataF
     df[("profile", "clock_time")] = pd.to_datetime(
         df.profile.clock_time, format="mixed"
     )
+    if preprocessing:
+        preprocess_proteomics(df, preprocessing)
     return df
 
 
-def get_somalogic(box: BoxManager, path: Path = PATH["somalogic"]) -> pd.DataFrame:
-    """Get somalogic table from Box"""
+def get_aptamers(box: BoxManager, path: Path = PATH["aptamers"]) -> pd.DataFrame:
+    """Get aptamer table from Box"""
     file = box.get_file(path)
     df = pd.read_csv(file, index_col=0, low_memory=False)
-    check_df(df, "somalogic", path)
+    check_df(df, "aptamer", path)
     return df
 
 
@@ -64,3 +73,29 @@ def get_debt(box: BoxManager, path: Path = PATH["debt"]) -> pd.DataFrame:
     df = pd.read_csv(file, dtype=dtype)
     check_df(df, "debt", path)
     return df
+
+
+def get_info_per_somalogic(df: pd.DataFrame) -> dict[str, dict]:
+    """Extract the number of samples and the proteins measured in each somalogic id."""
+    n_samples = dict(df.ids.somalogic.value_counts())
+    info = {}
+    for somalogic, n in n_samples.items():
+        soma_df = df[df.ids.somalogic == somalogic]
+        full_proteins = soma_df["proteins"].notna().all(axis=0)
+        proteins = set(full_proteins[full_proteins].index)
+        info[somalogic] = {"proteins": proteins, "n_samples": n}
+    return info
+
+
+def get_sizes(box: BoxManager, path: Path = PATH["proteomics"]) -> list[list[int]]:
+    """Get the size analysis results"""
+    date = path.stem.split("_")[-2]
+    size_path = path.parent / f"size_{date}.yaml"
+    try:
+        file = box.get_file(size_path)
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"Size results not available for {path}") from exc
+    sizes = yaml.safe_load(file.getvalue())
+    if "n_samples, n_proteins" not in sizes:
+        raise ValueError("Invalid size analysis results")
+    return sizes["n_samples, n_proteins"]
