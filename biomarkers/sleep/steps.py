@@ -1,4 +1,4 @@
-""" Provides the steps to run the analysis for the sleep biomarker """
+"""Provides the steps to run the analysis for the sleep biomarker"""
 
 import warnings
 
@@ -31,8 +31,8 @@ def preprocess_data(
     - Prepare the data for the LME model
     """
     proteins = [col[1] for col in df.columns if col[0] == "proteins"]
-    df = drop_samples_without_proteins(df)
-    df = log_normalize_proteins(df)
+    drop_samples_without_proteins(df)
+    log_normalize_proteins(df)
     df = df.droplevel(0, axis=1)
     df = df.merge(debts[["sample_id", "l", "s"]], on="sample_id", how="left")
     df["sleep"] = df.state.map({"sleep": 1.0, "wake": 0.0})
@@ -92,7 +92,7 @@ def run_lme_sleep(data: pd.DataFrame) -> dict:
 
 
 def postprocess_results(
-    results: pd.DataFrame, somalogic: pd.DataFrame, max_pvalue: float, plot: bool
+    results: pd.DataFrame, aptamers: pd.DataFrame, max_pvalue: float, plot: bool
 ) -> pd.DataFrame:
     """
     Postprocess the results
@@ -113,7 +113,7 @@ def postprocess_results(
     # Format the results
     names = {"index": "seq_id", "Target Name": "protein", "Entrez Gene Name": "gene"}
     results.index = (
-        somalogic.loc[results.index]
+        aptamers.loc[results.index]
         .reset_index()
         .rename(columns=names)
         .set_index(list(names.values()))
