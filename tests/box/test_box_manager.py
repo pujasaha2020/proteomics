@@ -29,6 +29,7 @@ def test_root_folder():
         "results",
         "readme.docx",
         "READ_ME.txt",
+        "sandbox",
     }
     assert content == true_content
 
