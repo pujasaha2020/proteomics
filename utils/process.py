@@ -25,6 +25,14 @@ def drop_proteins_without_samples(df: pd.DataFrame):
     df.reset_index(drop=True, inplace=True)
 
 
+def drop_proteins_with_missing_samples(df: pd.DataFrame):
+    """Drop proteins with all NaN samples"""
+    proteins = [col for col in df.columns if col[0] == "proteins"]
+    empty_proteins = [col for col in proteins if df[col].isna().any()]
+    df.drop(columns=empty_proteins, inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+
 def log_normalize_proteins(df: pd.DataFrame):
     """Log normalize protein values"""
     df["proteins"] = df.proteins.astype(float).apply(np.log10)
@@ -37,8 +45,10 @@ def drop_high_cv_proteins(
     # Get the set of proteins with high CV
     cd_high_cv = aptamers["Total CV Plasma"] > max_cv
     high_cv_proteins = set(aptamers[cd_high_cv].index)
-    # Drop high CV proteins
+    high_cv_proteins = high_cv_proteins.intersection(df.proteins.columns)
+    # Format high CV proteins
     high_cv_proteins_col = pd.MultiIndex.from_product([["proteins"], high_cv_proteins])
+    # Drop high CV proteins
     df.drop(columns=high_cv_proteins_col, inplace=True)
 
 

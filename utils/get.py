@@ -61,7 +61,7 @@ def get_proteomics(
     ...         "args": {"aptamers": aptamers},
     ...     },
     ...     {   # Step 4
-    ...         "fun": drop_proteins_without_samples,
+    ...         "fun": drop_proteins_with_missing_samples,
     ...         "args": {}
     ...     },
     ...     {   # Step 5

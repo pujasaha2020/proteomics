@@ -8,6 +8,7 @@ from utils.process import (
     bridge_v40_to_v41,
     drop_high_cv_proteins,
     drop_old_samples,
+    drop_proteins_with_missing_samples,
     drop_proteins_without_samples,
     drop_samples_without_proteins,
     log_normalize_proteins,
@@ -19,11 +20,11 @@ from utils.process import (
 def input_aptamers() -> pd.DataFrame:
     """Return a aptamer dataframe with Total CV Plasma column"""
     data = {
-        "Total CV Plasma": [0.1, 0.2, None, None],
-        "Plasma Lin's CCC": [0.8, 0.7, None, 0.8],
-        "Plasma Scalar v4.1 to v4.0": [1.1, 1.2, 1.3, None],
+        "Total CV Plasma": [0.1, 0.2, None, None, 0.2],
+        "Plasma Lin's CCC": [0.8, 0.7, None, 0.8, 0.9],
+        "Plasma Scalar v4.1 to v4.0": [1.1, 1.2, 1.3, None, None],
     }
-    index = ["1", "2", "3", "5"]
+    index = ["1", "2", "3", "5", "6"]
     return pd.DataFrame(data, index=index, dtype=float)
 
 
@@ -91,9 +92,9 @@ def test_bridge_v40_to_v41(aptamers: pd.DataFrame):
         ("proteins", "2"): [None, None, 7, 8],
         # CCC = None             --> No bridge
         ("proteins", "3"): [None, None, 11, 12],
-        # Not in aptamers       --> No bridge
+        # Not in aptamers        --> No bridge
         ("proteins", "4"): [None, None, 15, 16],
-        # scalar = None  --> No bridge
+        # scalar = None          --> No bridge
         ("proteins", "5"): [None, None, 19, 20],
     }
     expected_df = pd.DataFrame(expected_data, dtype=float)
@@ -155,6 +156,27 @@ def test_log_normalize_proteins(df: pd.DataFrame):
     expected_df = pd.DataFrame(expected_data)
     result_df = df.copy()
     log_normalize_proteins(result_df)
+    pd.testing.assert_frame_equal(result_df, expected_df)
+
+
+############ DROP PROTEINS WITHOUT SAMPLES ############
+def test_drop_proteins_with_missing_samples():
+    """Test drop_proteins_without_samples function"""
+    data = {
+        ("proteins", "1"): [None, 2, 3],
+        ("proteins", "2"): [None, None, None],
+        ("proteins", "3"): [None, None, 9],
+        ("proteins", "4"): [1, 2, 3],
+        ("infos", "age"): [15, 10, 20],
+    }
+    df = pd.DataFrame(data)
+    expected_data = {
+        ("proteins", "4"): [1, 2, 3],
+        ("infos", "age"): [15, 10, 20],
+    }
+    expected_df = pd.DataFrame(expected_data)
+    result_df = df.copy()
+    drop_proteins_with_missing_samples(result_df)
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
