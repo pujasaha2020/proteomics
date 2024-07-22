@@ -44,7 +44,7 @@ def optimize_size(
     - Ensure no missing proteins in the selected samples
     """
     n_somalogic, n_proteins = presence.shape
-    if not (0 <= min_proteins <= n_proteins):
+    if not 0 <= min_proteins <= n_proteins:
         raise ValueError("Make sure 0 <= min_proteins <= n_proteins")
     # x_i is 1 if somalogic id i is in df and 0 otherwise
     x = cp.Variable(n_somalogic, boolean=True)
