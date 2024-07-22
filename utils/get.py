@@ -64,6 +64,10 @@ def get_proteomics(
     ...         "fun": drop_proteins_without_samples,
     ...         "args": {}
     ...     },
+    ...     {   # Step 5
+    ...         "fun": log_normalize_proteins,
+    ...         "args": {}
+    ...     },
     ... ]
     >>> df = get_proteomics(box, preprocessing=preprocessing)
     """
