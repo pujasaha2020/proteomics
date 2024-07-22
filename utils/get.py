@@ -13,7 +13,7 @@ from utils.process import preprocess_proteomics
 # Default paths
 PATH = {
     "proteomics": Path("archives/data/proteomics_071924_AS.csv"),
-    "aptamers": Path("archives/data/somasupp.csv"),
+    "aptamers": Path("archives/data/aptamers.csv"),
     "debt": Path(
         "archives/sleep_debt/SleepDebt_Data/proteomic_with_sleepdebt_mri_5day_mppg_"
         + "dinges_faa_FD_Zeitzer_030124AS_062524PS.csv"
@@ -34,7 +34,39 @@ def get_proteomics(
     path: Path = PATH["proteomics"],
     preprocessing: Optional[list[dict]] = None,
 ) -> pd.DataFrame:
-    """Get proteomic dataset from Box"""
+    """
+    Get proteomic dataset from Box.
+
+    # Examples:
+
+    ### Open the csv file
+    >>> box = get_box()
+    >>> df = get_proteomics(box)
+
+    ### Open the csv file and preprocess it
+    >>> box = get_box()
+    >>> sizes = get_sizes(box)
+    >>> aptamers = get_aptamers(box)
+    >>> preprocessing = [
+    ...     {   # Step 1
+    ...         "fun": optimize_full_dataset,
+    ...         "args": {"sizes": sizes, "min_proteins": 4000},
+    ...     },
+    ...     {   # Step 2
+    ...         "fun": drop_high_cv_proteins,
+    ...         "args": {"aptamers": aptamers},
+    ...     },
+    ...     {   # Step 3
+    ...         "fun": bridge_v40_to_v41,
+    ...         "args": {"aptamers": aptamers},
+    ...     },
+    ...     {   # Step 4
+    ...         "fun": drop_proteins_without_samples,
+    ...         "args": {}
+    ...     },
+    ... ]
+    >>> df = get_proteomics(box, preprocessing=preprocessing)
+    """
     file = box.get_file(path)
     dtype = {
         ("ids", "study"): str,
@@ -53,7 +85,7 @@ def get_proteomics(
 
 
 def get_aptamers(box: BoxManager, path: Path = PATH["aptamers"]) -> pd.DataFrame:
-    """Get aptamer table from Box"""
+    """Get aptamer table from Box."""
     file = box.get_file(path)
     df = pd.read_csv(file, index_col=0, low_memory=False)
     check_df(df, "aptamer", path)
