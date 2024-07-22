@@ -8,6 +8,7 @@ from utils.process import (
     bridge_v40_to_v41,
     drop_high_cv_proteins,
     drop_old_samples,
+    drop_proteins_without_samples,
     drop_samples_without_proteins,
     log_normalize_proteins,
     optimize_full_dataset,
@@ -102,12 +103,14 @@ def test_bridge_v40_to_v41(aptamers: pd.DataFrame):
 
 
 ########## DROP SAMPLES WITHOUT PROTEINS ########
+########## DROP PROTEINS WITHOUT SAMPLES ########
+################## LOG NORMALIZE ################
 @pytest.fixture(name="df")
 def input_df() -> pd.DataFrame:
     """Return a dataframe without proteins columns"""
     data = {
         ("proteins", "1"): [None, 2.0, 3.0],
-        ("proteins", "2"): [None, 5.0, 6.0],
+        ("proteins", "2"): [None, None, None],
         ("proteins", "3"): [None, None, 9.0],
         ("infos", "age"): [15, 10, 20],
     }
@@ -118,7 +121,7 @@ def test_drop_samples_without_proteins(df: pd.DataFrame):
     """Test drop_samples_without_proteins function"""
     expected_data = {
         ("proteins", "1"): [2.0, 3.0],
-        ("proteins", "2"): [5.0, 6.0],
+        ("proteins", "2"): [None, None],
         ("proteins", "3"): [None, 9.0],
         ("infos", "age"): [10, 20],
     }
@@ -128,11 +131,24 @@ def test_drop_samples_without_proteins(df: pd.DataFrame):
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
+def test_drop_proteins_without_samples(df: pd.DataFrame):
+    """Test drop_proteins_without_samples function"""
+    expected_data = {
+        ("proteins", "1"): [None, 2, 3],
+        ("proteins", "3"): [None, None, 9],
+        ("infos", "age"): [15, 10, 20],
+    }
+    expected_df = pd.DataFrame(expected_data)
+    result_df = df.copy()
+    drop_proteins_without_samples(result_df)
+    pd.testing.assert_frame_equal(result_df, expected_df)
+
+
 def test_log_normalize_proteins(df: pd.DataFrame):
     """Test log_normalize_proteins function"""
     expected_data = {
         ("proteins", "1"): [None, np.log10(2), np.log10(3)],
-        ("proteins", "2"): [None, np.log10(5), np.log10(6)],
+        ("proteins", "2"): [np.nan, np.nan, np.nan],
         ("proteins", "3"): [None, None, np.log10(9)],
         ("infos", "age"): [15, 10, 20],
     }

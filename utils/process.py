@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def preprocess_proteomics(df: pd.DataFrame, steps: list[dict]):
-    """Preprocess proteomics data"""
+    """Preprocess proteomics data."""
     for step in steps:
         step["fun"](df, **step["args"])
 
@@ -14,6 +14,14 @@ def drop_samples_without_proteins(df: pd.DataFrame):
     """Drop rows with all NaN proteins"""
     proteins = [col for col in df.columns if col[0] == "proteins"]
     df.dropna(subset=proteins, how="all", inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+
+def drop_proteins_without_samples(df: pd.DataFrame):
+    """Drop proteins with all NaN samples"""
+    proteins = [col for col in df.columns if col[0] == "proteins"]
+    empty_proteins = [col for col in proteins if df[col].isna().all()]
+    df.drop(columns=empty_proteins, inplace=True)
     df.reset_index(drop=True, inplace=True)
 
 
