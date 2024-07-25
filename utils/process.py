@@ -26,7 +26,7 @@ def drop_proteins_without_samples(df: pd.DataFrame):
 
 
 def drop_proteins_with_missing_samples(df: pd.DataFrame):
-    """Drop proteins with all NaN samples"""
+    """Drop proteins with some NaN samples"""
     proteins = [col for col in df.columns if col[0] == "proteins"]
     empty_proteins = [col for col in proteins if df[col].isna().any()]
     df.drop(columns=empty_proteins, inplace=True)
