@@ -1,0 +1,1065 @@
+protocols:
+  protocol1:
+    description: "Function defining protocol \"mri\", one night of 8-hour sleep,
+      36 hours awake, 8 hours recovery night."
+    dataset: "mri"  
+    t_awake_l:
+      repeat:
+        count:  12 #
+        value: 960  # (24 - sleep) * 60
+      append: 
+        - 2160  # 36 * 60
+    t_sleep_l:
+      repeat: 
+       count: 12
+       value: 480  # sleep * 60
+      append: 
+       - 480  # sleep * 60
+    title: "One night of 8 hr sleep, 36 hr Constant Routine (CR). n=152#9."
+    blood_sample_time: 
+        - 12.08
+        - 12.16
+        - 12.25
+        - 12.33
+        - 12.41
+        - 12.50
+        - 12.58
+        - 12.66
+        - 12.75
+        - 12.83
+        - 12.91
+        - 13.00
+        - 13.08
+        - 13.16
+        - 13.25
+        - 13.33
+        - 13.41
+        
+
+  protocol2:
+    description: |
+      Function defining protocol \"5day\", two nights of 9-hour sleep,
+      39 hours awake, 12 hours recovery night, 16-8 hours normal schedule.
+    dataset: "5day"  
+    t_awake_l:
+      repeat1:
+        count: 11
+        value: 960  # 16 * 60
+      repeat2: 
+        count: 2
+        value: 900  # (24 - sleep) * 60
+      append:  
+        - 2340  # 39 * 60
+        - 960  # 16 * 60
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  # 8 * 60
+      repeat2:
+        count:  2
+        value: 540  # sleep * 60
+      append: 
+        - 720  # sleep_recover * 60
+        - 480  # 8 * 60
+    title: "Two nights of 9hr sleep/night, 39 hr Constant Routine (CR), 12 hr recovery sleep. n=374#9 "
+    blood_sample_time: 
+        - 12.04
+        - 12.12
+        - 12.20
+        - 12.29
+        - 12.37
+        - 12.45
+        - 2.54
+        - 12.58
+        - 12.62
+        - 12.66
+        - 12.70
+        - 12.75
+        - 12.79
+        - 12.87
+        - 12.96
+        - 13.04
+        - 13.12
+        - 13.20
+        - 13.29
+        - 13.37
+        - 13.45
+        - 13.54
+        - 13.58
+        - 13.62
+        - 13.66
+        - 13.71
+        - 13.75
+        - 13.79
+        - 13.87
+        - 13.96
+        - 14.04
+        - 14.12
+        - 14.21
+        - 14.29
+        - 14.37
+        - 14.46
+        - 14.54
+        - 14.62
+        - 14.71
+        - 14.79
+        - 14.87
+        - 14.96
+        - 15.04
+        - 15.12
+        - 15.21
+        - 15.29
+        
+  protocol3:
+    description: "MPPG 8H TIB"
+    dataset: "mppg_ctl_8H"
+    t_awake_l:
+      repeat: 
+        count: 16
+        value: 960  # 16 * 60
+    t_sleep_l:
+      repeat: 
+        count: 16
+        value: 480  # 8 * 60
+    title: "Control sample: 8 hr of normal sleep schedule. n=21#3 "
+    blood_sample_time:  
+      - 11.53 
+      - 11.74 
+      - 11.95 
+      - 12.03 
+      - 12.20 
+      - 12.37 
+      - 12.53
+      
+  protocol4:
+    description: " MPPG 10H TIB"
+    dataset: "mppg_ctl_10H"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      repeat2:
+        count: 5
+        value: 840  # 14 * 60
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 5
+        value: 600  # 10 * 60
+    title: "Control sample: 10 hr of normal sleep schedule. n=26#4 "
+    blood_sample_time:
+      - 11.60
+      - 11.76
+      - 11.94
+      - 12.10
+      - 12.26
+      - 12.43
+      - 12.60
+
+  protocol5:
+    description:  "5H TIB for 21 days."
+    dataset: "mppg_tsd_5H"
+    t_awake_l:
+      repeat1: 
+        count: 13
+        value: 960  # 16 * 60
+      repeat2: 
+        count: 21
+        value: 1140  # 19 * 60
+      repeat3: 
+        count: 9
+        value: 960  # 16 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 13
+        value: 480 # 8 * 60
+      repeat2: 
+        count: 21
+        value: 300  # 5 * 60
+      repeat3: 
+        count: 9
+        value: 480  # 8 * 60 
+    title: >
+     Two days of 8 hr sleep/night, 21days of 5 hr sleep at night (Chronic Sleep Restriction). n=96#5 .    
+    blood_sample_time: 
+      - 11.53
+      - 11.72
+      - 11.91
+      - 12.03
+      - 12.20
+      - 12.37
+      - 18.53
+      - 18.70
+      - 18.99
+      - 19.03
+      - 19.21
+      - 19.37
+      - 19.54
+      - 40.53
+      - 40.70
+      - 41.03
+      - 41.20
+      - 41.37
+      - 41.53
+
+  protocol6:
+    description: "5.6 H TIB for 21 days."
+    dataset: "mppg_tsd_5.6H"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      repeat2: 
+        count: 2
+        value: 840 # 14 * 60
+      append1: 
+        - 972 
+      repeat3: 
+        count: 20 # n_exp -1
+        value: 1104 # 18.4 * 60
+      append2:
+        - 972
+      repeat4: 
+        count: 8 #n_recovery -1   
+        value: 840
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      repeat2: 
+        count: 2
+        value: 600 # 10 * 60
+      repeat3: 
+        count: 21 
+        value: 336 # 5.6 * 60
+      repeat4: 
+        count: 9
+        value: 600
+    title: "Two days of 10 hr sleep/night, 21days of 5.6 hr sleep at night (Chronic Sleep Restriction). n= 53#4"    
+    blood_sample_time:
+      - 11.60
+      - 11.76
+      - 11.93
+      - 12.10
+      - 12.28
+      - 12.43
+      - 12.59
+      - 18.59
+      - 18.93
+      - 19.10
+      - 19.26
+      - 19.43
+      - 40.59
+      - 40.76
+      - 40.93
+      - 41.10
+      - 41.26
+      - 41.43
+      - 41.59
+
+
+
+  protocol7:
+    description: "Protocol with 13 rest days, 5 restricted days, and 1 recovery day."
+    dataset: "dinges"
+    t_awake_l:
+      repeat1:
+        count: 13
+        value: 840  # 14*60 minutes
+      repeat2:  
+       count: 5
+       value: 1140  # 19*60 minutes repeated for 5 days
+      append:
+        - 960   # 16*60 minutes for 1 recovery day
+    t_sleep_l:
+      repeat1:
+        count: 13
+        value: 600  # 10*60 minutes
+      repeat2:  
+       count: 5
+       value: 300  # 5*60 minutes repeated for 5 days
+      append:
+        - 480  # 16*60 minutes for 1 recovery day
+    title: "13 days of 10 hr sleep/night, 5 days of 5 hr sleep at night, 1 day of 8 hr sleep at night."    
+    blood_sample_time:
+    - 13
+    - 14
+    - 15
+
+
+  protocol8_1:
+    description: ""
+    dataset: "FD_3453HY73"
+    t_awake_l:
+      repeat1: 
+        count: 13
+        value: 960  # 16 * 60
+      repeat2: 
+        count: 18
+        value: 980 # 19 * 60
+      append1: 
+       - 1643  
+      repeat3: 
+        count: 8
+        value: 960  # 16 * 60
+    t_sleep_l:
+      repeat1: 
+        count: 13
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 18
+        value: 700  # 5 * 60
+      append1:
+       - 480  
+      repeat3: 
+        count: 8
+        value: 480  # 8 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01
+    
+  protocol8_2:
+    description: ""
+    dataset: "FD_3557HY61"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      repeat2:
+        count: 2
+        value: 840  # 14 * 60  
+      repeat3: 
+        count: 18
+        value: 980 
+      append1:   
+        - 1925
+      repeat4:
+        count: 8
+        value:  840 # 14 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 2
+        value: 600  
+      repeat3:  
+        count: 18
+        value: 700  
+      append1:
+       - 600  
+      repeat4: 
+        count: 8
+        value: 600  # 10 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01    
+
+
+  protocol8_3:
+    description: ""
+    dataset: "FD_2056HY75"
+    t_awake_l:
+      repeat1: 
+        count: 13
+        value: 960  # 16 * 60
+      repeat2:
+        count: 18
+        value: 980  
+      append1:   
+        - 720
+      append2:
+        - 600  
+      repeat3:
+        count: 8
+        value: 960 # 16 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 13
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 18
+        value: 700  
+      append1:
+       - 293
+      append2:
+       - 480 
+      repeat3: 
+        count: 8
+        value: 480  # 8 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01        
+
+  protocol8_4:
+    description: ""
+    dataset: "FD_3552HY62"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      repeat2:
+        count: 2
+        value: 840  # 14 * 60  
+      repeat3: 
+        count: 18
+        value: 980 
+      append1:   
+        - 932
+      repeat4:
+        count: 8
+        value:  840 # 14 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 2
+        value: 600  
+      repeat3:  
+        count: 18
+        value: 700  
+      append1:
+       - 600  
+      repeat4: 
+        count: 8
+        value: 600  # 10 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01            
+
+  protocol8_5:
+    description: ""
+    dataset: "FD_26P2HY83"
+    t_awake_l:
+      repeat1: 
+        count: 13
+        value: 960  # 16 * 60
+      repeat2:
+        count: 18
+        value: 980  
+      append1:   
+        - 720
+      append2:
+        - 602  
+      repeat3:
+        count: 8
+        value:  960 # 16 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 13
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 18
+        value: 700  
+      append1:
+       - 360
+      append2:
+       - 480
+      repeat3: 
+        count: 8
+        value: 480  # 8 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01    
+
+
+  protocol8_6:
+    description: ""
+    dataset: "FD_3453HY52"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      repeat2:
+        count: 2
+        value: 840  # 14 * 60  
+      repeat3: 
+        count: 18
+        value: 980 
+      append1:   
+        - 1233
+      repeat4:
+        count: 8
+        value:  840 # 14 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 2
+        value: 600  
+      repeat3:  
+        count: 18
+        value: 700  
+      append1:
+       - 600  
+      repeat4: 
+        count: 8
+        value: 600  # 10 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01    
+
+
+  protocol8_7:
+    description: ""
+    dataset: "FD_3536HY83"
+    t_awake_l:
+      repeat1: 
+        count: 13
+        value: 960  # 16 * 60
+      repeat2:
+        count: 18
+        value: 980
+      append1:   
+        - 1187
+      repeat3:
+        count: 8
+        value:  960 # 16 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 13
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 18
+        value: 700  
+      append1:
+       - 480
+      repeat3: 
+        count: 8
+        value: 480  # 8 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01          
+
+  protocol8_8:
+    description: "FD_3536HY52"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      repeat2:
+        count: 2
+        value: 840  # 14 * 60  
+      repeat3: 
+        count: 18
+        value: 980 
+      append1:   
+        - 1124
+      repeat4:
+        count: 8
+        value:  840 # 14 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 2
+        value: 600  
+      repeat3:  
+        count: 18
+        value: 700  
+      append1:
+       - 720  
+      repeat4: 
+        count: 8
+        value: 600  # 10 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01      
+
+
+  protocol8_9:
+    description: ""
+    dataset: "FD_3552HY73"
+    t_awake_l:
+      repeat1: 
+        count: 13
+        value: 960  # 16 * 60
+      repeat2:
+        count: 18
+        value: 980
+      append1:   
+        - 1149
+      repeat3:
+        count: 8
+        value:  960 # 16 * 60  
+    t_sleep_l:
+      repeat1: 
+        count: 13
+        value: 480  # 8 * 60
+      repeat2: 
+        count: 18
+        value: 700  
+      append1:
+       - 480
+      repeat3: 
+        count: 8
+        value: 480  # 8 * 60
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."    
+    blood_sample_time:
+      - 11.53
+      - 11.74
+      - 11.86
+      - 12.03
+      - 12.20
+      - 12.36
+      - 12.53
+      - 19.49
+      - 19.66
+      - 19.82
+      - 20.01
+      - 20.16
+      - 20.32
+      - 20.49
+      - 20.66
+      - 36.01
+      - 36.17
+      - 36.35
+      - 36.50
+      - 36.67
+      - 36.84
+      - 37.01          
+
+  protocol9:
+    description: " FAA Control sample "
+    dataset: "faa_ctl"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      append1:  
+        - 780
+      append2: 
+        - 780  
+      repeat2:
+        count: 8
+        value: 960  # 16 * 60
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  # 8 * 60
+      append1:
+       - 720
+      append2:
+       - 600   
+      repeat2: 
+        count: 8
+        value: 480  # 8 * 60
+    title: "10 days protocol: 12 hr and 10 hr sleep on two baselines nights then 8 hr of sleep throughout. n=69#5  "
+    blood_sample_time:
+      - 12.55
+      - 12.72
+      - 12.89
+      - 13.05
+      - 13.22
+      - 13.39
+      - 17.55
+      - 17.72
+      - 17.89
+      - 18.05
+      - 18.22
+      - 18.39
+      - 18.55
+
+
+  protocol10:
+    description: " FAA TSD sample "
+    dataset: "faa_tsd"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      append1:  
+        - 780
+      append2: 
+        - 780  
+      append3:
+        - 3720
+      append4:
+       - 840
+      repeat2:
+        count: 2
+        value: 960 
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  
+      append1:
+       - 720
+      append2:
+       - 600   
+      append3: 
+       - 600 
+      append4:
+       - 600 
+      repeat2: 
+        count: 2
+        value: 480  
+    title: "10 days protocol: 12 hr and 10 hr sleep on two baselines nights, Total Sleep Deprivation (TSD) on 3rd and 4th night, 
+               2 recovery nights of 10 hr Sleep.n=140#11  "
+    blood_sample_time:
+      - 12.55
+      - 12.72
+      - 12.89
+      - 13.05
+      - 13.22
+      - 13.39
+      - 14.55
+      - 14.72
+      - 14.89
+      - 15.05
+      - 15.22
+      - 15.39
+      - 15.55
+
+  protocol11:
+    description: " FAA CSRN sample "
+    dataset: "faa_csrn"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      append1:  
+        - 780
+      append2: 
+        - 780  
+      append3:
+        - 900
+      repeat2:
+        count: 4
+        value: 1140
+      append4: 
+        - 1080
+      append5:
+        - 840  
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  
+      append1:
+       - 720
+      append2:
+       - 600   
+      append3: 
+       - 300 
+      repeat2: 
+        count: 4
+        value: 300  
+      append4: 
+       - 600
+      append5:
+       - 600
+    title: "10 days protocol: 12 hr and 10 hr sleep on two baselines nights,Chronic Sleep Restriction Night (CSRN) five nights with 6 hr sleep,
+               2 recovery nights of 10 hr Sleep. n=69#5 "
+    blood_sample_time:
+      - 12.55
+      - 12.72
+      - 12.89
+      - 13.05
+      - 13.22
+      - 13.39
+      - 13.55
+      - 13.89
+      - 17.72
+      - 17.89
+      - 18.05
+      - 18.22
+      - 18.39
+      - 18.55
+
+
+
+  protocol12:
+    description: " FAA CSRD sample "
+    dataset: "faa_csrd"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      append1:  
+        - 780
+      append2: 
+        - 780  
+      append3:
+        - 1620
+      repeat2:
+        count: 4
+        value: 1140
+      append4: 
+        - 360
+      append5:
+        - 840  
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  
+      append1:
+       - 720
+      append2:
+       - 600   
+      append3: 
+       - 300 
+      repeat2: 
+        count: 4
+        value: 300  
+      append4: 
+       - 600
+      append5:
+       - 600
+    title: "10 days protocol: 12 hr and 10 hr sleep on two baselines nights, \n \
+                Chronic Sleep Restriction Day (CSRD) five days with 6 hr sleep, \n\
+                2 recovery nights of 10 hr Sleep.n=54#4 "  
+    blood_sample_time:            
+      - 12.55
+      - 12.72
+      - 12.89
+      - 13.05
+      - 13.22
+      - 13.39
+      - 13.55
+      - 13.72
+      - 17.72
+      - 17.89
+      - 18.05
+      - 18.22
+      - 18.39
+      - 18.55
+
+  protocol13:
+    description: "Zeitzer sample"
+    dataset: "Zeitzer"
+    t_awake_l:
+      repeat1: 
+        count: 11
+        value: 960  # 16 * 60
+      append1:  
+        - 966
+      append2: 
+        - 540
+    t_sleep_l:
+      repeat1: 
+        count: 11
+        value: 480  
+      append1:
+       - 480
+      append2:
+       - 480   
+      
+    title: "Approximately 16 hours awake followed by 8 hr sleep and again \n\
+                approximately 8 hr awake. "  
+    blood_sample_time:  
+      - 12.55
+      - 12.72
+      - 12.89
+      - 13.05
+      - 13.22
+      - 13.39
+                
+      
+  protocol14: 
+    description: "paper protocol"
+    dataset: "paper_ChronicSleepRestriction"
+    t_awake_l:
+      
+      repeat2: 
+        count: 8
+        value: 1200  
+    t_sleep_l: 
+      
+      repeat2: 
+        count: 8
+        value: 240  
+    title: "8 days protocol: 20 hr awake and 4 hr sleep." 
+    blood_sample_time:  
+      - 1.5
+      - 2.5
+      - 3.5
+      
+
+
+  protocol15: 
+    description: "paper protocol"
+    dataset: "paper_AcuteSleepDeprivation"
+    t_awake_l:
+      append: 
+        - 5760
+    t_sleep_l: 
+      append: 
+        - 480
+    title: "Acute Sleep restriction (0hr sleep) for 4 days." 
+    blood_sample_time:  
+      - 1.5
+      - 2.5
+      - 3.5    
