@@ -21,7 +21,6 @@ def get_interval(t, time_ct):
     return s
 
 
-
 def get_protocols():
     "getting protocols list as string"
     protocol_list = []
@@ -118,7 +117,7 @@ def sleep_debt(protocol_list, definition):
             fd = False
             # for FD protocol only
             if "protocol8" in protocol:
-                fd= (t_awake + t_sleep) != 1440
+                fd = (t_awake + t_sleep) != 1440
             if UNIFIED:
                 t1, s1, l1 = simulate_unified(
                     t_awake=t_awake, t_sleep=t_sleep, s0=s_i, l0=l_i, t0=t0, forced=fd
@@ -180,13 +179,13 @@ def sleep_debt(protocol_list, definition):
     plt.savefig(f"sleep_debt_combined{i1}.png")
 
 
-UNIFIED= True
+UNIFIED = True
 prot_list = get_protocols()
 print(prot_list)
 FILE_PATH = (
     "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
 )
 DATA = read_yaml(FILE_PATH)
-U=24.1
+U = 24.1
 # Function that makes sleep debt plot
 sleep_debt(prot_list, definition="def_2")
