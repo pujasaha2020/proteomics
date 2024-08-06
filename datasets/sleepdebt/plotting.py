@@ -8,7 +8,7 @@ from scipy.signal import find_peaks
 import yaml
 
 
-file_path = "protocols.yaml"
+file_path = "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
 
 
 def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
@@ -100,7 +100,6 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
     ax.set_title(get_title(pro), fontsize=6)
 
     ax.set_xlim([11, t[len(t) - 1] / (60.0 * 24)])
-
     for i in range(1, len(time_count), 2):
         if i == 1:
             ax.axvspan(
@@ -116,7 +115,6 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
             facecolor="grey",
             alpha=0.3,
         )
-
     xcoords = get_blood_collection_time(pro)
     if len(xcoords) == 0:
         pass
@@ -182,4 +180,4 @@ def get_title(pro):
 
 def get_blood_collection_time(pro):
     """getting blood collection time"""
-    return DATA["protocols"][pro]["blood_collection_time"]
+    return DATA["protocols"][pro]["blood_sample_time"]

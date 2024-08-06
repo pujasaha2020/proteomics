@@ -15,22 +15,27 @@ def sleep_new(t, t0=0, s0=0, l0=0, fd=False):
     """debt during sleep"""
     l_t = l0 * np.exp(-(t - t0) / TAU_LA) - 2 * U * (1 - np.exp(-(t - t0) / TAU_LA))
     s_t = (
-        s0 * np.exp(-(t - t0) / TAU_S)
-        - 2 * U * (1 - np.exp(-(t - t0) / TAU_S))
+        (s0 * np.exp(-(t - t0) / TAU_S))
+        - (2 * U * (1 - np.exp(-(t - t0) / TAU_S)))
         + (TAU_LA * (l0 + 2 * U) / (TAU_LA - TAU_S))
         * (np.exp(-(t - t0) / TAU_LA) - np.exp(-(t - t0) / TAU_S))
     )
-
+    '''
+    S_t = S0* np.exp(-(t-t0)/tau_s)
+    - 2*U*(1-np.exp(-(t-t0)/tau_s))+
+    (tau_la*(L0+2*U)/(tau_la-tau_s))
+    *(np.exp(-(t-t0)/tau_la)-np.exp(-(t-t0)/tau_s))
+    '''
     if fd:
         l_t = l0 * np.exp(-(t - t0) / TAU_LA) - 1.4 * U * (
             1 - np.exp(-(t - t0) / TAU_LA)
         )
         s_t = (
-        s0 * np.exp(-(t - t0) / TAU_S)
-        - 1.4 * U * (1 - np.exp(-(t - t0) / TAU_S))
-        + (TAU_LA * (l0 + 1.4 * U) / (TAU_LA - TAU_S))
-        * (np.exp(-(t - t0) / TAU_LA) - np.exp(-(t - t0) / TAU_S))
-    )
+            s0 * np.exp(-(t - t0) / TAU_S)
+            - 1.4 * U * (1 - np.exp(-(t - t0) / TAU_S))
+            + (TAU_LA * (l0 + 1.4 * U) / (TAU_LA - TAU_S))
+            * (np.exp(-(t - t0) / TAU_LA) - np.exp(-(t - t0) / TAU_S))
+        )
     return s_t, l_t
 
 
