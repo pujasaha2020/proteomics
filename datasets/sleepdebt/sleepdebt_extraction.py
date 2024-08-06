@@ -9,24 +9,6 @@ import yaml
 from model import simulate_unified
 from plotting import get_plot
 
-"""
-from protocols import (
-    protocol1,
-    protocol2,
-    protocol3,
-    protocol4,
-    protocol5,
-    protocol6,
-    protocol7,
-    protocol8_1,
-    protocol9,
-    protocol10,
-    protocol11,
-    protocol12,
-    protocol13,
-)
-"""
-
 
 def get_interval(t, time_ct):
     """getting sleep=wake status based on time interval"""
@@ -38,28 +20,6 @@ def get_interval(t, time_ct):
             break
     return s
 
-
-def get_protocol_list_as_function():
-    """getting protocol list dynamically"""
-    protocol_list = []
-    for i in range(1, 14):  # Assuming you have 3 protocols
-        if i == 8:
-            for j in range(1, 2):
-                function_name = f"protocol{i}_{j}"
-                print(function_name)
-                protocol_func = globals().get(function_name)
-                print(protocol_func)
-                if protocol_func:
-                    protocol_list.append(protocol_func)
-        else:
-            function_name = f"protocol{i}"
-            print(function_name)
-            protocol_func = globals().get(function_name)
-            print(protocol_func)
-            if protocol_func:
-                protocol_list.append(protocol_func)
-    print(protocol_list)
-    return protocol_list
 
 
 def get_protocols():
@@ -131,7 +91,7 @@ def construct_protocol(data, protocol_name):
     return t_awake_l, t_sleep_l
 
 
-def sleep_debt(protocol_list, definition, unified=False, u=24.1):
+def sleep_debt(protocol_list, definition):
     """plotting sleep debt for different protocols"""
     j = 1
 
@@ -145,8 +105,8 @@ def sleep_debt(protocol_list, definition, unified=False, u=24.1):
     fig = plt.figure(figsize=(20, 10))
 
     for protocol in protocol_list:
-        S0 = 0
-        L0 = 0
+        s_i = 0
+        l_i = 0
         t0 = 0
         s, l, t = [], [], []
         t_ae_sl = construct_protocol(DATA, protocol)  # protocol()
@@ -155,27 +115,24 @@ def sleep_debt(protocol_list, definition, unified=False, u=24.1):
         time_count = []
 
         for t_awake, t_sleep in zip(t_awake_l, t_sleep_l):
-            FD = False
+            fd = False
             # for FD protocol only
             if "protocol8" in protocol:
-                if (t_awake + t_sleep) != 1440:
-                    FD = True
-                else:
-                    FD = False
-            if unified:
+                fd= (t_awake + t_sleep) != 1440
+            if UNIFIED:
                 t1, s1, l1 = simulate_unified(
-                    t_awake=t_awake, t_sleep=t_sleep, s0=S0, l0=L0, t0=t0, forced=FD
+                    t_awake=t_awake, t_sleep=t_sleep, s0=s_i, l0=l_i, t0=t0, forced=fd
                 )
             s += s1
             t += t1
             l += l1
             # eff+= eff1
-            S0 = s1[-1]
-            L0 = l1[-1]
+            s_i = s1[-1]
+            l_i = l1[-1]
             t0 = t1[-1]
         print("plotting protocol", protocol)
-        s = np.array(s) / u
-        l = np.array(l) / u
+        s = np.array(s) / U
+        l = np.array(l) / U
         data = [pair for pair in zip(t, l, s)]
         df_sleep_debt = pd.DataFrame(data, columns=["time", "l", "s"])
 
@@ -223,13 +180,13 @@ def sleep_debt(protocol_list, definition, unified=False, u=24.1):
     plt.savefig(f"sleep_debt_combined{i1}.png")
 
 
-UNIFIED = True
+UNIFIED= True
 prot_list = get_protocols()
 print(prot_list)
 FILE_PATH = (
     "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
 )
 DATA = read_yaml(FILE_PATH)
-
+U=24.1
 # Function that makes sleep debt plot
-sleep_debt(prot_list, definition="def_2", unified=UNIFIED)
+sleep_debt(prot_list, definition="def_2")

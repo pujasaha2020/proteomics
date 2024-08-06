@@ -2,13 +2,13 @@
 
 import numpy as np
 
-from scipy import signal
+#from scipy import signal
 from scipy import interpolate
 from scipy.signal import find_peaks
 import yaml
 
 
-file_path = (
+FILE_PATH = (
     "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
 )
 
@@ -172,7 +172,7 @@ def read_yaml(file_path):
     return data
 
 
-DATA = read_yaml(file_path)
+DATA = read_yaml(FILE_PATH)
 
 
 def get_title(pro):
