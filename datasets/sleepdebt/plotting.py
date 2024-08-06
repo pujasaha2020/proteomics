@@ -119,7 +119,7 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
         )
     xcoords = get_blood_collection_time(pro)
     if len(xcoords) == 0:
-        pass
+        print("No blood collection time")
     else:
         ax.axvline(
             x=xcoords[0],
@@ -139,7 +139,6 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
         ticks=np.arange(11, int(max(np.array(t)) / (60.0 * 24)) + 1),
         labels=np.arange(0, int(max(np.array(t)) / (60.0 * 24) - 11) + 1),
     )
-    pass
 
 
 def get_lower_envelope(df_sleep_debt):
