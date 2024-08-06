@@ -132,7 +132,7 @@ def sleep_debt(protocol_list, definition):
         print("plotting protocol", protocol)
         s = np.array(s) / U
         l = np.array(l) / U
-        data = [pair for pair in zip(t, l, s)]
+        data = [pair for pair in list(zip(t, l, s))]
         df_sleep_debt = pd.DataFrame(data, columns=["time", "l", "s"])
 
         # sleep-awake status
