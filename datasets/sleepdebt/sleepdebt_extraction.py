@@ -15,7 +15,7 @@ def get_interval(t, time_ct):
     s = "awake"
     for i in range(1, len(time_ct), 2):
         # print(i)
-        if t > time_ct[i] and t <= time_ct[i + 1]:
+        if time_ct[i] < t <= time_ct[i + 1]:
             s = "sleep"
             break
     return s
