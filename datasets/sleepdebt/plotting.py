@@ -8,7 +8,9 @@ from scipy.signal import find_peaks
 import yaml
 
 
-file_path = "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
+file_path = (
+    "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
+)
 
 
 def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):

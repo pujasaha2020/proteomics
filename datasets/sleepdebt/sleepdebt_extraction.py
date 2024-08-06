@@ -6,8 +6,6 @@ import pandas as pd
 import yaml
 
 
-import plotting
-import protocols
 from model import simulate_unified
 from plotting import get_plot
 
@@ -89,36 +87,47 @@ def read_yaml(file_path):
 
 
 def construct_protocol(data, protocol_name):
-    """ construct protocol from yaml file"""
+    """construct protocol from yaml file"""
     print(protocol_name)
-    protocol = data['protocols'][protocol_name]
+    protocol = data["protocols"][protocol_name]
     # Construct t_awake_l
     t_awake_l = []
-    for item in protocol['t_awake_l']:
+    for item in protocol["t_awake_l"]:
         print(type(item))
-        if 'repeat' in item:
-            repeat_value = protocol['t_awake_l'][item]['value'] # Ensure value is an integer
-            repeat_count = protocol['t_awake_l'][item]['count']  # Ensure count is an integer
-            t_awake_l.extend([repeat_value] * repeat_count)                
-        elif 'append' in item:
-            append_value = protocol['t_awake_l'][item]  # Ensure append value is an integer
+        if "repeat" in item:
+            repeat_value = protocol["t_awake_l"][item][
+                "value"
+            ]  # Ensure value is an integer
+            repeat_count = protocol["t_awake_l"][item][
+                "count"
+            ]  # Ensure count is an integer
+            t_awake_l.extend([repeat_value] * repeat_count)
+        elif "append" in item:
+            append_value = protocol["t_awake_l"][
+                item
+            ]  # Ensure append value is an integer
             t_awake_l.extend(append_value)  # Use append for single values
         else:
             raise ValueError(f"Invalid key in t_awake_l: {item}")
         # Construct t_sleep_l
         t_sleep_l = []
-        for item in protocol['t_sleep_l']:
-            if 'repeat' in item:
-                repeat_value = protocol['t_sleep_l'][item]['value'] # Ensure value is an integer
-                repeat_count = protocol['t_sleep_l'][item]['count']  # Ensure count is an integer
-                t_sleep_l.extend([repeat_value] * repeat_count)                
-            elif 'append' in item:
-                append_value = protocol['t_sleep_l'][item]  # Ensure append value is an integer
+        for item in protocol["t_sleep_l"]:
+            if "repeat" in item:
+                repeat_value = protocol["t_sleep_l"][item][
+                    "value"
+                ]  # Ensure value is an integer
+                repeat_count = protocol["t_sleep_l"][item][
+                    "count"
+                ]  # Ensure count is an integer
+                t_sleep_l.extend([repeat_value] * repeat_count)
+            elif "append" in item:
+                append_value = protocol["t_sleep_l"][
+                    item
+                ]  # Ensure append value is an integer
                 t_sleep_l.extend(append_value)  # Use append for single values
             else:
                 raise ValueError(f"Invalid key in t_sleep_l: {item}")
 
-        
     return t_awake_l, t_sleep_l
 
 
@@ -217,7 +226,9 @@ def sleep_debt(protocol_list, definition, unified=False, u=24.1):
 UNIFIED = True
 prot_list = get_protocols()
 print(prot_list)
-FILE_PATH = "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
+FILE_PATH = (
+    "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
+)
 DATA = read_yaml(FILE_PATH)
 
 # Function that makes sleep debt plot
