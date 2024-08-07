@@ -1,7 +1,7 @@
-'''
+"""
 Re-writing the sleep debt calculation script avoiding 
 functions with too many arguments. Using "Protocol" class.
-'''
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
