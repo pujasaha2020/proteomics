@@ -13,9 +13,11 @@ FILE_PATH = (
 )
 
 
-def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
+# def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
+def get_plot(pro, df_sleep_debt, ax=None):
     """getting the plot for the sleep debt"""
-    if definition == "def_1":
+
+    if pro.definition == "def_1":
         lower_envelope = get_lower_envelope(df_sleep_debt)
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
@@ -24,13 +26,13 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
             color="black",
         )
         ax.plot(
-            np.array(t) / (60.0 * 24),
+            df_sleep_debt["time"] / (60.0 * 24),
             (df_sleep_debt["l"] - lower_envelope) * 100,
             label="Sleep debt (acute)",
             color="red",
         )
         ax.plot(
-            np.array(t) / (60.0 * 24),
+            df_sleep_debt["time"] / (60.0 * 24),
             df_sleep_debt["l"] * 100,
             label="Sleep debt (L)",
             color="green",
@@ -48,22 +50,22 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
         df_sleep_debt["SD_Chronic"] = lower_envelope
         df_sleep_debt["SD_Acute"] = df_sleep_debt["l"] - lower_envelope
 
-    elif definition == "def_2":
+    elif pro.definition == "def_2":
         ax.plot(
-            np.array(t) / (60.0 * 24),
+            df_sleep_debt["time"] / (60.0 * 24),
             df_sleep_debt["l"] * 100,
             label="Sleep debt (chronic) (L)",
             color="green",
         )
         ax.plot(
-            np.array(t) / (60.0 * 24),
+            df_sleep_debt["time"] / (60.0 * 24),
             df_sleep_debt["s"] * 100,
             label="Sleep homeostat (S)",
             color="orange",
             linestyle="--",
         )
         ax.plot(
-            np.array(t) / (60.0 * 24),
+            df_sleep_debt["time"] / (60.0 * 24),
             (df_sleep_debt["s"] - df_sleep_debt["l"]) * 100,
             label="Sleep debt (acute) (S-L)",
             color="red",
@@ -72,22 +74,22 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
         # ax.set_xlabel("Time (days)", fontsize=12)
         # ax.set_ylabel("Sleep Homeostat values % (impairment \u2192)", fontsize=10)
 
-    elif definition == "def_3":
+    elif pro.definition == "def_3":
         ax.plot(
-            np.array(t) / (60.0 * 24),
+            df_sleep_debt["time"] / (60.0 * 24),
             df_sleep_debt["l"] * 100,
             label="Sleep debt (chronic) (L)",
             color="green",
         )
         ax.plot(
-            np.array(t) / (60.0 * 24),
+            df_sleep_debt["time"] / (60.0 * 24),
             df_sleep_debt["s"] * 100,
             label="Sleep homeostat (S)",
             color="orange",
             linestyle="--",
         )
         ax.plot(
-            np.array(t) / (60.0 * 24),
+            df_sleep_debt["time"] / (60.0 * 24),
             (df_sleep_debt["s"] - df_sleep_debt["l"]) * 100,
             label="Sleep debt (acute) (S-L)",
             color="red",
@@ -98,22 +100,23 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
 
     else:
         print("Invalid definition")
-        return None
     ax.set_title(get_title(pro), fontsize=6)
 
-    ax.set_xlim([11, t[len(t) - 1] / (60.0 * 24)])
-    for i in range(1, len(time_count), 2):
+    ax.set_xlim(
+        [11, df_sleep_debt["time"][len(df_sleep_debt["time"]) - 1] / (60.0 * 24)]
+    )
+    for i in range(1, len(pro.time_sequence()), 2):
         if i == 1:
             ax.axvspan(
-                time_count[i] / (60 * 24),
-                time_count[i + 1] / (60 * 24),
+                pro.time_sequence()[i] / (60 * 24),
+                pro.time_sequence()[i + 1] / (60 * 24),
                 facecolor="grey",
                 label="Sleep episodes",
                 alpha=0.3,
             )
         ax.axvspan(
-            time_count[i] / (60 * 24),
-            time_count[i + 1] / (60 * 24),
+            pro.time_sequence()[i] / (60 * 24),
+            pro.time_sequence()[i + 1] / (60 * 24),
             facecolor="grey",
             alpha=0.3,
         )
@@ -136,8 +139,8 @@ def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
         axis="both", which="major", labelsize=8
     )  # Adjust the font size as needed
     ax.set_xticks(
-        ticks=np.arange(11, int(max(np.array(t)) / (60.0 * 24)) + 1),
-        labels=np.arange(0, int(max(np.array(t)) / (60.0 * 24) - 11) + 1),
+        ticks=np.arange(11, int(max(df_sleep_debt["time"]) / (60.0 * 24)) + 1),
+        labels=np.arange(0, int(max(df_sleep_debt["time"]) / (60.0 * 24) - 11) + 1),
     )
 
 
@@ -176,9 +179,9 @@ DATA = read_yaml(FILE_PATH)
 
 def get_title(pro):
     """getting title for the plot"""
-    return DATA["protocols"][pro]["title"]
+    return DATA["protocols"][pro.name]["title"]
 
 
 def get_blood_collection_time(pro):
     """getting blood collection time"""
-    return DATA["protocols"][pro]["blood_sample_time"]
+    return DATA["protocols"][pro.name]["blood_sample_time"]
