@@ -109,8 +109,8 @@ def calculate_debt(protocol):
     for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):
         fd = False
         # for FD protocol only
-        if   "protocol8" in  protocol.name: 
-            fd = ((t_awake + t_sleep) > 1440)
+        if "protocol8" in protocol.name:
+            fd = (t_awake + t_sleep) > 1440
         if unified:
             t1, s1, l1 = simulate_unified(
                 t_awake=t_awake, t_sleep=t_sleep, s0=s_i, l0=l_i, t0=t0, forced=fd
