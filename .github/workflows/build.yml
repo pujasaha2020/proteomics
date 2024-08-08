@@ -40,7 +40,7 @@ jobs:
               run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
 
             - name: Run Black
-              run: black --check $(git ls-files '*.py')
+              run: black --check -v $(git ls-files '*.py')
 
             - name: Run Pylint
               run: pylint $(git ls-files '*.py')
