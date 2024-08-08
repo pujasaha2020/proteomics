@@ -136,8 +136,8 @@ class Protocol:
 
     def __init__(self, name: str, definition: str):
         self.name = name
-        self.t_awake_l = []
-        self.t_sleep_l = []
+        self.t_awake_l: list[int] = []
+        self.t_sleep_l: list[int] = []
         self.definition = definition
 
     def fill(self, t_awake_l, t_sleep_l):
