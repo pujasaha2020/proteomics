@@ -7,7 +7,7 @@ import yaml
 
 
 FILE_PATH = (
-    "/Users/pujasaha/Desktop/SleepDebt/Python_scripts/adenosine_model/protocols.yaml"
+    "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/adenosine_model/protocols.yaml"
 )
 
 
@@ -30,16 +30,10 @@ def get_plot(pro, df_sleep_debt, ax=None):
         color="green",
     )
     ax.set_ylabel("Chronic", color="green", fontsize=14)
-    '''
-    ax.plot(xs
-        df_sleep_debt["time"] / (60.0 * 24),
-        (df_sleep_debt["Acute"]) ,
-        label="Acute (A_tot)",
-        color="red",
-    )
-    '''
-    ax.grid()
     
+    ax.grid()
+    ax.set_title(get_title(pro), fontsize=8)
+
     ax.set_xlim(
         [0, df_sleep_debt["time"][len(df_sleep_debt["time"]) - 1] / (60.0 * 24)]
     )

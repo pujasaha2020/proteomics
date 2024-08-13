@@ -5,13 +5,13 @@ protocols:
     dataset: "mri"  
     t_awake_l:
       repeat:
-        count:  312 #
+        count:  12 #
         value: 960  # (24 - sleep) * 60
       append: 
         - 2160  # 36 * 60
     t_sleep_l:
       repeat: 
-       count: 312
+       count: 12
        value: 480  # sleep * 60
       append: 
        - 480  # sleep * 60
@@ -43,7 +43,7 @@ protocols:
     dataset: "5day"  
     t_awake_l:
       repeat1:
-        count: 211
+        count: 11
         value: 960  # 16 * 60
       repeat2: 
         count: 2
@@ -53,7 +53,7 @@ protocols:
         - 960  # 16 * 60
     t_sleep_l:
       repeat1: 
-        count: 211
+        count: 11
         value: 480  # 8 * 60
       repeat2:
         count:  2
@@ -115,11 +115,11 @@ protocols:
     dataset: "mppg_ctl_8H"
     t_awake_l:
       repeat: 
-        count: 216
+        count: 16
         value: 960  # 16 * 60
     t_sleep_l:
       repeat: 
-        count: 216
+        count: 16
         value: 480  # 8 * 60
     title: "Control sample: 8 hr of normal sleep schedule. n=21#3 "
     blood_sample_time:  
@@ -163,23 +163,23 @@ protocols:
     dataset: "mppg_tsd_5H"
     t_awake_l:
       repeat1: 
-        count: 300 #13
+        count: 113 #13
         value: 960  # 16 * 60
       repeat2: 
         count: 21
         value: 1140  # 19 * 60
       repeat3: 
-        count: 100 #9
+        count: 9 #9
         value: 960  # 16 * 60  
     t_sleep_l:
       repeat1: 
-        count: 300 #13
+        count: 113 #13
         value: 480 # 8 * 60
       repeat2: 
         count: 21
         value: 300  # 5 * 60
       repeat3: 
-        count: 100 #9
+        count: 9 #9
         value: 480  # 8 * 60 
     title: >
      Two days of 8 hr sleep/night, 21days of 5 hr sleep at night (Chronic Sleep Restriction). n=96#5 .    
@@ -209,7 +209,7 @@ protocols:
     dataset: "mppg_tsd_5.6H"
     t_awake_l:
       repeat1: 
-        count: 11
+        count: 111
         value: 960  # 16 * 60
       repeat2: 
         count: 2
@@ -226,8 +226,8 @@ protocols:
         value: 840
     t_sleep_l:
       repeat1: 
-        count: 11
-        value: 960  # 16 * 60
+        count: 111
+        value:  480 # 8 * 60
       repeat2: 
         count: 2
         value: 600 # 10 * 60

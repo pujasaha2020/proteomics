@@ -1,6 +1,27 @@
 '''
-script to run the tests
-
+script to run the adenosine model for sleep debt calculation
+read_yaml(): read the yaml files, protocols.yaml and parameters.yaml
+get_protocols(): get the list of protocols to run, currently we have 13 of them in protocols.yaml.
+construct_protocol(): construct the sleep and wake time list for each protocol. 
+                      t_awake_l and t_sleep_l are list of sleep and wake duration respectively.
+get_status(): get the status of the individual, whether he is awake or asleep
+              based on the time interval.
+ode_chronic(): differential equations for Adenosine and R1 receptor concentration.
+calculate_debt(): calculate sleep debt for a given protocol object from Adenosine model.
+                  this functions call ode_chronic() to solve the differential
+                  equations using solve_ivp().This function uses Protocol 
+                  class to get the time sequence for sleep/awake duration.
+Protocol class: class to represent a protocol, it has name, t_awake_l and t_sleep_l as attributes.
+                fill(): fill the protocol with t_awake_l and t_sleep_l
+                time_sequence(): get time sequence for sleep-awake status
+                plot(): get plot for the protocol, calls get_plot() from plotting.py
+protocol_object_list(): create list of protocol objects     
+run_sleepdebt_model(): run sleep debt model for all the protocols.  
+                       It calls get_protocols(), construct_protocol(),
+                       Protocol class, calculate_debt() and Protocol.plot(). 
+At the end of the scripts all the parameters are defined.
+Some of the parameters are being read from "parameters.yaml" file. 
+Rest of them are calculated from the parameters read from the yaml file.                            
 '''
 import numpy as np
 import pandas as pd
@@ -9,7 +30,7 @@ import yaml
 
 
 import matplotlib.pyplot as plt
-from plotting import get_plot
+from datasets.sleepdebt.adenosine_model.plotting import get_plot
 
 
 def read_yaml(file_path)->dict:
@@ -22,7 +43,7 @@ def read_yaml(file_path)->dict:
 def get_protocols()->list:
     " getting protocols list as string"
     protocol_list = []
-    for i in range(1,2):  # Assuming you have 3 protocols
+    for i in range(5,7):  # Assuming you have 3 protocols
         if i == 8:
             for j in range(1, 2):
                 function_name = f"protocol{i}_{j}"
@@ -98,14 +119,7 @@ def ode_chronic(t, y, status)->list:
     a1b = 0.5 * (term - np.sqrt(discriminant))
     #Au = y[0] - A1b - params[4]
     #Ru = y[1] - A1b
-    '''
-    if (t==0):
-        a1b = gamma*y[1]
-    else:
-        a1b = 0.5 * (term - np.sqrt(discriminant))
-    '''
-    if (t==0):
-        print("R1b", a1b)
+    
     #if(t==0):
     #print("*gamma*", a1b/y[1])    
 
@@ -217,7 +231,8 @@ class Protocol:
 
         dataset_name= DATA["protocols"][self.name]["dataset"]
         df_sleep_debt.to_csv("/Users/pujasaha/Desktop/SleepDebt/data_with_sleepdebt/AdenosineModel/{}_class.csv".format(dataset_name), index=False) 
-
+        print("Chronic at t=1440", df_sleep_debt.loc[df_sleep_debt['time'] == 1440, 'Chronic'].values)
+        print("Chronic at t=1440*110", df_sleep_debt.loc[df_sleep_debt['time'] == 14400 , 'Chronic'].values)
         get_plot(self, df_sleep_debt, ax=ax)
         # Set common x and y labels for the figure
         fig.text(0.5, 0.05, "Time (days)", ha="center", va="center")
@@ -267,8 +282,8 @@ def run_sleepdebt_model()-> None:
         j = j + 1
 
 
-PROTOCOL_PATH = '/Users/pujasaha/Desktop/SleepDebt/Python_scripts/adenosine_model/protocols.yaml'
-PARAMETER_PATH = '/Users/pujasaha/Desktop/SleepDebt/Python_scripts/adenosine_model/parameters.yaml'
+PROTOCOL_PATH = '/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/adenosine_model/protocols.yaml'
+PARAMETER_PATH = '/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/adenosine_model/parameters.yaml'
 DATA= read_yaml(PROTOCOL_PATH)
 adenosine = read_yaml(PARAMETER_PATH)
 au_i= adenosine["parameters"]['set1']["au_i"]

@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from model import simulate_unified
-from plotting import get_plot
+from datasets.sleepdebt.unified_model.model import simulate_unified
+from datasets.sleepdebt.unified_model.plotting import get_plot
 
 FILE_PATH = (
     "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
