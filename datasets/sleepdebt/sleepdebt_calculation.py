@@ -174,7 +174,7 @@ class Protocol:
         ax = fig.add_subplot(111)  # 111 means 1 row, 1 column, 1st subplot
 
         result = calculate_debt(self)
-        data = list(result)#[pair for pair in list(result)]
+        data = list(result)  # [pair for pair in list(result)]
 
         df_sleep_debt = pd.DataFrame(data, columns=["time", "l", "s"])
         df_sleep_debt["status"] = df_sleep_debt["time"].apply(
