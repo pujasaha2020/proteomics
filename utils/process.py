@@ -22,7 +22,6 @@ def drop_proteins_without_samples(df: pd.DataFrame):
     proteins = [col for col in df.columns if col[0] == "proteins"]
     empty_proteins = [col for col in proteins if df[col].isna().all()]
     df.drop(columns=empty_proteins, inplace=True)
-    df.reset_index(drop=True, inplace=True)
 
 
 def drop_proteins_with_missing_samples(df: pd.DataFrame):
@@ -30,7 +29,15 @@ def drop_proteins_with_missing_samples(df: pd.DataFrame):
     proteins = [col for col in df.columns if col[0] == "proteins"]
     empty_proteins = [col for col in proteins if df[col].isna().any()]
     df.drop(columns=empty_proteins, inplace=True)
-    df.reset_index(drop=True, inplace=True)
+
+
+def drop_all_but_circadian_proteins(df: pd.DataFrame, aptamers: pd.DataFrame):
+    """Drop proteins that are not circadian"""
+    df_proteins = set(df[["proteins"]].droplevel(0, axis=1).columns)
+    circadian_proteins = set(aptamers[aptamers.category == "circadian"].index)
+    no_circadian = df_proteins.difference(circadian_proteins)
+    proteins2drop = pd.MultiIndex.from_product([["proteins"], no_circadian])
+    df.drop(columns=proteins2drop, inplace=True)
 
 
 def log_normalize_proteins(df: pd.DataFrame):

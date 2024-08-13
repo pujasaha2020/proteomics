@@ -6,6 +6,7 @@ import pytest
 
 from utils.process import (
     bridge_v40_to_v41,
+    drop_all_but_circadian_proteins,
     drop_high_cv_proteins,
     drop_old_samples,
     drop_proteins_with_missing_samples,
@@ -23,9 +24,10 @@ def input_aptamers() -> pd.DataFrame:
         "Total CV Plasma": [0.1, 0.2, None, None, 0.2],
         "Plasma Lin's CCC": [0.8, 0.7, None, 0.8, 0.9],
         "Plasma Scalar v4.1 to v4.0": [1.1, 1.2, 1.3, None, None],
+        "category": ["circadian", None, "rhythmic", "circadian", None],
     }
     index = ["1", "2", "3", "5", "6"]
-    return pd.DataFrame(data, index=index, dtype=float)
+    return pd.DataFrame(data, index=index)
 
 
 #################### HIGH CV ####################
@@ -160,8 +162,12 @@ def test_log_normalize_proteins(df: pd.DataFrame):
 
 
 ############ DROP PROTEINS WITHOUT SAMPLES ############
-def test_drop_proteins_with_missing_samples():
-    """Test drop_proteins_without_samples function"""
+######### DROP ALL BUT CIRCADIAN PROTEINS #############
+
+
+@pytest.fixture(name="df_1")
+def input_df_1() -> pd.DataFrame:
+    """Return a dataframe without proteins columns"""
     data = {
         ("proteins", "1"): [None, 2, 3],
         ("proteins", "2"): [None, None, None],
@@ -169,14 +175,30 @@ def test_drop_proteins_with_missing_samples():
         ("proteins", "4"): [1, 2, 3],
         ("infos", "age"): [15, 10, 20],
     }
-    df = pd.DataFrame(data)
+    return pd.DataFrame(data)
+
+
+def test_drop_proteins_with_missing_samples(df_1: pd.DataFrame):
+    """Test drop_proteins_without_samples function"""
     expected_data = {
         ("proteins", "4"): [1, 2, 3],
         ("infos", "age"): [15, 10, 20],
     }
     expected_df = pd.DataFrame(expected_data)
-    result_df = df.copy()
+    result_df = df_1.copy()
     drop_proteins_with_missing_samples(result_df)
+    pd.testing.assert_frame_equal(result_df, expected_df)
+
+
+def test_drop_all_but_circadian_proteins(df_1: pd.DataFrame, aptamers: pd.DataFrame):
+    """Test drop_all_but_circadian_proteins function"""
+    expected_data = {
+        ("proteins", "1"): [None, 2, 3],
+        ("infos", "age"): [15, 10, 20],
+    }
+    expected_df = pd.DataFrame(expected_data)
+    result_df = df_1.copy()
+    drop_all_but_circadian_proteins(result_df, aptamers)
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
