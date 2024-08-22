@@ -18,6 +18,8 @@ PATH = {
         "archives/sleep_debt/SleepDebt_Data/proteomic_with_sleepdebt_mri_5day_mppg_"
         + "dinges_faa_FD_Zeitzer_030124AS_062524PS.csv"
     ),
+    "protocols": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/protocols.yaml"),
+    "parameters": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/parameters.yaml"),
 }
 
 
@@ -135,3 +137,17 @@ def get_sizes(box: BoxManager, path: Path = PATH["proteomics"]) -> list[list[int
     if "n_samples, n_proteins" not in sizes:
         raise ValueError("Invalid size analysis results")
     return sizes["n_samples, n_proteins"]
+
+
+def get_protocols_from_box(box: BoxManager, path: Path = PATH["protocols"]) -> dict:
+    """get protocols from box"""
+    file = box.get_file(path)
+    data = yaml.safe_load(file)
+    return data
+
+
+def get_parameters_from_box(box: BoxManager, path: Path = PATH["parameters"]) -> dict:
+    """get protocols from box"""
+    file = box.get_file(path)
+    params = yaml.safe_load(file)
+    return params
