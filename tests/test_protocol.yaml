@@ -1,0 +1,23 @@
+protocols:
+  protocol1:
+    description: 'Function defining protocol "mri", one night of 8-hour sleep,
+      36 hours awake, 8 hours recovery night.'
+    dataset: "mri"
+    t_awake_l:
+      repeat:
+        count: 1 #
+        value: 10 # (24 - sleep) * 60
+      append:
+        - 20 # 36 * 60
+    t_sleep_l:
+      repeat:
+        count: 1
+        value: 10 # sleep * 60
+      append:
+        - 10 # sleep * 60
+    title: "One night of 8 hr sleep, 36 hr Constant Routine (CR). n=152#9."
+    blood_sample_time:
+      - 12.08
+      - 12.16
+      - 12.25
+      - 12.33
