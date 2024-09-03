@@ -312,7 +312,7 @@ protocols:
       repeat3:
         count: 8
         value: 480 # 8 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake.n=22#9"
     blood_sample_time:
       - 11.53
       - 11.74
@@ -370,7 +370,7 @@ protocols:
       repeat4:
         count: 8
         value: 600 # 10 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22#9."
     blood_sample_time:
       - 11.53
       - 11.74
@@ -426,7 +426,7 @@ protocols:
       repeat3:
         count: 8
         value: 480 # 8 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22#9."
     blood_sample_time:
       - 11.53
       - 11.74
@@ -484,7 +484,7 @@ protocols:
       repeat4:
         count: 8
         value: 600 # 10 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22#9."
     blood_sample_time:
       - 11.53
       - 11.74
@@ -540,7 +540,7 @@ protocols:
       repeat3:
         count: 8
         value: 480 # 8 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22#9."
     blood_sample_time:
       - 11.53
       - 11.74
@@ -598,7 +598,7 @@ protocols:
       repeat4:
         count: 8
         value: 600 # 10 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22#9."
     blood_sample_time:
       - 11.53
       - 11.74
@@ -650,7 +650,7 @@ protocols:
       repeat3:
         count: 8
         value: 480 # 8 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22#9."
     blood_sample_time:
       - 11.53
       - 11.74
@@ -708,7 +708,7 @@ protocols:
       repeat4:
         count: 8
         value: 600 # 10 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22#9."
     blood_sample_time:
       - 11.53
       - 11.74
@@ -760,7 +760,7 @@ protocols:
       repeat3:
         count: 8
         value: 480 # 8 * 60
-    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22."
+    title: "Forced Desynchrony 11hr 40 min asleep and 16hr 20min awake. n=22#9."
     blood_sample_time:
       - 11.53
       - 11.74
@@ -970,9 +970,8 @@ protocols:
         - 600
       append5:
         - 600
-    title:
-      "10 days protocol: 12 hr and 10 hr sleep on two baselines nights, \n \
-      Chronic Sleep Restriction Day (CSRD) five days with 6 hr sleep, \n\
+    title: "10 days protocol: 12 hr and 10 hr sleep on two baselines nights,
+      Chronic Sleep Restriction Day (CSRD) five days with 6 hr sleep,
       2 recovery nights of 10 hr Sleep.n=54#4 "
     blood_sample_time:
       - 12.55

@@ -32,15 +32,16 @@ import pandas as pd
 import yaml
 from scipy.integrate import solve_ivp
 
-from box.manager import BoxManager
+# from box.manager import BoxManager
 from datasets.sleepdebt.adenosine_model.plotting import get_plot
 from utils.get import get_box, get_parameters_from_box, get_protocols_from_box
 from utils.save import save_to_csv
 
-BOX_PATH={ 
-      "plots": Path("results/sleep_debt/sleepDebt_curves/ligand_receptor_model/"),
+BOX_PATH = {
+    "plots": Path("results/sleep_debt/sleepDebt_curves/ligand_receptor_model/"),
     "csvs": Path("archives/sleep_debt/SleepDebt_Data/ligand_receptor_model/sleepdebt/"),
 }
+
 
 def get_protocols() -> list:
     "getting protocols list as string"
@@ -264,18 +265,19 @@ class Protocol:
 
         get_plot(self, df_sleep_debt, ax=ax)
         # Set common x and y labels for the figure
-        fig.text(0.5, 0.05, "Time (days)", ha="center", va="center")
+        fig.text(0.5, 0.05, "Time (days)", ha="center", va="center", fontsize=14)
         fig.text(
             0.06,
             0.5,
-            "Adenosine/ Receptor concentration (nM)",
+            "Adenosine/Receptor concentration (nM)",
             ha="center",
             va="center",
             rotation="vertical",
+            fontsize=14,
         )
 
         handles, labels = ax.get_legend_handles_labels()
-        fig.legend(handles, labels, loc="upper center", ncol=3)
+        fig.legend(handles, labels, loc="upper center", ncol=3, fontsize=14)
         return fig
 
 
@@ -290,7 +292,7 @@ def run_sleepdebt_model() -> None:
     """
     Run sleep debt model
     """
-    #j = 1
+    # j = 1
 
     # Parameters for subplot grid
     # rows = 2
@@ -305,8 +307,8 @@ def run_sleepdebt_model() -> None:
     for protocol in protocol_objects:
         t_ae_sl = construct_protocol(DATA, protocol.name)
         protocol.fill(t_ae_sl[0], t_ae_sl[1])
-        
-        local_file_path = f"sleep_debt_adenosine_{DATA["protocols"][protocol.name]["dataset"]}.png"
+        name = DATA["protocols"][protocol.name]["dataset"]
+        local_file_path = f"sleep_debt_adenosine_{name}.png"
         plot1 = protocol.plot()
         plot1.savefig(local_file_path)
 
@@ -315,9 +317,55 @@ def run_sleepdebt_model() -> None:
         file.seek(0)
 
         # Upload the figure to Box
-        box.save_file(file, BOX_PATH["plots"] / f"sleep_debt_adenosine_{DATA["protocols"][protocol.name]["dataset"]}.png")
+        box.save_file(file, BOX_PATH["plots"] / f"sleep_debt_adenosine_{name}.png")
+        plt.close(plot1)
 
-        #j = j + 1
+        # j = j + 1
+
+
+def zeitzer_sample() -> None:
+    """
+    some of the Zeitzer subject have different sleep wake schedule. So calculating  sleep debt separately
+    for those subjects.
+    """
+    file = box.get_file(BOX_PATH["csvs"] / "zeitzer_uncommon_protocol_from_python.csv")
+    df_zeitzer_uncommon = pd.read_csv(file)
+    subject = df_zeitzer_uncommon["subject"].unique()
+
+    for sub in subject:
+        hr_awake = int(
+            df_zeitzer_uncommon.loc[
+                df_zeitzer_uncommon["subject"] == sub, "hours_awake"
+            ].values[0]
+        )
+        hr_sleep = int(
+            df_zeitzer_uncommon.loc[
+                df_zeitzer_uncommon["subject"] == sub, "hours_sleep"
+            ].values[0]
+        )
+        hr_awake1 = int(
+            df_zeitzer_uncommon.loc[
+                df_zeitzer_uncommon["subject"] == sub, "hours_awake1"
+            ].values[0]
+        )
+        N_rest = 11  # 11
+
+        t_awake_l = N_rest * [16 * 60] + [hr_awake] + [hr_awake1]
+        t_sleep_l = N_rest * [8 * 60] + [hr_sleep] + [480]
+
+        protocol = Protocol(f"zeitzer_uncommon_{sub}")
+        protocol.fill(t_awake_l, t_sleep_l)
+        protocol.time_sequence()
+        df_sleep_debt = calculate_debt(protocol)
+        df_sleep_debt["status"] = df_sleep_debt["time"].apply(
+            lambda x: get_status(x, protocol.time_sequence())
+        )
+        save_to_csv(
+            box,
+            df_sleep_debt,
+            BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_class.csv",
+            index=False,
+        )
 
 
 # PROTOCOL_PATH = "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/adenosine_model/protocols.yaml"
@@ -354,4 +402,6 @@ mu_s = 596.4  # param3*A_tot
 mu_w = 869.5  # (A_tot - param3*0.65)/0.36
 
 
-run_sleepdebt_model()
+if __name__ == "__main__":
+    run_sleepdebt_model()
+    # zeitzer_sample()

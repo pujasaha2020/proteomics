@@ -7,11 +7,10 @@ parameters:
     # In mammals, micro dialysis measurements of extracellular unbound adenosine concentration, Au, report concentrations around 30nM in the basal forebrain.
     kd1: 1
     kd2: 100
-    k1:  0.1 # binding rate
-    k2:  0    # unbinding rate setting at 0 , will be calculated from k1 and kd1
+    k1: 0.1 # binding rate
+    k2: 0 # unbinding rate setting at 0 , will be calculated from k1 and kd1
     beta: 0 # will be calculated from kd1
-    param3: 0.85   # needed to calculate lower asymptote of A_tot during sleep (nM)
+    param3: 0.85 # needed to calculate lower asymptote of A_tot during sleep (nM)
     chi_w: 1090.8 # time constant for exponential saturation during wake (h)
-    chi_s:  252 # time constant for exponential decay during sleep (h)
+    chi_s: 252 # time constant for exponential decay during sleep (h)
     lambdas: 291
-

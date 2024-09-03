@@ -1,10 +1,10 @@
 """ Plotting tools for sleep debt calculation """
 
-
 import numpy as np
 
 # from scipy import signal
 import yaml
+
 from utils.get import get_box, get_protocols_from_box
 
 
@@ -15,7 +15,7 @@ def get_plot(pro, df_sleep_debt, ax=None):
     ax2.plot(
         df_sleep_debt["time"] / (60.0 * 24),
         df_sleep_debt["Acute"],
-        label="Acute (A_tot)",
+        # label="Acute (A_tot)",
         color="red",
     )
     ax2.set_ylabel("Acute", color="red", fontsize=14)
@@ -23,16 +23,16 @@ def get_plot(pro, df_sleep_debt, ax=None):
     ax.plot(
         df_sleep_debt["time"] / (60.0 * 24),
         df_sleep_debt["Chronic"],
-        label="Chronic( R1_tot)",
+        # label="Chronic(R1_tot)",
         color="green",
     )
     ax.set_ylabel("Chronic", color="green", fontsize=14)
 
     ax.grid()
-    ax.set_title(get_title(pro), fontsize=8)
+    ax.set_title(get_title(pro), fontsize=16)
 
     ax.set_xlim(
-        [0, df_sleep_debt["time"][len(df_sleep_debt["time"]) - 1] / (60.0 * 24)]
+        [11, df_sleep_debt["time"][len(df_sleep_debt["time"]) - 1] / (60.0 * 24)]
     )
     for i in range(1, len(pro.time_sequence()), 2):
         if i == 1:
