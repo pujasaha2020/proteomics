@@ -1,4 +1,11 @@
-# mppg csr sample: 8H and 10H of sleep time
+"""
+This piece of code do the data processing for the "mppg CSR" sample.
+It reads the sleep debt data and merge it with the proteomics data.
+note: there are subjects who participated in both 5h and 5.6 hr protocol.
+This fact is taken care of while merging the sleep debt data with the proteomics data.
+"""
+
+# pylint: disable=R0801
 
 import io
 from pathlib import Path

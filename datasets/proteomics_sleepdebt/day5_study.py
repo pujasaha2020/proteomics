@@ -1,5 +1,9 @@
-# 5day study
+"""
+This piece of code do the data processing for the "5day" sample.
+ It reads the sleep debt data and merge it with the proteomics data.
+"""
 
+# pylint: disable=R0801
 
 from pathlib import Path
 

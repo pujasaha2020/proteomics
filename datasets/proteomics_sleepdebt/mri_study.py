@@ -1,5 +1,9 @@
-# Extracting sleep debt for proteomics data or at blood collection time.
+"""
+This piece of code do the data processing for the "mri" sample.
+ It reads the sleep debt data and merge it with the proteomics data.
+"""
 
+# pylint: disable=R0801
 
 from pathlib import Path
 
@@ -51,9 +55,9 @@ def get_mri(
     print("data dimension after merging admission time", protemics_data1.shape)
 
     # Adding date and admission_date_time columns
-    protemics_data1[("profile", "date")] = (
-        "2021-12-31"  # ["2021-12-31"] * len(protemics_data1)
-    )
+    protemics_data1[
+        ("profile", "date")
+    ] = "2021-12-31"  # ["2021-12-31"] * len(protemics_data1)
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
     )

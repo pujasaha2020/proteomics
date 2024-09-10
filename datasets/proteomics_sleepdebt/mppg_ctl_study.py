@@ -1,6 +1,11 @@
 """
-mppg control sample: 8H and 10H of sleep time
+This piece of code do the data processing for the "mppg ctl" sample.
+It reads the sleep debt data and merge it with the proteomics data.
+note: there are subjects who participated in both 8h and 10 hr protocol.
+This fact is taken care of while merging the sleep debt data with the proteomics data.
 """
+
+# pylint: disable=R0801
 
 import io
 from pathlib import Path
@@ -14,13 +19,15 @@ def get_mppg_ctl(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
     """
-    get the sleep debt for the "mppg_ctl" sample, it includes both sleep time of 8H and 10H
+    get the sleep debt for the "mppg_ctl" sample, it includes both
+    sleep time of 8H and 10H
     """
     sub_admission_time = {
         "3776": "6:02",
         "3789": "7:54",
         "3812": "9:03",
-        "3547": "8:00",  # this time is for 10H protocol, will be corrected for 8H protocol. Appears both in 8H and 10H protocol
+        "3547": "8:00",  # this time is for 10H protocol, will be corrected
+        # for 8H protocol. Appears both in 8H and 10H protocol
         "3436": "7:53",  # 10H protocol
         "3369": "8:00",  # 10H protocol
         "3552": "7:30",  # 10H protocol

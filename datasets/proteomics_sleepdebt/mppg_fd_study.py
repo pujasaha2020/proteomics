@@ -1,4 +1,11 @@
-# Forced Dyschrony (FD) sample
+"""
+This piece of code do the data processing for the "mppg CSR" sample.
+It reads the sleep debt data and merge it with the proteomics data.
+note: subjects have slightly different protocols than each other. 
+This fact is taken care of while merging the sleep debt data with the proteomics data.
+"""
+
+# pylint: disable=R0801
 
 from pathlib import Path
 
@@ -11,7 +18,8 @@ def get_mppg_fd(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
     """Subject 3453
-    3453, 3536, 3552: multiple experiment, 3552 also participated in mppg control experiment
+    3453, 3536, 3552: multiple experiment, 3552 also participated
+      in mppg control experiment
     """
     sub_admission_time = {
         "3453": "7:01",  # 3453HY52---> 7:01, 3453HY73 : 6:31
@@ -180,8 +188,10 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
                 columns={("profile", "time"): ("profile", "mins_from_admission")}
             )
         )
-        # filtering the subject specific data for before merging, as sleepdebt  are different for different subject
-        # because their sleep-wake schedule is little different although they are in same protocol
+        # filtering the subject specific data for before merging, as sleepdebt
+        #  are different for different subject
+        # because their sleep-wake schedule is little different although
+        # they are in same protocol
         filtered_df = df[df[("ids", "experiment")].str.contains(key)]
 
         # Merging data
