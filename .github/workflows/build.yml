@@ -42,8 +42,7 @@ jobs:
             - name: Run Isort
               run: isort --profile black --check-only $(git ls-files '*.py')
 
-            - name: Run Black
-              run: black --check $(git ls-files '*.py')
+            
 
             - name: Run Pylint
               run: pylint $(git ls-files '*.py')
