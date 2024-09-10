@@ -83,6 +83,7 @@ def get_faa_ctl(
     # Reading sleep debt data
     file = box.get_file(path / "faa_ctl_class.csv")
     sleep_debt_faa_ctl = pd.read_csv(file)
+    sleep_debt_faa_ctl.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
     multi_level_columns = [
         ("profile", "time"),

@@ -1,15 +1,15 @@
 """ Plotting tools for sleep debt calculation """
 
+import matplotlib.pyplot as plt
 import numpy as np
-
-# from scipy import signal
-import yaml
 
 from utils.get import get_box, get_protocols_from_box
 
+# from scipy import signal
+
 
 # def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
-def get_plot(pro, df_sleep_debt, ax=None):
+def get_plot(pro, df_sleep_debt, ax=None) -> plt.Axes:
     """getting the plot for the sleep debt"""
     ax2 = ax.twinx()
     ax2.plot(
@@ -80,13 +80,7 @@ def get_plot(pro, df_sleep_debt, ax=None):
             ticks=np.arange(11, int(max(df_sleep_debt["time"]) / (60.0 * 24)) + 1),
             labels=np.arange(0, int(max(df_sleep_debt["time"]) / (60.0 * 24) - 11) + 1),
         )
-
-
-def read_yaml(file_path):
-    """read yaml file"""
-    with open(file_path, encoding="utf-8") as file:
-        data = yaml.safe_load(file)
-    return data
+    return ax
 
 
 def get_title(pro):

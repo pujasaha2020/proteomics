@@ -91,6 +91,7 @@ def get_faa_tsd(
     # Reading sleep debt data
     file = box.get_file(path / "faa_tsd_class.csv")
     sleep_debt_faa_tsd = pd.read_csv(file)
+    sleep_debt_faa_tsd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
     multi_level_columns = [
         ("profile", "time"),

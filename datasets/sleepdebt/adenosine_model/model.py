@@ -1,6 +1,6 @@
 """
 script to run the adenosine model for sleep debt calculation
-get_protocols(): get the list of protocols to run, currently we have 13 of them in protocols.yaml.
+get_protocols(): get the list of protocols, currently we have 13 of them in protocols.yaml.
 construct_protocol(): construct the sleep and wake time list for each protocol. 
                       t_awake_l and t_sleep_l are list of sleep and wake duration respectively.
 get_status(): get the status of the individual, whether he is awake or asleep
@@ -29,7 +29,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import yaml
 from scipy.integrate import solve_ivp
 
 # from box.manager import BoxManager
@@ -109,7 +108,7 @@ def construct_protocol(data, protocol_name) -> tuple:
     return t_awake_l, t_sleep_l
 
 
-def get_status(t, time_ct) -> str:
+def get_status(t: int, time_ct: list[int]) -> str:
     """getting sleep/wake status based on time interval"""
     s = "awake"
     for i in range(1, len(time_ct), 2):
@@ -120,7 +119,7 @@ def get_status(t, time_ct) -> str:
     return s
 
 
-def ode_chronic(t, y, status) -> list:
+def ode_chronic(_, y: list, status: int) -> list:
     """
     Differential equations for Adenosine and R1 receptor sleep debt.
     """
@@ -144,66 +143,6 @@ def ode_chronic(t, y, status) -> list:
     dy2 = (1 / lambda1) * (a1b - (y[1] * gamma))
 
     return [dy1, dy2]
-
-
-def calculate_debt(protocol) -> pd.DataFrame:
-    """
-    Calculate sleep debt for a given protocol from Adenosine model
-    """
-    atot_i = 727.8  # mu_s + .6237*(mu_w-mu_s) #727.8
-    # A_mean = mu_s + 0.302*(mu_w-mu_s)
-    r1tot_i = 586.66  # (A_mean/gamma) - (kd1/((1-gamma)*(1-beta))) #586.3
-
-    print("Initial values", atot_i, r1tot_i)
-    t0 = 0
-    r1tot, atot, t = [], [], []
-    for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):
-        t_range = np.linspace(t0, t0 + t_awake, ((t0 + t_awake) - t0) + 1)
-        status = 0
-        sol_atot = solve_ivp(
-            ode_chronic,
-            [t0, t0 + t_awake],
-            [atot_i, r1tot_i],
-            method="RK45",
-            t_eval=t_range,
-            args=(status,),
-        )
-
-        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_awake], [Atot_i, R1tot_i], method= 'RK45',t_eval=t_range)
-        t.append(sol_atot.t)
-        r1tot.append(sol_atot.y[1])
-        r1tot_i = sol_atot.y[1][-1]
-        atot_i = sol_atot.y[0][-1]
-        atot.append(sol_atot.y[0])
-        t0 = int(sol_atot.t[-1])
-
-        t_range = np.linspace(t0, t0 + t_sleep, ((t0 + t_sleep) - t0) + 1)
-        status = 1
-        sol_atot = solve_ivp(
-            ode_chronic,
-            [t0, t0 + t_sleep],
-            [atot_i, r1tot_i],
-            method="RK45",
-            t_eval=t_range,
-            args=(status,),
-        )
-
-        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_sleep], [Atot_i,R1tot_i], method= 'RK45',t_eval=t_range)
-
-        t.append(sol_atot.t)
-        r1tot.append(sol_atot.y[1])
-        r1tot_i = sol_atot.y[1][-1]
-        atot_i = sol_atot.y[0][-1]
-        atot.append(sol_atot.y[0])
-        t0 = int(sol_atot.t[-1])
-
-    df_debt = pd.DataFrame({"time": [], "Chronic": [], "Acute": []})
-    df_debt["time"] = [item for sublist in t for item in sublist]
-
-    df_debt["Acute"] = [item for sublist in atot for item in sublist]
-    df_debt["Chronic"] = [item for sublist in r1tot for item in sublist]
-
-    return df_debt
 
 
 class Protocol:
@@ -263,7 +202,7 @@ class Protocol:
             index=False,
         )
 
-        get_plot(self, df_sleep_debt, ax=ax)
+        ax = get_plot(self, df_sleep_debt, ax=ax)
         # Set common x and y labels for the figure
         fig.text(0.5, 0.05, "Time (days)", ha="center", va="center", fontsize=14)
         fig.text(
@@ -279,6 +218,70 @@ class Protocol:
         handles, labels = ax.get_legend_handles_labels()
         fig.legend(handles, labels, loc="upper center", ncol=3, fontsize=14)
         return fig
+
+
+def calculate_debt(protocol: Protocol) -> pd.DataFrame:
+    """
+    Calculate sleep debt for a given protocol from Adenosine model
+    """
+    atot_i = 727.8  # mu_s + .6237*(mu_w-mu_s) #727.8
+    # A_mean = mu_s + 0.302*(mu_w-mu_s)
+    r1tot_i = 586.66  # (A_mean/gamma) - (kd1/((1-gamma)*(1-beta))) #586.3
+
+    print("Initial values", atot_i, r1tot_i)
+    t0 = 0
+    r1tot, atot, t = [], [], []
+    for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):
+        t_range = np.linspace(t0, t0 + t_awake, ((t0 + t_awake) - t0) + 1)
+        status = 0
+        sol_atot = solve_ivp(
+            ode_chronic,
+            [t0, t0 + t_awake],
+            [atot_i, r1tot_i],
+            method="RK45",
+            t_eval=t_range,
+            args=(status,),
+            rtol=1e-8,  # Relative tolerance
+            atol=1e-10,  # Absolute tolerance
+        )
+
+        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_awake], [Atot_i, R1tot_i], method= 'RK45',t_eval=t_range)
+        t.append(sol_atot.t)
+        r1tot.append(sol_atot.y[1])
+        r1tot_i = sol_atot.y[1][-1]
+        atot_i = sol_atot.y[0][-1]
+        atot.append(sol_atot.y[0])
+        t0 = int(sol_atot.t[-1])
+
+        t_range = np.linspace(t0, t0 + t_sleep, ((t0 + t_sleep) - t0) + 1)
+        status = 1
+        sol_atot = solve_ivp(
+            ode_chronic,
+            [t0, t0 + t_sleep],
+            [atot_i, r1tot_i],
+            method="RK45",
+            t_eval=t_range,
+            args=(status,),
+            rtol=1e-8,  # Relative tolerance
+            atol=1e-10,  # Absolute tolerance
+        )
+
+        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_sleep], [Atot_i,R1tot_i], method= 'RK45',t_eval=t_range)
+
+        t.append(sol_atot.t)
+        r1tot.append(sol_atot.y[1])
+        r1tot_i = sol_atot.y[1][-1]
+        atot_i = sol_atot.y[0][-1]
+        atot.append(sol_atot.y[0])
+        t0 = int(sol_atot.t[-1])
+
+    df_debt = pd.DataFrame({"time": [], "Chronic": [], "Acute": []})
+    df_debt["time"] = [item for sublist in t for item in sublist]
+
+    df_debt["Acute"] = [item for sublist in atot for item in sublist]
+    df_debt["Chronic"] = [item for sublist in r1tot for item in sublist]
+
+    return df_debt
 
 
 def protocol_object_list(protocol_list) -> list[Protocol]:
@@ -328,6 +331,23 @@ def zeitzer_sample() -> None:
     some of the Zeitzer subject have different sleep wake schedule. So calculating  sleep debt separately
     for those subjects.
     """
+
+    def df_zeitzer(sub, t_awake_l, t_sleep_l) -> None:
+
+        pro = Protocol(f"zeitzer_uncommon_{sub}")
+        pro.fill(t_awake_l, t_sleep_l)
+        pro.time_sequence()
+        df_sleep_debt = calculate_debt(pro)
+        df_sleep_debt["status"] = df_sleep_debt["time"].apply(
+            lambda x: get_status(x, pro.time_sequence())
+        )
+        save_to_csv(
+            box,
+            df_sleep_debt,
+            BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_class.csv",
+            index=False,
+        )
+
     file = box.get_file(BOX_PATH["csvs"] / "zeitzer_uncommon_protocol_from_python.csv")
     df_zeitzer_uncommon = pd.read_csv(file)
     subject = df_zeitzer_uncommon["subject"].unique()
@@ -348,24 +368,12 @@ def zeitzer_sample() -> None:
                 df_zeitzer_uncommon["subject"] == sub, "hours_awake1"
             ].values[0]
         )
-        N_rest = 11  # 11
+        n_rest = 11  # 11
 
-        t_awake_l = N_rest * [16 * 60] + [hr_awake] + [hr_awake1]
-        t_sleep_l = N_rest * [8 * 60] + [hr_sleep] + [480]
+        t_awake_l = n_rest * [16 * 60] + [hr_awake] + [hr_awake1]
+        t_sleep_l = n_rest * [8 * 60] + [hr_sleep] + [480]
 
-        protocol = Protocol(f"zeitzer_uncommon_{sub}")
-        protocol.fill(t_awake_l, t_sleep_l)
-        protocol.time_sequence()
-        df_sleep_debt = calculate_debt(protocol)
-        df_sleep_debt["status"] = df_sleep_debt["time"].apply(
-            lambda x: get_status(x, protocol.time_sequence())
-        )
-        save_to_csv(
-            box,
-            df_sleep_debt,
-            BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_class.csv",
-            index=False,
-        )
+        df_zeitzer(sub, t_awake_l, t_sleep_l)
 
 
 # PROTOCOL_PATH = "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/adenosine_model/protocols.yaml"
@@ -404,4 +412,4 @@ mu_w = 869.5  # (A_tot - param3*0.65)/0.36
 
 if __name__ == "__main__":
     run_sleepdebt_model()
-    # zeitzer_sample()
+    zeitzer_sample()

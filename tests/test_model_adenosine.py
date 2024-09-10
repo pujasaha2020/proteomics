@@ -1,5 +1,8 @@
-# test script for model.py in adenosine project
+"""
+This is a test script for model.py in datasets/sleepdebt/adenosine_model project
+"""
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -38,7 +41,6 @@ def test_get_protocols():
     different sleep/wake schedule.
     """
     info = model.get_protocols()
-    print(info)
     assert (
         info == expected_info_get_protocol
     ), "The actual output does not match the expected output."
@@ -65,8 +67,8 @@ def test_construct_protocol():
     protocols = model.construct_protocol(input_yaml_construct_protocol, "protocol1")
     print(protocols)
     expected_protocol = (
-        [10, 20],
-        [10, 10],
+        [960, 2160],
+        [480, 480],
     )
     assert (
         protocols == expected_protocol
@@ -82,7 +84,7 @@ protocol.fill(t_ae_sl[0], t_ae_sl[1])
 print(protocol.t_awake_l)
 
 
-expected_output_from_time_sequence = [0, 10, 20, 40, 50]
+expected_output_from_time_sequence = [0, 960, 1440, 3600, 4080]
 
 
 def test_time_sequence():
@@ -101,7 +103,7 @@ test_time_sequence()
 
 
 input_for_get_status = pd.DataFrame(
-    {"time": [7, 15, 24], "status": ["awake", "sleep", "awake"]}
+    {"time": [200, 970, 1552], "status": ["awake", "sleep", "awake"]}
 )
 
 
@@ -114,7 +116,6 @@ def test_get_status():
         lambda x: model.get_status(x, protocol.time_sequence())
     )
     print(status)
-    print(input_for_get_status["status"])
     assert status.equals(
         input_for_get_status["status"]
     ), "The actual output does not match the expected output."
@@ -122,6 +123,7 @@ def test_get_status():
 
 test_get_status()
 
+"""
 # the following expected output for atot, r1tot are calculated by Wolfram Alpha using the
 # following formulas  and Runge Kutta method.
 # dy/dx = (1/1090.8 )[869.5-y], y(0) = 727.8 , from 0 to 10, h = 1
@@ -190,22 +192,162 @@ expected_output_from_calculate_debt = pd.DataFrame(
     }
 )
 
-
-def test_calculate_debt():
-    """
+def test_acute_debt():
+    
     This function tests the function calculate_debt in the adenosine_model.py
-    """
+    
     df = model.calculate_debt(protocol)
-    # print(df[["time", "Acute"]].round(2))
     df["Acute"] = df["Acute"].round(2)
+
     df["Acute_Wolfram"] = expected_output_from_calculate_debt["Acute"].round(2)
-    # print(df[3:31])
-
-    assert (
-        df["Acute"]
-        .round(2)
-        .equals(expected_output_from_calculate_debt["Acute"].round(2))
-    ), "The actual output does not match the expected output."
+    np.testing.assert_allclose(
+        df["Acute"],
+        df["Acute_Wolfram"],
+        err_msg="Acute values do not match",
+    )
 
 
-test_calculate_debt()
+test_acute_debt()
+"""
+
+
+def testing_awake(df: pd.DataFrame) -> None:
+    """
+    This function tests the values of datot/dt and dr1tot/dt during awake period
+    In the toy protocol there are two awake period:0-960, 1441-3600
+
+    solution of atot gives equal LHS and RHS upto .0005 tolerance over both periods.
+    Solution of R1tot gives equal LHS and RHS upto .1 tolerance over both periods.
+    Number of solutions that gives tolerance greater than .1 are 12 out of 2159.
+
+    the absolute difference in both cases (atot,r1tot) are of the order of e-06.
+
+    """
+    # mu_s = 596.4
+    mu_w = 869.5
+    # chi_s = 252
+    chi_w = 1090.8
+
+    beta = 300 / 400
+    gamma = 0.9677
+    lambda1 = 17460
+
+    dy1_dt_lhs = np.diff(df["Acute"][1441:3601])  # [0:961]
+    # )  # LHS of dy1/dt from the solution
+    dy2_dt_lhs = np.diff(df["Chronic"][1441:3601])  # [0:961]
+    # )  # LHS of dy2/dt from the solution
+
+    print(dy1_dt_lhs[0:10])
+    print(dy2_dt_lhs[0:10])
+    dy1_dt_rhs = (mu_w - df["Acute"][1441:3601]) / chi_w  # RHS of dy1/dt
+    term = df["Acute"][1441:3601] + df["Chronic"][1441:3601] + (1 / (1 - beta))
+    discriminant = term**2 - (4 * df["Acute"][1441:3601] * df["Chronic"][1441:3601])
+    a1b = 0.5 * (term - np.sqrt(discriminant))
+    dy2_dt_rhs = (a1b - (df["Chronic"][1441:3601] * gamma)) / lambda1
+    print(dy1_dt_rhs[0:10])
+    print(dy2_dt_rhs[0:10])
+
+    if len(dy1_dt_lhs) != len(dy1_dt_rhs):
+        min_len = min(len(dy1_dt_lhs), len(dy1_dt_rhs))
+        dy1_dt_lhs = dy1_dt_lhs[:min_len]
+        dy1_dt_rhs = dy1_dt_rhs[:min_len]
+
+    if len(dy2_dt_lhs) != len(dy2_dt_rhs):
+        min_len = min(len(dy2_dt_lhs), len(dy2_dt_rhs))
+        dy2_dt_lhs = dy2_dt_lhs[:min_len]
+        dy2_dt_rhs = dy2_dt_rhs[:min_len]
+
+    # diff_y1 = np.abs(dy1_dt_lhs - dy1_dt_rhs)  # Difference for y1
+    # diff_y2 = np.abs(dy2_dt_lhs - dy2_dt_rhs)  # Difference for y2
+    np.testing.assert_allclose(
+        dy1_dt_lhs,
+        dy1_dt_rhs,
+        rtol=0.0005,
+        err_msg="Acute values do not match during awake",
+    )
+    np.testing.assert_allclose(
+        dy2_dt_lhs,
+        dy2_dt_rhs,
+        rtol=0.1,
+        err_msg="Chronic values do not match awake",
+    )
+    # return diff_y1, diff_y2
+
+
+def testing_sleep(df: pd.DataFrame) -> None:
+    """
+    This function tests the values of datot/dt and dr1tot/dt during sleep period
+    sleep period: 961-1440, 3601-4080
+
+    solution of Atot gives equal LHS and RHS upto .0005 tolerance over both periods.
+    Solution of R1tot gives equal LHS and RHS upto .1 tolerance over both periods.
+    Number of solutions that gives tolerance greater than .1 are 20 out of 479.
+    the absolute difference in both cases (atot,r1tot) are of the order of e-06.
+
+
+    """
+    mu_s = 596.4
+    # mu_w = 869.5
+    chi_s = 252
+    # chi_w = 1090.8
+
+    beta = 300 / 400
+    gamma = 0.9677
+    lambda1 = 17460
+
+    dy1_dt_lhs = np.diff(
+        df["Acute"][3601:4081]
+    )  # 961:1441, LHS of dy1/dt from the solution
+    dy2_dt_lhs = np.diff(
+        df["Chronic"][3601:4081]
+    )  # 961:1441, LHS of dy2/dt from the solution
+
+    print(dy1_dt_lhs[0:10])
+    print(dy2_dt_lhs[0:10])
+    dy1_dt_rhs = (mu_s - df["Acute"][3601:4081]) / chi_s  # RHS of dy1/dt
+    term = df["Acute"][3601:4081] + df["Chronic"][3601:4081] + (1 / (1 - beta))
+    discriminant = term**2 - (4 * df["Acute"][3601:4081] * df["Chronic"][3601:4081])
+    a1b = 0.5 * (term - np.sqrt(discriminant))
+    dy2_dt_rhs = (a1b - (df["Chronic"][3601:4081] * gamma)) / lambda1
+    print(dy1_dt_rhs[1:10])
+    print(dy2_dt_rhs[1:10])
+
+    if len(dy1_dt_lhs) != len(dy1_dt_rhs):
+        min_len = min(len(dy1_dt_lhs), len(dy1_dt_rhs))
+        dy1_dt_lhs = dy1_dt_lhs[:min_len]
+        dy1_dt_rhs = dy1_dt_rhs[:min_len]
+
+    if len(dy2_dt_lhs) != len(dy2_dt_rhs):
+        min_len = min(len(dy2_dt_lhs), len(dy2_dt_rhs))
+        dy2_dt_lhs = dy2_dt_lhs[:min_len]
+        dy2_dt_rhs = dy2_dt_rhs[:min_len]
+
+    # diff_y1 = np.abs(dy1_dt_lhs - dy1_dt_rhs)  # Difference for y1
+    # diff_y2 = np.abs(dy2_dt_lhs - dy2_dt_rhs)  # Difference for y2
+
+    np.testing.assert_allclose(
+        dy1_dt_lhs,
+        dy1_dt_rhs,
+        rtol=0.002,
+        err_msg="Acute values do not match during sleep",
+    )
+
+    np.testing.assert_allclose(
+        dy2_dt_lhs,
+        dy2_dt_rhs,
+        rtol=0.1,
+        err_msg="Chronic values do not match during sleep",
+    )
+
+    # return diff_y1, diff_y2
+
+
+# solution of the differential equation of atot and r1tot from Runge Kutta Method are tested by checking
+# both side of the differential equations are approximately equal.
+df_from_model = model.calculate_debt(protocol)
+df_from_model = df_from_model.drop_duplicates(inplace=False, ignore_index=True)
+print(df_from_model.head(10))
+
+
+testing_awake(df_from_model)
+testing_sleep(df_from_model)

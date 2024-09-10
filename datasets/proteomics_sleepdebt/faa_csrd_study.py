@@ -35,10 +35,10 @@ def get_faa_csrd(
         sub_admission_time
     )
 
-    print("number of subjects in faa csrn", len(df_id_admit_time))
+    print("number of subjects in faa csrd", len(df_id_admit_time))
     faa_csrd_data = proteomics_data_new[proteomics_data_new.ids["study"] == "faa_csrd"]
 
-    print("data dimension before merging admission time", faa_csrd_data.shape)
+    print("data dimension before merging admission time", faa_csrd_data.columns)
     protemics_data1 = pd.merge(
         faa_csrd_data, df_id_admit_time, on=[("ids", "subject")], how="inner"
     )
@@ -83,7 +83,9 @@ def get_faa_csrd(
     # Reading sleep debt data
     file = box.get_file(path / "faa_csrd_class.csv")
     sleep_debt_faa_csrd = pd.read_csv(file)
-
+    sleep_debt_faa_csrd.drop(
+        columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
+    )
     multi_level_columns = [
         ("profile", "time"),
         ("debt", "Chronic"),

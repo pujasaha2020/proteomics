@@ -108,6 +108,7 @@ def apply_debt_5h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
     This function applies the sleep debt for 5H of sleep time
     """
     df_debt = pd.read_csv(file)
+    df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
     multi_level_columns = [
         ("profile", "time"),
@@ -155,6 +156,7 @@ def apply_debt_56h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.Data
     This function applies the sleep debt for 5.6H of sleep time
     """
     df_debt = pd.read_csv(file)
+    df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
     multi_level_columns = [
         ("profile", "time"),

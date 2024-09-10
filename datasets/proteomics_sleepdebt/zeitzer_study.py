@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from box.manager import BoxManager
+from utils.save import save_to_csv
 
 """
 Zeitzer study has subjects with different sleep-wake schedules.
@@ -155,12 +156,6 @@ def get_zeitzer_protocols(proteomics_data_new: pd.DataFrame) -> pd.DataFrame:
         )
     ]
 
-    # Save to CSV
-    df_zeitzer_uncommon.to_csv(
-        "/Users/pujasaha/Desktop/SleepDebt/SleepDebt_data/zeitzer_uncommon_protocol_from_python.csv",
-        index=False,
-    )
-
     return df_zeitzer
 
 
@@ -187,6 +182,13 @@ def get_zeitzer(
     df_zeitzer = get_zeitzer_protocols(zeitzer_data)
     print("shape df_zeitzer protocol", df_zeitzer.shape)
 
+    save_to_csv(
+        box,
+        df_zeitzer,
+        path / "zeitzer_uncommon_protocol_from_python.csv",
+        index=False,
+    )
+
     # Drop rows with missing values
     df_zeitzer = df_zeitzer.dropna(subset=[("wake_up_time")])
 
@@ -202,7 +204,7 @@ def get_zeitzer(
 
     proteins_columns = [col for col in zeitzer_data.columns if col[0] == "proteins"]
 
-    # removed rows with all proteins missing values
+    # removed rows with proteins having all missing values
     zeitzer_data_no_proteins = zeitzer_data.dropna(subset=proteins_columns, how="all")
     zeitzer_data_no_proteins = zeitzer_data_no_proteins[["ids", "infos", "profile"]]
     print(
@@ -235,7 +237,7 @@ def get_zeitzer(
     ].astype(int)
 
     # Filter for uncommon rows
-    df_zeitzer_uncommon = df_zeitzer[
+    df_zeitzer_selected = df_zeitzer[
         ~(
             (df_zeitzer[("hours_awake")] == 966.0)
             & (df_zeitzer[("hours_sleep")] == 480.0)
@@ -243,21 +245,19 @@ def get_zeitzer(
         )
     ]
 
-    exp_id = df_zeitzer_uncommon["subject"].unique()
+    exp_id = df_zeitzer_selected["subject"].unique()
     print("number of uncommon subjects", len(exp_id))
     df_uncommon = apply_debt_uncommon_routine(protemics_data1, exp_id, box, path)
-    df_zeitzer_common = df_zeitzer[
+    df_zeitzer_selected = df_zeitzer[
         (
             (df_zeitzer[("hours_awake")] == 966.0)
             & (df_zeitzer[("hours_sleep")] == 480.0)
             & (df_zeitzer[("hours_awake1")] == 540.0)
         )
     ]
-    exp_id_common = df_zeitzer_common["subject"].unique()
+    exp_id = df_zeitzer_selected["subject"].unique()
     print("number of common subjects", len(exp_id))
-    common_elements = list(set(exp_id) & set(exp_id_common))
-    print("common elements", common_elements)
-    df_common = apply_debt_common_routine(protemics_data1, exp_id_common, box, path)
+    df_common = apply_debt_common_routine(protemics_data1, exp_id, box, path)
     zeitzer_sleepdebt = pd.concat([df_common, df_uncommon])
     print("shape after merging sleepdebt", zeitzer_sleepdebt.shape)
 
@@ -273,12 +273,13 @@ def apply_debt_common_routine(
     """
     file = box.get_file(path / "Zeitzer_class.csv")
     sleep_debt_zeitzer = pd.read_csv(file)
+    sleep_debt_zeitzer.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
     multi_level_columns = [
         ("profile", "time"),
         ("debt", "Chronic"),
-        ("debt", "status"),
         ("debt", "Acute"),
+        ("debt", "status"),
     ]
     sleep_debt_zeitzer.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
@@ -328,12 +329,18 @@ def apply_debt_uncommon_routine(
         print(key)
         file = box.get_file(path / f"Zeitzer_Uncommon_{key}_class.csv")
         sleep_debt_zeitzer = pd.read_csv(file)
+        sleep_debt_zeitzer.drop(
+            columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
+        )
+        sleep_debt_zeitzer.drop(
+            columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
+        )
 
         multi_level_columns = [
             ("profile", "time"),
             ("debt", "Chronic"),
-            ("debt", "status"),
             ("debt", "Acute"),
+            ("debt", "status"),
         ]
         sleep_debt_zeitzer.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
@@ -346,7 +353,7 @@ def apply_debt_uncommon_routine(
         # filtering the subject specific data for before merging, as sleepdebt  are different for different subject
         # because their sleep-wake schedule is little different although they are in same protocol
         filtered_df = df[df[("ids", "subject")].str.contains(key)]
-        print("dim of subject specific data", filtered_df.shape)
+        # print("dim of subject specific data", filtered_df.shape)
         # Merging data
         zeitzer_sleepdebt = pd.merge(
             left=filtered_df,
@@ -355,10 +362,10 @@ def apply_debt_uncommon_routine(
             # right_on=[('profile','time')],
             how="inner",
         )
-        print(
-            "data dimension for uncommon subject specific after merging sleepdebt",
-            zeitzer_sleepdebt.shape,
-        )
+        # print(
+        #   "data dimension for uncommon subject specific after merging sleepdebt",
+        #   zeitzer_sleepdebt.shape,
+        # )
         empty_df = pd.concat([empty_df, zeitzer_sleepdebt])
         empty_df = empty_df.drop_duplicates()
     print("data dimension for uncommon subject after merging sleepdebt", empty_df.shape)

@@ -164,6 +164,7 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
         print(key)
         file = box.get_file(path / f"FD_{key}_class.csv")
         sleep_debt_fd = pd.read_csv(file)
+        sleep_debt_fd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
         multi_level_columns = [
             ("profile", "time"),

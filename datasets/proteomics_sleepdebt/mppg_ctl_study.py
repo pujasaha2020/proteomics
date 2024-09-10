@@ -110,6 +110,7 @@ def apply_debt_8h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
     This function applies the sleep debt for 8H of sleep time
     """
     df_debt = pd.read_csv(file)
+    df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
     multi_level_columns = [
         ("profile", "time"),
@@ -128,7 +129,7 @@ def apply_debt_8h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
 
     protemics_8h = df[df.ids["subject"].isin(sub_id)]
 
-    # 3547 appears in both 8H and 10H, so removing 10H experiment id for 3547 info from 8H protocol.
+    # 3547 appears in both 8H and 10H, so removing 10H experiment id for 3547  from 8H protocol.
     fil_protemics_data1_8h = protemics_8h[
         ~(
             (protemics_8h[("ids", "experiment")] == "3547HY_1")
@@ -157,6 +158,7 @@ def apply_debt_10h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.Data
     This function applies the sleep debt for 10H of sleep time"""
 
     df_debt = pd.read_csv(file)
+    df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
     multi_level_columns = [
         ("profile", "time"),

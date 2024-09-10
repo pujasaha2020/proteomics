@@ -1,20 +1,26 @@
 """ Plotting tools for sleep debt calculation """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 # from scipy import signal
 from scipy import interpolate
 from scipy.signal import find_peaks
-import yaml
 
+from utils.get import get_box, get_protocols_from_box
 
-FILE_PATH = (
-    "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
-)
+if TYPE_CHECKING:
+    # Import only during type checking to avoid circular imports
+    from datasets.sleepdebt.unified_model.sleepdebt_calculation import Protocol
 
 
 # def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
-def get_plot(pro, df_sleep_debt, ax=None):
+def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax: plt.Axes) -> tuple:
     """getting the plot for the sleep debt"""
 
     if pro.definition == "def_1":
@@ -27,19 +33,19 @@ def get_plot(pro, df_sleep_debt, ax=None):
         )
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            (df_sleep_debt["l"] - lower_envelope) * 100,
+            (df_sleep_debt["l_debt"] - lower_envelope) * 100,
             label="Sleep debt (acute)",
             color="red",
         )
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            df_sleep_debt["l"] * 100,
+            df_sleep_debt["l_debt"] * 100,
             label="Sleep debt (L)",
             color="green",
         )
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            df_sleep_debt["s"] * 100,
+            df_sleep_debt["s_debt"] * 100,
             label="Sleep homeostat (S)",
             color="orange",
             linestyle="--",
@@ -47,54 +53,62 @@ def get_plot(pro, df_sleep_debt, ax=None):
         ax.grid()
         ax.set_xlabel("Time (days)", fontsize=12)
         ax.set_ylabel("Sleep Homeostat values % (impairment \u2192)", fontsize=10)
-        df_sleep_debt["SD_Chronic"] = lower_envelope
-        df_sleep_debt["SD_Acute"] = df_sleep_debt["l"] - lower_envelope
+        new = df_sleep_debt.copy()
+        new["Chronic"] = lower_envelope
+        new["Acute"] = df_sleep_debt["l"] - lower_envelope
 
     elif pro.definition == "def_2":
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            df_sleep_debt["l"] * 100,
+            df_sleep_debt["l_debt"] * 100,
             label="Sleep debt (chronic) (L)",
             color="green",
         )
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            df_sleep_debt["s"] * 100,
+            df_sleep_debt["s_debt"] * 100,
             label="Sleep homeostat (S)",
             color="orange",
             linestyle="--",
         )
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            (df_sleep_debt["s"] - df_sleep_debt["l"]) * 100,
+            (df_sleep_debt["s_debt"] - df_sleep_debt["l_debt"]) * 100,
             label="Sleep debt (acute) (S-L)",
             color="red",
         )
         ax.grid()
+        new = df_sleep_debt.copy()
+        new["Chronic"] = df_sleep_debt["l_debt"]
+        new["Acute"] = df_sleep_debt["s_debt"] - df_sleep_debt["l_debt"]
+
         # ax.set_xlabel("Time (days)", fontsize=12)
         # ax.set_ylabel("Sleep Homeostat values % (impairment \u2192)", fontsize=10)
 
     elif pro.definition == "def_3":
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            df_sleep_debt["l"] * 100,
+            df_sleep_debt["l_debt"] * 100,
             label="Sleep debt (chronic) (L)",
             color="green",
         )
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            df_sleep_debt["s"] * 100,
+            df_sleep_debt["s_debt"] * 100,
             label="Sleep homeostat (S)",
             color="orange",
             linestyle="--",
         )
         ax.plot(
             df_sleep_debt["time"] / (60.0 * 24),
-            (df_sleep_debt["s"] - df_sleep_debt["l"]) * 100,
+            (df_sleep_debt["s_debt"] - df_sleep_debt["l_debt"]) * 100,
             label="Sleep debt (acute) (S-L)",
             color="red",
         )
         ax.grid()
+        new = df_sleep_debt.copy()
+        new["Chronic"] = df_sleep_debt["l_debt"]
+        new["Acute"] = df_sleep_debt["s_debt"] - df_sleep_debt["l_debt"]
         # ax.set_xlabel("Time (days)", fontsize=10)
         # ax.set_ylabel("Sleep Homeostat values % (impairment \u2192)", fontsize=12)
 
@@ -143,8 +157,10 @@ def get_plot(pro, df_sleep_debt, ax=None):
         labels=np.arange(0, int(max(df_sleep_debt["time"]) / (60.0 * 24) - 11) + 1),
     )
 
+    return ax, new
 
-def get_lower_envelope(df_sleep_debt):
+
+def get_lower_envelope(df_sleep_debt: pd.DataFrame) -> np.array:
     """getting lower envelope for definition 1"""
     # peaks, _ = find_peaks(df_sleep_debt["l"])
     trough_index, _ = find_peaks(-df_sleep_debt["l"])
@@ -167,21 +183,15 @@ def get_lower_envelope(df_sleep_debt):
     return ynew
 
 
-def read_yaml(file_path):
-    """read yaml file"""
-    with open(file_path, encoding="utf-8") as file:
-        data = yaml.safe_load(file)
-    return data
-
-
-DATA = read_yaml(FILE_PATH)
-
-
-def get_title(pro):
+def get_title(pro: Protocol) -> str:
     """getting title for the plot"""
     return DATA["protocols"][pro.name]["title"]
 
 
-def get_blood_collection_time(pro):
+def get_blood_collection_time(pro: Protocol) -> list:
     """getting blood collection time"""
     return DATA["protocols"][pro.name]["blood_sample_time"]
+
+
+box = get_box()
+DATA = get_protocols_from_box(box)
