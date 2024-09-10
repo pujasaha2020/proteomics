@@ -268,7 +268,6 @@ def zeitzer_sample() -> None:
     """
 
     def df_zeitzer(sub, t_awake_l, t_sleep_l) -> None:
-
         pro = Protocol(f"zeitzer_uncommon_{sub}", "def_2")
         pro.fill(t_awake_l, t_sleep_l)
         pro.time_sequence()
@@ -314,6 +313,5 @@ def zeitzer_sample() -> None:
 box = get_box()
 DATA = get_protocols_from_box(box)
 if __name__ == "__main__":
-
-    # run_sleepdebt_model()
+    run_sleepdebt_model()
     zeitzer_sample()

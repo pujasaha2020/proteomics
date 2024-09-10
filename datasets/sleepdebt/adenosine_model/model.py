@@ -333,7 +333,6 @@ def zeitzer_sample() -> None:
     """
 
     def df_zeitzer(sub, t_awake_l, t_sleep_l) -> None:
-
         pro = Protocol(f"zeitzer_uncommon_{sub}")
         pro.fill(t_awake_l, t_sleep_l)
         pro.time_sequence()
