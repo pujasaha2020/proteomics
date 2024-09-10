@@ -2,19 +2,25 @@
 Re-writing the sleep debt calculation script avoiding 
 functions with too many arguments. Using "Protocol" class.
 """
+
+import io
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import yaml
 
 from datasets.sleepdebt.unified_model.model import simulate_unified
 from datasets.sleepdebt.unified_model.plotting import get_plot
+from utils.get import get_box, get_protocols_from_box
+from utils.save import save_to_csv
 
-FILE_PATH = (
-    "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/protocols.yaml"
-)
+BOX_PATH = {
+    "plots": Path("results/sleep_debt/sleepDebt_curves/unified_model/"),
+    "csvs": Path("archives/sleep_debt/SleepDebt_Data/unified_model/sleepdebt/"),
+}
 
-
+'''
 def read_yaml(file_path):
     """read yaml file"""
     with open(file_path, encoding="utf-8") as file:
@@ -23,9 +29,10 @@ def read_yaml(file_path):
 
 
 DATA = read_yaml(FILE_PATH)
+'''
 
 
-def get_interval(t, time_ct):
+def get_status(t, time_ct):
     """getting sleep=wake status based on time interval"""
     s = "awake"
     for i in range(1, len(time_ct), 2):
@@ -41,7 +48,7 @@ def get_protocols():
     protocol_list = []
     for i in range(1, 14):  # Assuming you have 3 protocols
         if i == 8:
-            for j in range(1, 2):
+            for j in range(1, 10):
                 function_name = f"protocol{i}_{j}"
                 print(function_name)
                 protocol_list.append(function_name)
@@ -98,37 +105,6 @@ def construct_protocol(data, protocol_name):
     return t_awake_l, t_sleep_l
 
 
-def calculate_debt(protocol):
-    """
-    Calculate sleep debt for a given protocol from Unified model
-    """
-    up = 24.1
-    unified = True
-    s_i = 0
-    l_i = 0
-    t0 = 0
-    s, t, l = [], [], []
-    for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):
-        fd = False
-        # for FD protocol only
-        if "protocol8" in protocol.name:
-            fd = (t_awake + t_sleep) > 1440
-        if unified:
-            t1, s1, l1 = simulate_unified(
-                t_awake=t_awake, t_sleep=t_sleep, s0=s_i, l0=l_i, t0=t0, forced=fd
-            )
-        s += s1
-        t += t1
-        l += l1
-        s_i = s1[-1]
-        l_i = l1[-1]
-        t0 = t1[-1]
-    print("plotting protocol", protocol)
-    s = np.array(s) / up
-    l = np.array(l) / up
-    return list(zip(t, l, s))
-
-
 class Protocol:
     """
     Class to represent a protocol
@@ -173,16 +149,25 @@ class Protocol:
 
         ax = fig.add_subplot(111)  # 111 means 1 row, 1 column, 1st subplot
 
-        result = calculate_debt(self)
-        data = list(result)  # [pair for pair in list(result)]
+        df_sleep_debt = calculate_debt(self)
+        # data = list(result)  # [pair for pair in list(result)]
 
-        df_sleep_debt = pd.DataFrame(data, columns=["time", "l", "s"])
+        # df_sleep_debt = pd.DataFrame(data, columns=["time", "l", "s"])
         df_sleep_debt["status"] = df_sleep_debt["time"].apply(
-            lambda x: get_interval(x, self.time_sequence())
+            lambda x: get_status(x, self.time_sequence())
         )
-        get_plot(self, df_sleep_debt, ax=ax)
+
+        dataset_name = DATA["protocols"][self.name]["dataset"]
+
+        ax, df = get_plot(self, df_sleep_debt, ax=ax)
+        save_to_csv(
+            box,
+            df,
+            BOX_PATH["csvs"] / "{}_class.csv".format(dataset_name),
+            index=False,
+        )
         # Set common x and y labels for the figure
-        fig.text(0.5, 0.05, "Time (days)", ha="center", va="center")
+        fig.text(0.5, 0.05, "Time (days)", ha="center", va="center", fontsize=14)
         fig.text(
             0.06,
             0.5,
@@ -190,11 +175,52 @@ class Protocol:
             ha="center",
             va="center",
             rotation="vertical",
+            fontsize=14,
         )
 
         handles, labels = ax.get_legend_handles_labels()
         fig.legend(handles, labels, loc="upper center", ncol=3)
-        return plt
+        return fig
+
+
+def calculate_debt(protocol):
+    """
+    Calculate sleep debt for a given protocol from Unified model
+    """
+    up = 24.1
+    unified = True
+    initial_values = np.zeros(3)
+    s, t, l = [], [], []
+    for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):
+        fd = False
+        # for FD protocol only
+        if "protocol8" in protocol.name:
+            fd = (t_awake + t_sleep) > 1440
+        if unified:
+            t1, s1, l1 = simulate_unified(
+                t_awake=t_awake,
+                t_sleep=t_sleep,
+                s0=initial_values[0],
+                l0=initial_values[1],
+                t0=initial_values[2],
+                forced=fd,
+            )
+        s += s1
+        t += t1
+        l += l1
+
+        initial_values[:] = [s1[-1], l1[-1], t1[-1]]
+
+    s = np.array(s) / up
+    l = np.array(l) / up
+
+    df_debt = pd.DataFrame({"time": [], "Chronic": [], "Acute": []})
+    df_debt["time"] = t  # [item for sublist in t for item in sublist]
+
+    df_debt["l_debt"] = l  # [item for sublist in l for item in sublist]
+    df_debt["s_debt"] = s  # [item for sublist in s for item in sublist]
+
+    return df_debt
 
 
 def protocol_object_list(protocol_list):
@@ -209,7 +235,6 @@ def run_sleepdebt_model():
     """
     Run sleep debt model
     """
-    j = 1
 
     # Parameters for subplot grid
     # rows = 2
@@ -226,10 +251,69 @@ def run_sleepdebt_model():
         # print(t_ae_sl[0])
         protocol.fill(t_ae_sl[0], t_ae_sl[1])
         # print(protocol.t_awake_l)
-        print(protocol.time_sequence())
-        # ax = plt.subplot(rows, cols, j)  # (rows, columns, subplot number)
-        protocol.plot().savefig(f"sleep_debt_combined{j}.png")
-        j = j + 1
+        name = DATA["protocols"][protocol.name]["dataset"]
+        plot1 = protocol.plot()
+        file = io.BytesIO()
+        plot1.savefig(file)
+        file.seek(0)
+        # Upload the figure to Box
+        box.save_file(file, BOX_PATH["plots"] / f"sleep_debt_unified_{name}.png")
+        plt.close(plot1)
 
 
-run_sleepdebt_model()
+def zeitzer_sample() -> None:
+    """
+    some of the Zeitzer subject have different sleep wake schedule. So calculating  sleep debt separately
+    for those subjects.
+    """
+
+    def df_zeitzer(sub, t_awake_l, t_sleep_l) -> None:
+
+        pro = Protocol(f"zeitzer_uncommon_{sub}", "def_2")
+        pro.fill(t_awake_l, t_sleep_l)
+        pro.time_sequence()
+        df_sleep_debt = calculate_debt(pro)
+        df_sleep_debt["status"] = df_sleep_debt["time"].apply(
+            lambda x: get_status(x, pro.time_sequence())
+        )
+        save_to_csv(
+            box,
+            df_sleep_debt,
+            BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_class.csv",
+            index=False,
+        )
+
+    file = box.get_file(BOX_PATH["csvs"] / "zeitzer_uncommon_protocol_from_python.csv")
+    df_zeitzer_uncommon = pd.read_csv(file)
+    subject = df_zeitzer_uncommon["subject"].unique()
+
+    for sub in subject:
+        hr_awake = int(
+            df_zeitzer_uncommon.loc[
+                df_zeitzer_uncommon["subject"] == sub, "hours_awake"
+            ].values[0]
+        )
+        hr_sleep = int(
+            df_zeitzer_uncommon.loc[
+                df_zeitzer_uncommon["subject"] == sub, "hours_sleep"
+            ].values[0]
+        )
+        hr_awake1 = int(
+            df_zeitzer_uncommon.loc[
+                df_zeitzer_uncommon["subject"] == sub, "hours_awake1"
+            ].values[0]
+        )
+        n_rest = 11  # 11
+
+        t_awake_l = n_rest * [16 * 60] + [hr_awake] + [hr_awake1]
+        t_sleep_l = n_rest * [8 * 60] + [hr_sleep] + [480]
+
+        df_zeitzer(sub, t_awake_l, t_sleep_l)
+
+
+box = get_box()
+DATA = get_protocols_from_box(box)
+if __name__ == "__main__":
+
+    # run_sleepdebt_model()
+    zeitzer_sample()
