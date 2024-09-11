@@ -33,20 +33,20 @@ jobs:
               run: |
                   python -m pip install --upgrade pip
                   pip install -r requirements.txt
-                  pip install black pylint isort
-                  python -m pip install types-PyYAML
+                  pip install black pylint isort pytest
+                  python -m pip install types-PyYAML pytest-mock types-tqdm
 
             - name: Set PYTHONPATH
               run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+
+            - name: Run Isort
+              run: isort --profile black --check-only $(git ls-files '*.py')
 
             - name: Run Black
               run: black --check $(git ls-files '*.py')
 
             - name: Run Pylint
               run: pylint $(git ls-files '*.py')
-
-            - name: Run Isort
-              run: isort --check-only $(git ls-files '*.py')
 
     Test:
         runs-on: ubuntu-latest
@@ -73,15 +73,17 @@ jobs:
               run: |
                   python -m pip install --upgrade pip
                   pip install -r requirements.txt
-                  pip install pytest pytest-cov
+                  pip install pytest pytest-cov pytest-mock
 
             - name: Set PYTHONPATH
               run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
 
             - name: Create .coveragerc
               run: |
-                  echo "[run]" > .coveragerc
-                  echo "omit = tests/*" >> .coveragerc
+                  echo "[run]
+                  omit = tests/*, env/*
+                  [report]
+                  include_namespace_packages = True" > .coveragerc
 
             - name: Run tests and coverage
               run: |

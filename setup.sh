@@ -89,7 +89,7 @@ create_vscode_settings() {
     "[ignore]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
-    "editor.tabSize": 3,
+    "editor.tabSize": 4,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "notebook.formatOnSave.enabled": true,
@@ -99,13 +99,55 @@ create_vscode_settings() {
     "python.languageServer": "Pylance",
     "black-formatter.args": ["--line-length=88"],
     "pylint.args": ["--max-line-length=88"],
-    "cSpell.userWords": [
-        "boxsdk",
-        "isort",
-        "proteomics",
-        "Pylance",
-        "Pylint",
-        "tggo"
+    "cSpell.words": [
+        "aptamer",
+        "aptamers",
+        "argwhere",
+        "astype",
+        "axvline",
+        "Benjamini",
+        "cvxpy",
+        "dataframe",
+        "dataframes",
+        "droplevel",
+        "dropna",
+        "dtype",
+        "edta",
+        "Entrez",
+        "GLPK",
+        "Hochberg",
+        "hstack",
+        "iloc",
+        "isna",
+        "linestyle",
+        "logspace",
+        "MILP",
+        "mppg",
+        "multipletests",
+        "multitest",
+        "mydict",
+        "ncol",
+        "ndarray",
+        "notna",
+        "nunique",
+        "pbar",
+        "Postprocess",
+        "postprocessed",
+        "proteomic",
+        "pvalue",
+        "pvalues",
+        "pytestmark",
+        "sleepdebt",
+        "somalogic",
+        "somasupp",
+        "statsmodels",
+        "tqdm",
+        "xlabel",
+        "xlim",
+        "xscale",
+        "ylabel",
+        "ylim",
+        "Zeitzer"
     ],
 }
 EOF
@@ -170,7 +212,7 @@ create_virtual_env() {
         pip install --upgrade pip
         pip install -r requirements.txt
         echo "Installed packages from requirements.txt."
-        python -m pip install types-PyYAML coverage pytest-cov
+        python -m pip install types-PyYAML coverage pytest-cov pytest-mock
     else
         echo "requirements.txt not found. Skipping package installation."
     fi
