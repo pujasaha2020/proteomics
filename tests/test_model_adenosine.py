@@ -4,9 +4,22 @@ This is a test script for model.py in datasets/sleepdebt/adenosine_model project
 
 import numpy as np
 import pandas as pd
+
+# import pytest
 import yaml
 
-from datasets.sleepdebt.adenosine_model import model
+# from box.manager import BoxManager
+# from datasets.sleepdebt.adenosine_model import model
+from datasets.sleepdebt.adenosine_model.model import (
+    Protocol,
+    calculate_debt,
+    construct_protocol,
+    get_protocols,
+    get_status,
+)
+
+# from pytest_mock import MockerFixture
+
 
 expected_info_get_protocol = [
     "protocol1",
@@ -42,7 +55,7 @@ def test_get_protocols():
     Because different subject has
     different sleep/wake schedule.
     """
-    info = model.get_protocols()
+    info = get_protocols()
     assert (
         info == expected_info_get_protocol
     ), "The actual output does not match the expected output."
@@ -69,7 +82,7 @@ def test_construct_protocol():
     """
     This function tests the function construct_protocol in the adenosine_model.py
     """
-    protocols = model.construct_protocol(input_yaml_construct_protocol, "protocol1")
+    protocols = construct_protocol(input_yaml_construct_protocol, "protocol1")
     print(protocols)
     expected_protocol = (
         [960, 2160],
@@ -83,8 +96,8 @@ def test_construct_protocol():
 test_construct_protocol()
 
 
-protocol = model.Protocol("protocol1")
-t_ae_sl = model.construct_protocol(input_yaml_construct_protocol, protocol.name)
+protocol = Protocol("protocol1")
+t_ae_sl = construct_protocol(input_yaml_construct_protocol, protocol.name)
 protocol.fill(t_ae_sl[0], t_ae_sl[1])
 print(protocol.t_awake_l)
 
@@ -118,7 +131,7 @@ def test_get_status():
     """
     print(protocol.time_sequence())
     status = input_for_get_status["time"].apply(
-        lambda x: model.get_status(x, protocol.time_sequence())
+        lambda x: get_status(x, protocol.time_sequence())
     )
     print(status)
     assert status.equals(
@@ -263,8 +276,8 @@ def testing_sleep(df: pd.DataFrame) -> None:
 # solution of the differential equation of atot and r1tot from
 # Runge Kutta Method are tested by checking
 # both side of the differential equations are approximately equal.
-DF_MODEL = model.calculate_debt(protocol)
-DF_MODEL = DF_MODEL.drop_duplicates(inplace=False, ignore_index=True)
+DF_MODEL = calculate_debt(protocol)
+# DF_MODEL = DF_MODEL.drop_duplicates(inplace=False, ignore_index=True)
 print(DF_MODEL.head(10))
 
 
