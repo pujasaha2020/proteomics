@@ -35,9 +35,11 @@ expected_info_get_protocol = [
 
 def test_get_protocols():
     """
-    this functions creates a list of protocols that should look similar to inout_for_get_protocol
+    this functions creates a list of protocols that should look
+    similar to inout_for_get_protocol
     Protocols in the yaml file are named as "protcol1", "protocol2", etc.
-    Protocol for Forced Dysynchrony  is named as "protocol8_1" and "protocol8_2". Because different subject has
+    Protocol for Forced Dysynchrony  is named as "protocol8_1" and "protocol8_2".
+    Because different subject has
     different sleep/wake schedule.
     """
     info = model.get_protocols()
@@ -51,6 +53,9 @@ test_get_protocols()
 
 # Function to read a YAML file
 def read_yaml(file_path):
+    """
+    This function reads a yaml file and returns the data
+    """
     with open(file_path, encoding="utf-8") as file:
         data = yaml.safe_load(file)
     return data
@@ -122,93 +127,6 @@ def test_get_status():
 
 
 test_get_status()
-
-"""
-# the following expected output for atot, r1tot are calculated by Wolfram Alpha using the
-# following formulas  and Runge Kutta method.
-# dy/dx = (1/1090.8 )[869.5-y], y(0) = 727.8 , from 0 to 10, h = 1
-# dy/dx = (1/252 )[596.4-y], y(10) = 723.930618 , from 10 to 20, h = 1
-# dy/dx = (1/1090.8 )[869.5-y], y(20) = 723.931 , from 20 to 40, h = 1
-# dy/dx = (1/252 )[596.4-y], y(40) = 726.576 , from 40 to 50, h = 1
-
-expected_output_from_calculate_debt = pd.DataFrame(
-    {
-        "Acute": [
-            727.800,
-            727.930,
-            728.06,
-            728.189,
-            728.319,
-            728.448,
-            728.577,
-            728.706,
-            728.835,
-            728.964,
-            729.093,
-            729.093,
-            728.567,
-            728.044,
-            727.523,
-            727.003,
-            726.486,
-            725.971,
-            725.458,
-            724.947,
-            724.438,
-            723.931,
-            723.931,
-            724.064,
-            724.198,
-            724.331,
-            724.464,
-            724.597,
-            724.730,
-            724.862,
-            724.994,
-            725.127,
-            725.259,
-            725.392,
-            725.524,
-            725.656,
-            725.787,
-            725.919,
-            726.051,
-            726.182,
-            726.313,
-            726.445,
-            726.576,
-            726.576,
-            726.060,
-            725.547,
-            725.034,
-            724.526,
-            724.019,
-            723.513,
-            723.010,
-            722.508,
-            722.009,
-            721.511,
-        ],
-    }
-)
-
-def test_acute_debt():
-    
-    This function tests the function calculate_debt in the adenosine_model.py
-    
-    df = model.calculate_debt(protocol)
-    df["Acute"] = df["Acute"].round(2)
-
-    df["Acute_Wolfram"] = expected_output_from_calculate_debt["Acute"].round(2)
-    np.testing.assert_allclose(
-        df["Acute"],
-        df["Acute_Wolfram"],
-        err_msg="Acute values do not match",
-    )
-
-
-test_acute_debt()
-"""
 
 
 def testing_awake(df: pd.DataFrame) -> None:

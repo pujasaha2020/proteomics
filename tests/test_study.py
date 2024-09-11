@@ -1,5 +1,9 @@
-# this test script is for testing functions in datasets/proteomics_sleepdebt/*_study.py
-# for all the study same pattern for data structuring was followed so only one function is tested.
+"""
+this test script is for testing functions in 
+datasets/proteomics_sleepdebt/*_study.py
+for all the study same pattern for data structuring 
+was followed so only one function is tested.
+"""
 
 from pathlib import Path
 
@@ -217,39 +221,7 @@ def test_get_study():
     output = output.round(6)
     print(output)
     print(expected_output_df)
-    """
-    # Compare the DataFrames
-    diff = output.compare(expected_output_df)
-    print("Differences between output and expected DataFrame:")
-    print(diff)
 
-    print("Data types in Output DataFrame:")
-    print(output.dtypes)
-
-    print("Data types in Expected Output DataFrame:")
-    print(expected_output_df.dtypes)
-
-    # Check for floating point precision issues
-    if output.shape != expected_output_df.shape:
-        print("Shapes are different")
-        return False
-    for col in output.columns:
-        if output[col].dtype in [np.float64, np.float32, np.int64, np.int32]:
-            if not np.allclose(output[col], expected_output_df[col], atol=1e-8):
-                print(f"Column {col} differs")
-                return False
-        else:
-            if not output[col].equals(expected_output_df[col]):
-                print(f"Column {col} differs")
-                return False
-
-    # Check indexes
-    print("Indexes in Output DataFrame:")
-    print(output.index)
-    
-    print("Indexes in Expected Output DataFrame:")
-    print(expected_output_df.index)
-    """
     pd.testing.assert_frame_equal(output, expected_output_df)
     # assert output.equals(
     #    expected_output_df

@@ -5,23 +5,34 @@ The sleep debt data is then merged with the proteomics data.
 get_ids_profile_drop_rows_missing_proteins:
                 function that removes all rows that have no proteins. 
                 and keeps only the ids and profile and infos columns.
-get_ids_profile: function that keeps all the columns in the proteomics data.but filters only
-            the ids and profile and infos columns.This function is needed 
-            to get sleep/wake schedule for Zeitzer subjects that have different 
-            schedule than common subjects. removing rows with missing proteins removes 
+get_ids_profile: function that keeps all the columns in the proteomics data.
+             but filters only the ids and profile and infos columns.This 
+             function is needed to get sleep/wake schedule for Zeitzer subjects
+               that have different schedule than common subjects. removing 
+               rows with missing proteins removes 
             sample id needed to calculate sleep wake time. 
             sample["2", "15", "39", "52"] are needed to get number of 
             hours they sleep and awake.
-get_no_of_subjects_samples: function that gets the number of subjects and samples in each study.
-get_blood_collection_time: function that gets the blood collection time for a subject that have the maximum count in each study.
-get_mppg_ctl_csr_fd: function that gets the mppg protocol and returns the sleepdebt at clock time.
-get_faa: function that gets the faa protocol and returns the sleepdebt at clock time.
-get_mri_day5: function that gets the mri and day5 and mri protocol and returns the sleepdebt at clock time.
-get_dinges_zeitzer: function that gets the dinges and zeitzer protocol and returns the sleepdebt at clock time.
-at the end of the scripts data from unified and adenosine models are merged and saved to a csv file and stored in box.
+get_no_of_subjects_samples: function that gets the number of subjects
+                            and samples in each study.
+get_blood_collection_time: function that gets the blood collection time for
+                           a subject that have the maximum count in each study.
+get_mppg_ctl_csr_fd: function that gets the mppg protocol and returns 
+                     the sleepdebt at clock time.
+get_faa: function that gets the faa protocol and returns the 
+        sleepdebt at clock time.
+get_mri_day5: function that gets the mri and day5 and mri protocol 
+              and returns the sleepdebt at clock time.
+get_dinges_zeitzer: function that gets the dinges and zeitzer protocol and returns
+                     the sleepdebt at clock time.at the end of the scripts data 
+                     from unified and adenosine models are merged and saved to a csv 
+                     file and stored in box.
 
 
 """
+
+# pylint: disable=R0801
+
 
 from datetime import date
 from pathlib import Path

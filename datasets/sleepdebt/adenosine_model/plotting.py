@@ -1,17 +1,27 @@
 """ Plotting tools for sleep debt calculation """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from utils.get import get_box, get_protocols_from_box
 
 # from scipy import signal
 
+# pylint: disable=R0801
+if TYPE_CHECKING:
+    # Import only during type checking to avoid circular imports
+    from datasets.sleepdebt.unified_model.sleepdebt_calculation import Protocol
+
 
 # def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
-def get_plot(pro, df_sleep_debt, ax=None) -> plt.Axes:
+def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax) -> plt.Axes:
     """getting the plot for the sleep debt"""
-    ax2 = ax.twinx()
+    ax2 = ax.twinx()  # type:ignore
     ax2.plot(
         df_sleep_debt["time"] / (60.0 * 24),
         df_sleep_debt["Acute"],
@@ -31,9 +41,10 @@ def get_plot(pro, df_sleep_debt, ax=None) -> plt.Axes:
     ax.grid()
     ax.set_title(get_title(pro), fontsize=16)
 
-    ax.set_xlim(
-        [11, df_sleep_debt["time"][len(df_sleep_debt["time"]) - 1] / (60.0 * 24)]
-    )
+    # ax.set_xlim(
+    #    [11, df_sleep_debt["time"][len(df_sleep_debt["time"]) - 1] / (60.0 * 24)]
+    # )
+    ax.set_xlim((11, df_sleep_debt["time"].iloc[-1] / (60.0 * 24)))
     for i in range(1, len(pro.time_sequence()), 2):
         if i == 1:
             ax.axvspan(

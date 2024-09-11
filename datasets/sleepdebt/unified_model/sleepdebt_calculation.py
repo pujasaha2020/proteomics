@@ -267,7 +267,8 @@ def run_sleepdebt_model():
 
 def zeitzer_sample() -> None:
     """
-    some of the Zeitzer subject have different sleep wake schedule. So calculating  sleep debt separately
+    some of the Zeitzer subject have different sleep wake schedule.
+    So calculating  sleep debt separately
     for those subjects.
     """
 
