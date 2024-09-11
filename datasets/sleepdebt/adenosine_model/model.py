@@ -2,7 +2,8 @@
 script to run the adenosine model for sleep debt calculation
 get_protocols(): get the list of protocols, currently we have 13 of them in protocols.yaml.
 construct_protocol(): construct the sleep and wake time list for each protocol. 
-                      t_awake_l and t_sleep_l are list of sleep and wake duration respectively.
+                      t_awake_l and t_sleep_l are list of sleep and wake
+                        duration respectively.
 get_status(): get the status of the individual, whether he is awake or asleep
               based on the time interval.
 ode_chronic(): differential equations for Adenosine and R1 receptor concentration.
@@ -22,6 +23,8 @@ At the end of the scripts all the parameters are defined.
 Some of the parameters are being read from "parameters.yaml" file. 
 Rest of them are calculated from the parameters read from the yaml file.                            
 """
+
+# pylint: disable=R0801
 
 import io
 from pathlib import Path
@@ -137,8 +140,8 @@ def ode_chronic(_, y: list, status: int) -> list:
     # if(t==0):
     # print("*gamma*", a1b/y[1])
 
-    dy1 = status * (1 / chi_s) * (mu_s - y[0]) + (1 - status) * (1 / chi_w) * (
-        mu_w - y[0]
+    dy1 = status * (1 / chi_s) * (MU_S - y[0]) + (1 - status) * (1 / chi_w) * (
+        MU_W - y[0]
     )
     dy2 = (1 / lambda1) * (a1b - (y[1] * gamma))
 
@@ -198,7 +201,7 @@ class Protocol:
         save_to_csv(
             box,
             df_sleep_debt,
-            BOX_PATH["csvs"] / "{}_class.csv".format(dataset_name),
+            BOX_PATH["csvs"] / f"{dataset_name}_class.csv",
             index=False,
         )
 
@@ -245,7 +248,8 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
             atol=1e-10,  # Absolute tolerance
         )
 
-        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_awake], [Atot_i, R1tot_i], method= 'RK45',t_eval=t_range)
+        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_awake],
+        #  [Atot_i, R1tot_i], method= 'RK45',t_eval=t_range)
         t.append(sol_atot.t)
         r1tot.append(sol_atot.y[1])
         r1tot_i = sol_atot.y[1][-1]
@@ -266,7 +270,8 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
             atol=1e-10,  # Absolute tolerance
         )
 
-        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_sleep], [Atot_i,R1tot_i], method= 'RK45',t_eval=t_range)
+        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_sleep]
+        # , [Atot_i,R1tot_i], method= 'RK45',t_eval=t_range)
 
         t.append(sol_atot.t)
         r1tot.append(sol_atot.y[1])
@@ -328,7 +333,8 @@ def run_sleepdebt_model() -> None:
 
 def zeitzer_sample() -> None:
     """
-    some of the Zeitzer subject have different sleep wake schedule. So calculating  sleep debt separately
+    some of the Zeitzer subject have different sleep wake schedule.
+      So calculating  sleep debt separately
     for those subjects.
     """
 
@@ -375,8 +381,6 @@ def zeitzer_sample() -> None:
         df_zeitzer(sub, t_awake_l, t_sleep_l)
 
 
-# PROTOCOL_PATH = "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/adenosine_model/protocols.yaml"
-# PARAMETER_PATH = "/Users/pujasaha/Desktop/duplicate/proteomics/datasets/sleepdebt/adenosine_model/parameters.yaml"
 box = get_box()
 DATA = get_protocols_from_box(box)
 adenosine = get_parameters_from_box(box)
@@ -405,8 +409,8 @@ chi_s = adenosine["parameters"]["set1"][
 ]  # time constant for exponential decay during sleep (h)
 lambda1 = adenosine["parameters"]["set1"]["lambdas"] * 60  # 306, 291
 # A_tot= au_i*(au_i + kd1+ 600*(1-beta))/((kd1 + au_i)* (1-beta))
-mu_s = 596.4  # param3*A_tot
-mu_w = 869.5  # (A_tot - param3*0.65)/0.36
+MU_S = 596.4  # param3*A_tot
+MU_W = 869.5  # (A_tot - param3*0.65)/0.36
 
 
 if __name__ == "__main__":

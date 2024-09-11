@@ -3,6 +3,8 @@ Re-writing the sleep debt calculation script avoiding
 functions with too many arguments. Using "Protocol" class.
 """
 
+# pylint: disable=R0801
+
 import io
 from pathlib import Path
 
@@ -163,7 +165,7 @@ class Protocol:
         save_to_csv(
             box,
             df,
-            BOX_PATH["csvs"] / "{}_class.csv".format(dataset_name),
+            BOX_PATH["csvs"] / f"{dataset_name}_class.csv",
             index=False,
         )
         # Set common x and y labels for the figure
@@ -191,6 +193,8 @@ def calculate_debt(protocol):
     unified = True
     initial_values = np.zeros(3)
     s, t, l = [], [], []
+    s1, t1, l1 = [], [], []
+
     for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):
         fd = False
         # for FD protocol only

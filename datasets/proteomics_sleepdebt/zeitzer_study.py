@@ -10,7 +10,8 @@ But some subjects have different schedules.
 "get_zeitzer()" function extracts the sleep debt at blood collection time or the time 
 when proteomics data were available.
 get_zeitzer_protocols: extracts the sleep-wake schedule for each subject.
-get_zeitzer: extracts the sleep debt at blood collection time or the time when proteomics data were available.
+get_zeitzer: extracts the sleep debt at blood collection time or the time when
+             proteomics data were available.
 
 """
 
@@ -73,10 +74,8 @@ def get_zeitzer_protocols(proteomics_data_new: pd.DataFrame) -> pd.DataFrame:
 
         needed_sample_ids = ["2", "15", "39", "52"]
         if not all(
-            [
-                sample_id in df_sub[("ids", "sample_id")].values
-                for sample_id in needed_sample_ids
-            ]
+            sample_id in df_sub[("ids", "sample_id")].values
+            for sample_id in needed_sample_ids
         ):
             print("All samples are not present")
             continue
@@ -151,15 +150,6 @@ def get_zeitzer_protocols(proteomics_data_new: pd.DataFrame) -> pd.DataFrame:
 
     df_zeitzer.head()
 
-    # Filter for uncommon rows
-    df_zeitzer_uncommon = df_zeitzer[
-        ~(
-            (df_zeitzer[("hours_awake")] == "966")
-            & (df_zeitzer[("hours_sleep")] == "480")
-            & (df_zeitzer[("hours_awake1")] == "540")
-        )
-    ]
-
     return df_zeitzer
 
 
@@ -186,9 +176,18 @@ def get_zeitzer(
     df_zeitzer = get_zeitzer_protocols(zeitzer_data)
     print("shape df_zeitzer protocol", df_zeitzer.shape)
 
+    # Filter for uncommon rows
+    df_zeitzer_uncommon = df_zeitzer[
+        ~(
+            (df_zeitzer[("hours_awake")] == "966")
+            & (df_zeitzer[("hours_sleep")] == "480")
+            & (df_zeitzer[("hours_awake1")] == "540")
+        )
+    ]
+
     save_to_csv(
         box,
-        df_zeitzer,
+        df_zeitzer_uncommon,
         path / "zeitzer_uncommon_protocol_from_python.csv",
         index=False,
     )
@@ -354,8 +353,10 @@ def apply_debt_uncommon_routine(
                 sleep_debt_zeitzer.columns.values, axis=1
             ).rename(columns={("profile", "time"): ("profile", "mins_from_admission")})
         )
-        # filtering the subject specific data for before merging, as sleepdebt  are different for different subject
-        # because their sleep-wake schedule is little different although they are in same protocol
+        # filtering the subject specific data for before merging, as sleepdebt
+        # are different for different subject
+        # because their sleep-wake schedule is little different although
+        # they are in same protocol
         filtered_df = df[df[("ids", "subject")].str.contains(key)]
         # print("dim of subject specific data", filtered_df.shape)
         # Merging data

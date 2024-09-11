@@ -49,9 +49,9 @@ def get_faa_csrn(
     )
     print("data dimension after merging admission time", protemics_data1.shape)
     # Adding date and admission_date_time columns
-    protemics_data1[
-        ("profile", "date")
-    ] = "2021-12-31"  # ["2021-12-31"] * len(protemics_data1)
+    protemics_data1[("profile", "date")] = (
+        "2021-12-31"  # ["2021-12-31"] * len(protemics_data1)
+    )
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
     )
@@ -82,7 +82,6 @@ def get_faa_csrn(
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
     # print(protemics_data1[('profile','mins_from_admission')].max())
-    # protemics_data1[('profile','mins_from_admission')] = protemics_data1[('profile','mins_from_admission')].astype(int)
     protemics_data1[("profile", "mins_from_admission")] = protemics_data1[
         ("profile", "mins_from_admission")
     ].astype(int)
