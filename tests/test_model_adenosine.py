@@ -294,4 +294,7 @@ def test_mock_get_box(mocker: MockerFixture) -> None:
     """
 
     mocker.patch("datasets.sleepdebt.adenosine_model.model.get_box", return_value=None)
+    mocker.patch(
+        "datasets.sleepdebt.adenosine_model.plotting.get_box", return_value=None
+    )
     # DF_MODEL = DF_MODEL.drop_duplicates(inplace=False, ignore_index=True)
