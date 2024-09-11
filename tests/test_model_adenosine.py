@@ -260,12 +260,13 @@ def testing_sleep(df: pd.DataFrame) -> None:
     # return diff_y1, diff_y2
 
 
-# solution of the differential equation of atot and r1tot from Runge Kutta Method are tested by checking
+# solution of the differential equation of atot and r1tot from
+# Runge Kutta Method are tested by checking
 # both side of the differential equations are approximately equal.
-df_from_model = model.calculate_debt(protocol)
-df_from_model = df_from_model.drop_duplicates(inplace=False, ignore_index=True)
-print(df_from_model.head(10))
+DF_MODEL = model.calculate_debt(protocol)
+DF_MODEL = DF_MODEL.drop_duplicates(inplace=False, ignore_index=True)
+print(DF_MODEL.head(10))
 
 
-testing_awake(df_from_model)
-testing_sleep(df_from_model)
+testing_awake(DF_MODEL)
+testing_sleep(DF_MODEL)
