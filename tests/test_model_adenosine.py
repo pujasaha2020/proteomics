@@ -82,8 +82,8 @@ def read_yaml(file_path):
 def get_toy_protocol():
     """
     This function reads the yaml file and returns the data"""
-    FILE_PATH = "tests/test_protocol.yaml"
-    return read_yaml(FILE_PATH)
+    file_path = "tests/test_protocol.yaml"
+    return read_yaml(file_path)
 
 
 @pytest.fixture(name="expected_protocol")
