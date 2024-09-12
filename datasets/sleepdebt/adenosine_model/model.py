@@ -34,6 +34,8 @@ import numpy as np
 import pandas as pd
 from scipy.integrate import solve_ivp
 
+from box.manager import BoxManager
+
 # from box.manager import BoxManager
 from datasets.sleepdebt.adenosine_model.plotting import get_plot
 from utils.get import get_box, get_parameters_from_box, get_protocols_from_box
@@ -62,10 +64,10 @@ def get_protocols() -> list:
     return protocol_list
 
 
-def construct_protocol(data, protocol_name) -> tuple:
+def construct_protocol(protocol_data, protocol_name) -> tuple:
     """construct protocol from yaml file"""
     print(protocol_name)
-    protocol = data["protocols"][protocol_name]
+    protocol = protocol_data["protocols"][protocol_name]
 
     # Construct t_awake_l
     t_awake_l = []
@@ -122,12 +124,17 @@ def get_status(t: int, time_ct: list[int]) -> str:
     return s
 
 
-def ode_chronic(_, y: list, status: int) -> list:
+def ode_chronic(_, y: list, status: int, model_params: dict) -> list:
     """
     Differential equations for Adenosine and R1 receptor sleep debt.
     """
+    # k2 = model_params["k1"] * model_params["kd1"]
+    gamma = model_params["au_i"] / (
+        model_params["au_i"] + model_params["kd1"]
+    )  # target receptor occupancy setting at 0, will be calculated from au_i and kd1
+    beta = 300 / (model_params["kd2"] + 300)
 
-    term = y[0] + y[1] + kd1 / (1 - beta)
+    term = y[0] + y[1] + model_params["kd1"] / (1 - beta)
     discriminant = term**2 - 4 * y[0] * y[1]
 
     if discriminant < 0:
@@ -140,10 +147,10 @@ def ode_chronic(_, y: list, status: int) -> list:
     # if(t==0):
     # print("*gamma*", a1b/y[1])
 
-    dy1 = status * (1 / chi_s) * (MU_S - y[0]) + (1 - status) * (1 / chi_w) * (
-        MU_W - y[0]
-    )
-    dy2 = (1 / lambda1) * (a1b - (y[1] * gamma))
+    dy1 = status * (1 / model_params["chi_s"]) * (model_params["mu_s"] - y[0]) + (
+        1 - status
+    ) * (1 / model_params["chi_w"]) * (model_params["mu_w"] - y[0])
+    dy2 = (1 / model_params["lambda1"]) * (a1b - (y[1] * gamma))
 
     return [dy1, dy2]
 
@@ -183,47 +190,50 @@ class Protocol:
 
         return time_count
 
-    def plot(self) -> plt.Figure:
-        """
-        Get plot for the protocol
-        """
-        fig = plt.figure(figsize=(20, 10))
 
-        ax = fig.add_subplot(111)  # 111 means 1 row, 1 column, 1st subplot
+def plot_debt(
+    pro: Protocol, protocol_data: dict, box1: BoxManager, model_params: dict
+) -> plt.Figure:
+    """
+    Get plot for the protocol
+    """
+    fig = plt.figure(figsize=(20, 10))
 
-        df_sleep_debt = calculate_debt(self)
+    ax = fig.add_subplot(111)  # 111 means 1 row, 1 column, 1st subplot
 
-        df_sleep_debt["status"] = df_sleep_debt["time"].apply(
-            lambda x: get_status(x, self.time_sequence())
-        )
+    df_sleep_debt = calculate_debt(pro, model_params)
 
-        dataset_name = DATA["protocols"][self.name]["dataset"]
-        save_to_csv(
-            box,
-            df_sleep_debt,
-            BOX_PATH["csvs"] / f"{dataset_name}_class.csv",
-            index=False,
-        )
+    df_sleep_debt["status"] = df_sleep_debt["time"].apply(
+        lambda x: get_status(x, pro.time_sequence())
+    )
 
-        ax = get_plot(self, df_sleep_debt, ax=ax)
-        # Set common x and y labels for the figure
-        fig.text(0.5, 0.05, "Time (days)", ha="center", va="center", fontsize=14)
-        fig.text(
-            0.06,
-            0.5,
-            "Adenosine/Receptor concentration (nM)",
-            ha="center",
-            va="center",
-            rotation="vertical",
-            fontsize=14,
-        )
+    dataset_name = protocol_data["protocols"][pro.name]["dataset"]
+    save_to_csv(
+        box1,
+        df_sleep_debt,
+        BOX_PATH["csvs"] / f"{dataset_name}_class.csv",
+        index=False,
+    )
 
-        handles, labels = ax.get_legend_handles_labels()
-        fig.legend(handles, labels, loc="upper center", ncol=3, fontsize=14)
-        return fig
+    ax = get_plot(pro, df_sleep_debt, ax, protocol_data)
+    # Set common x and y labels for the figure
+    fig.text(0.5, 0.05, "Time (days)", ha="center", va="center", fontsize=14)
+    fig.text(
+        0.06,
+        0.5,
+        "Adenosine/Receptor concentration (nM)",
+        ha="center",
+        va="center",
+        rotation="vertical",
+        fontsize=14,
+    )
+
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=3, fontsize=14)
+    return fig
 
 
-def calculate_debt(protocol: Protocol) -> pd.DataFrame:
+def calculate_debt(protocol: Protocol, model_params: dict) -> pd.DataFrame:
     """
     Calculate sleep debt for a given protocol from Adenosine model
     """
@@ -243,7 +253,7 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
             [atot_i, r1tot_i],
             method="RK45",
             t_eval=t_range,
-            args=(status,),
+            args=(status, model_params),
             rtol=1e-8,  # Relative tolerance
             atol=1e-10,  # Absolute tolerance
         )
@@ -265,7 +275,7 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
             [atot_i, r1tot_i],
             method="RK45",
             t_eval=t_range,
-            args=(status,),
+            args=(status, model_params),
             rtol=1e-8,  # Relative tolerance
             atol=1e-10,  # Absolute tolerance
         )
@@ -289,14 +299,16 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
     return df_debt
 
 
-def protocol_object_list(protocol_list) -> list[Protocol]:
+def protocol_object_list(protocol_list: list) -> list[Protocol]:
     """
     Create protocol objects
     """
     return [Protocol(name) for name in protocol_list]
 
 
-def run_sleepdebt_model() -> None:
+def run_sleepdebt_model(
+    protocol_data: dict, box1: BoxManager, model_params: dict
+) -> None:
     """
     Run sleep debt model
     """
@@ -313,11 +325,11 @@ def run_sleepdebt_model() -> None:
     prot_list = get_protocols()
     protocol_objects = protocol_object_list(prot_list)
     for protocol in protocol_objects:
-        t_ae_sl = construct_protocol(DATA, protocol.name)
+        t_ae_sl = construct_protocol(protocol_data, protocol.name)
         protocol.fill(t_ae_sl[0], t_ae_sl[1])
-        name = DATA["protocols"][protocol.name]["dataset"]
+        name = protocol_data["protocols"][protocol.name]["dataset"]
         local_file_path = f"sleep_debt_adenosine_{name}.png"
-        plot1 = protocol.plot()
+        plot1 = plot_debt(protocol, protocol_data, box1, model_params)
         plot1.savefig(local_file_path)
 
         file = io.BytesIO()
@@ -325,13 +337,13 @@ def run_sleepdebt_model() -> None:
         file.seek(0)
 
         # Upload the figure to Box
-        box.save_file(file, BOX_PATH["plots"] / f"sleep_debt_adenosine_{name}.png")
+        box1.save_file(file, BOX_PATH["plots"] / f"sleep_debt_adenosine_{name}.png")
         plt.close(plot1)
 
         # j = j + 1
 
 
-def zeitzer_sample() -> None:
+def zeitzer_sample(box1: BoxManager, model_params: dict) -> None:
     """
     some of the Zeitzer subject have different sleep wake schedule.
       So calculating  sleep debt separately
@@ -342,18 +354,18 @@ def zeitzer_sample() -> None:
         pro = Protocol(f"zeitzer_uncommon_{sub}")
         pro.fill(t_awake_l, t_sleep_l)
         pro.time_sequence()
-        df_sleep_debt = calculate_debt(pro)
+        df_sleep_debt = calculate_debt(pro, model_params)
         df_sleep_debt["status"] = df_sleep_debt["time"].apply(
             lambda x: get_status(x, pro.time_sequence())
         )
         save_to_csv(
-            box,
+            box1,
             df_sleep_debt,
             BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_class.csv",
             index=False,
         )
 
-    file = box.get_file(BOX_PATH["csvs"] / "zeitzer_uncommon_protocol_from_python.csv")
+    file = box1.get_file(BOX_PATH["csvs"] / "zeitzer_uncommon_protocol_from_python.csv")
     df_zeitzer_uncommon = pd.read_csv(file)
     subject = df_zeitzer_uncommon["subject"].unique()
 
@@ -381,38 +393,34 @@ def zeitzer_sample() -> None:
         df_zeitzer(sub, t_awake_l, t_sleep_l)
 
 
-box = get_box()
-DATA = get_protocols_from_box(box)
-adenosine = get_parameters_from_box(box)
-au_i = adenosine["parameters"]["set1"]["au_i"]
-kd1 = max(adenosine["parameters"]["set1"]["kd1"], 1)
-kd1 = min(adenosine["parameters"]["set1"]["kd1"], 10)
-
-kd2 = max(adenosine["parameters"]["set1"]["kd2"], 100)
-kd2 = min(adenosine["parameters"]["set1"]["kd2"], 10000)
-k1 = adenosine["parameters"]["set1"]["k1"]
-k2 = adenosine["parameters"]["set1"]["k1"] * kd1
-gamma = au_i / (
-    au_i + kd1
-)  # target receptor occupancy setting at 0, will be calculated from au_i and kd1
-beta = adenosine["parameters"]["set1"]["beta"]
-if beta == 0:
-    beta = 300 / (kd2 + 300)
-param3 = max(adenosine["parameters"]["set1"]["param3"], 0)
-param3 = min(adenosine["parameters"]["set1"]["param3"], 1)
-
-chi_w = adenosine["parameters"]["set1"][
-    "chi_w"
-]  # time constant for exponential decay during wake (h)
-chi_s = adenosine["parameters"]["set1"][
-    "chi_s"
-]  # time constant for exponential decay during sleep (h)
-lambda1 = adenosine["parameters"]["set1"]["lambdas"] * 60  # 306, 291
-# A_tot= au_i*(au_i + kd1+ 600*(1-beta))/((kd1 + au_i)* (1-beta))
-MU_S = 596.4  # param3*A_tot
-MU_W = 869.5  # (A_tot - param3*0.65)/0.36
+def get_parameters(box1: BoxManager) -> dict:
+    """
+    Get the parameters from box and then save them in a dictionary
+    """
+    adenosine = get_parameters_from_box(box1)
+    param_dict = {
+        "au_i": adenosine["parameters"]["set1"]["au_i"],
+        "kd1": min(max(adenosine["parameters"]["set1"]["kd1"], 1), 10),
+        "kd2": min(max(adenosine["parameters"]["set1"]["kd2"], 100), 10000),
+        "k1": adenosine["parameters"]["set1"]["k1"],
+        "param3": min(max(adenosine["parameters"]["set1"]["param3"], 0), 1),
+        "chi_w": adenosine["parameters"]["set1"][
+            "chi_w"
+        ],  # time constant for exponential decay during wake (h)
+        "chi_s": adenosine["parameters"]["set1"][
+            "chi_s"
+        ],  # time constant for exponential decay during sleep (h)
+        "lambda1": adenosine["parameters"]["set1"]["lambdas"] * 60,  # 306, 291
+        "mu_s": 596.4,  # param3*A_tot
+        "mu_w": 869.5,  # (A_tot - param3*0.65)/0.36
+    }
+    return param_dict
 
 
 if __name__ == "__main__":
-    run_sleepdebt_model()
-    zeitzer_sample()
+
+    box = get_box()
+    data = get_protocols_from_box(box)
+    params = get_parameters(box)
+    run_sleepdebt_model(data, box, params)
+    # zeitzer_sample(box, params)

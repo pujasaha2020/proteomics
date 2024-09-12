@@ -1,7 +1,6 @@
 """ Unified Model for Sleep Debt Simulation """
 
-# pylint: disable=R0913
-
+# pylint: disable=R0801
 # import pandas as pd
 import numpy as np
 

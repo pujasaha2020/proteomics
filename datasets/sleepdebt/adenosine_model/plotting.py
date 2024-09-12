@@ -8,18 +8,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from utils.get import get_box, get_protocols_from_box
-
 # from scipy import signal
 
 # pylint: disable=R0801
 if TYPE_CHECKING:
     # Import only during type checking to avoid circular imports
-    from datasets.sleepdebt.unified_model.sleepdebt_calculation import Protocol
+    from datasets.sleepdebt.adenosine_model.model import Protocol
 
 
 # def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
-def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax) -> plt.Axes:
+def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax, data1) -> plt.Axes:
     """getting the plot for the sleep debt"""
     ax2 = ax.twinx()  # type:ignore
     ax2.plot(
@@ -39,7 +37,7 @@ def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax) -> plt.Axes:
     ax.set_ylabel("Chronic", color="green", fontsize=14)
 
     ax.grid()
-    ax.set_title(get_title(pro), fontsize=16)
+    ax.set_title(get_title(pro, data1), fontsize=16)
 
     # ax.set_xlim(
     #    [11, df_sleep_debt["time"][len(df_sleep_debt["time"]) - 1] / (60.0 * 24)]
@@ -60,7 +58,8 @@ def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax) -> plt.Axes:
             facecolor="grey",
             alpha=0.3,
         )
-    xcoords = get_blood_collection_time(pro)
+
+    xcoords = get_blood_collection_time(pro, data1)
     if len(xcoords) == 0:
         print("No blood collection time")
     else:
@@ -94,15 +93,11 @@ def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax) -> plt.Axes:
     return ax
 
 
-def get_title(pro):
+def get_title(pro, data):
     """getting title for the plot"""
-    return DATA["protocols"][pro.name]["title"]
+    return data["protocols"][pro.name]["title"]
 
 
-def get_blood_collection_time(pro):
+def get_blood_collection_time(pro, data):
     """getting blood collection time"""
-    return DATA["protocols"][pro.name]["blood_sample_time"]
-
-
-box = get_box()
-DATA = get_protocols_from_box(box)
+    return data["protocols"][pro.name]["blood_sample_time"]
