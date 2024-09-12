@@ -134,7 +134,7 @@ def ode_chronic(_, y: list, status: int, model_params: dict) -> list:
     )  # target receptor occupancy setting at 0, will be calculated from au_i and kd1
     beta = 300 / (model_params["kd2"] + 300)
 
-    term = y[0] + y[1] + model_params["kd1"] / (1 - beta)
+    term = y[0] + y[1] + (model_params["kd1"] / (1 - beta))
     discriminant = term**2 - 4 * y[0] * y[1]
 
     if discriminant < 0:
@@ -254,8 +254,8 @@ def calculate_debt(protocol: Protocol, model_params: dict) -> pd.DataFrame:
             method="RK45",
             t_eval=t_range,
             args=(status, model_params),
-            rtol=1e-8,  # Relative tolerance
-            atol=1e-10,  # Absolute tolerance
+            rtol=1e-6,
+            atol=1e-9,
         )
 
         # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_awake],
@@ -276,8 +276,8 @@ def calculate_debt(protocol: Protocol, model_params: dict) -> pd.DataFrame:
             method="RK45",
             t_eval=t_range,
             args=(status, model_params),
-            rtol=1e-8,  # Relative tolerance
-            atol=1e-10,  # Absolute tolerance
+            rtol=1e-6,
+            atol=1e-9,
         )
 
         # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_sleep]

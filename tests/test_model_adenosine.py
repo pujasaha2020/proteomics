@@ -5,10 +5,7 @@ This is a test script for model.py in datasets/sleepdebt/adenosine_model project
 import numpy as np
 import pandas as pd
 import pytest
-
-# import pytest
 import yaml
-from pytest_mock import MockerFixture
 
 # from box.manager import BoxManager
 # from datasets.sleepdebt.adenosine_model import model
@@ -23,32 +20,40 @@ from datasets.sleepdebt.adenosine_model.model import (
 # from pytest_mock import MockerFixture
 
 
-expected_info_get_protocol = [
-    "protocol1",
-    "protocol2",
-    "protocol3",
-    "protocol4",
-    "protocol5",
-    "protocol6",
-    "protocol7",
-    "protocol8_1",
-    "protocol8_2",
-    "protocol8_3",
-    "protocol8_4",
-    "protocol8_5",
-    "protocol8_6",
-    "protocol8_7",
-    "protocol8_8",
-    "protocol8_9",
-    "protocol9",
-    "protocol10",
-    "protocol11",
-    "protocol12",
-    "protocol13",
-]
+# from pytest_mock import MockerFixture
 
 
-def test_get_protocols():
+@pytest.fixture(name="expected_protocol_list")
+def protocol_list():
+    """
+    This function returns the list of protocols
+    """
+    return [
+        "protocol1",
+        "protocol2",
+        "protocol3",
+        "protocol4",
+        "protocol5",
+        "protocol6",
+        "protocol7",
+        "protocol8_1",
+        "protocol8_2",
+        "protocol8_3",
+        "protocol8_4",
+        "protocol8_5",
+        "protocol8_6",
+        "protocol8_7",
+        "protocol8_8",
+        "protocol8_9",
+        "protocol9",
+        "protocol10",
+        "protocol11",
+        "protocol12",
+        "protocol13",
+    ]
+
+
+def test_get_protocols(expected_protocol_list: list):
     """
     this functions creates a list of protocols that should look
     similar to inout_for_get_protocol
@@ -59,11 +64,8 @@ def test_get_protocols():
     """
     info = get_protocols()
     assert (
-        info == expected_info_get_protocol
+        info == expected_protocol_list
     ), "The actual output does not match the expected output."
-
-
-test_get_protocols()
 
 
 # Function to read a YAML file
@@ -76,42 +78,65 @@ def read_yaml(file_path):
     return data
 
 
-FILE_PATH = "tests/test_protocol.yaml"
-input_yaml_construct_protocol = read_yaml(FILE_PATH)
+@pytest.fixture(name="input_yaml_construct_protocol")
+def get_toy_protocol():
+    """
+    This function reads the yaml file and returns the data"""
+    FILE_PATH = "tests/test_protocol.yaml"
+    return read_yaml(FILE_PATH)
 
 
-def test_construct_protocol():
+@pytest.fixture(name="expected_protocol")
+def expected_output_from_construct_protocol():
+    """
+    This function returns the expected protocol
+    """
+    return (
+        [960, 2160],
+        [480, 480],
+    )
+
+
+def test_construct_protocol(
+    input_yaml_construct_protocol: dict, expected_protocol: tuple
+):
     """
     This function tests the function construct_protocol in the adenosine_model.py
     """
     protocols = construct_protocol(input_yaml_construct_protocol, "protocol1")
     print(protocols)
-    expected_protocol = (
-        [960, 2160],
-        [480, 480],
-    )
+
     assert (
         protocols == expected_protocol
     ), "The actual output does not match the expected output."
 
 
-test_construct_protocol()
+@pytest.fixture(name="expected_output_from_time_sequence")
+def output_time_sequence():
+    """
+    This function returns the expected output from time_sequence
+    """
+    return [0, 960, 1440, 3600, 4080]
 
 
-protocol = Protocol("protocol1")
-t_ae_sl = construct_protocol(input_yaml_construct_protocol, protocol.name)
-protocol.fill(t_ae_sl[0], t_ae_sl[1])
-print(protocol.t_awake_l)
+@pytest.fixture(name="protocol")
+def define_protocol(input_yaml_construct_protocol: dict):
+    """
+    This function defines the protocol
+    """
+    protocol = Protocol("protocol1")
+    t_ae_sl = construct_protocol(input_yaml_construct_protocol, protocol.name)
+
+    protocol.fill(t_ae_sl[0], t_ae_sl[1])
+    return protocol
 
 
-expected_output_from_time_sequence = [0, 960, 1440, 3600, 4080]
-
-
-def test_time_sequence():
+def test_time_sequence(protocol: Protocol, expected_output_from_time_sequence: list):
     """
     This function tests the function time_sequence in the adenosine_model.py
     """
 
+    print(protocol.t_awake_l)
     time_count = protocol.time_sequence()
     print(time_count)
     assert (
@@ -119,29 +144,28 @@ def test_time_sequence():
     ), "The actual output does not match the expected output."
 
 
-test_time_sequence()
+@pytest.fixture(name="expected_output_get_status")
+def output_from_get_status():
+    """
+    This function returns the expected output from get_status
+    """
+    return pd.DataFrame(
+        {"time": [200, 970, 1552], "status": ["awake", "sleep", "awake"]}
+    )
 
 
-input_for_get_status = pd.DataFrame(
-    {"time": [200, 970, 1552], "status": ["awake", "sleep", "awake"]}
-)
-
-
-def test_get_status():
+def test_get_status(protocol: Protocol, expected_output_get_status: pd.DataFrame):
     """
     This function tests the function get_status in the adenosine_model.py
     """
     print(protocol.time_sequence())
-    status = input_for_get_status["time"].apply(
+    status = expected_output_get_status["time"].apply(
         lambda x: get_status(x, protocol.time_sequence())
     )
     print(status)
     assert status.equals(
-        input_for_get_status["status"]
+        expected_output_get_status["status"]
     ), "The actual output does not match the expected output."
-
-
-test_get_status()
 
 
 def testing_awake(df: pd.DataFrame) -> None:
@@ -281,20 +305,20 @@ def testing_sleep(df: pd.DataFrame) -> None:
 
 
 @pytest.fixture(name="df")
-def df_model():
+def df_model(protocol: Protocol):
     """
     This function returns the dataframe for testing the model
     """
-    return calculate_debt(protocol)
-
-
-def test_mock_get_box(mocker: MockerFixture) -> None:
-    """
-    test function for model.py
-    """
-
-    mocker.patch("datasets.sleepdebt.adenosine_model.model.get_box", return_value=None)
-    mocker.patch(
-        "datasets.sleepdebt.adenosine_model.plotting.get_box", return_value=None
-    )
-    # DF_MODEL = DF_MODEL.drop_duplicates(inplace=False, ignore_index=True)
+    param_dict = {
+        "au_i": 300,
+        "kd1": 1,
+        "kd2": 100,
+        "k1": 0.1,
+        "param3": 0.85,
+        "chi_w": 1090.8,  # time constant for exponential decay during wake (h)
+        "chi_s": 252,  # time constant for exponential decay during sleep (h)
+        "lambda1": 291 * 60,  # 306, 291
+        "mu_s": 596.4,  # param3*A_tot
+        "mu_w": 869.5,  # (A_tot - param3*0.65)/0.36
+    }
+    return calculate_debt(protocol, param_dict)
