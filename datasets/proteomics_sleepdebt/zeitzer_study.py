@@ -6,9 +6,6 @@ Zeitzer study has subjects with different sleep-wake schedules.
 Most of them have a common schedule like 966 minutes of wake time, 
 480 minutes of sleep time, and 540 minutes of wake time.
 But some subjects have different schedules. 
-"get_zeitzer_protocols()" function extracts the sleep-wake schedule for each subject.
-"get_zeitzer()" function extracts the sleep debt at blood collection time or the time 
-when proteomics data were available.
 get_zeitzer_protocols: extracts the sleep-wake schedule for each subject.
 get_zeitzer: extracts the sleep debt at blood collection time or the time when
              proteomics data were available.

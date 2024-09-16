@@ -422,5 +422,5 @@ if __name__ == "__main__":
     box = get_box()
     data = get_protocols_from_box(box)
     params = get_parameters(box)
-    run_sleepdebt_model(data, box, params)
-    # zeitzer_sample(box, params)
+    # run_sleepdebt_model(data, box, params)
+    zeitzer_sample(box, params)
