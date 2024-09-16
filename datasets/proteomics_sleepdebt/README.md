@@ -6,13 +6,13 @@ This scripts structures the data and extract sleep debt at blood collection time
 python run_analysis.py
 ```
 
-All the files in this folder which ends with `\_study.py` are specific to different protocols.
+All the files in this folder which ends with `\*\_study.py` are specific to different protocols.
 Each of them structure the data and then apply the sleep debt at the time when proteomics data is available.
 
 The main script "run_analysis.py" does the follwoing jobs:
 
 - It removes the rows which do not have any proteins and pass them to each `\*\_study.py`. It only filters the columns : "ids", "infos", "profile".
-- It also pass the full dataset to "zeitzer_study.py" to get sleep wake schedule. It is explained at the top of "run_analysis.py".
+- It also pass the full dataset to `zeitzer_study.py` to get sleep wake schedule. It is explained at the top of "run_analysis.py".
 - Get the dataframe from each protocol(`\*\_study.py`) and concatenate them together. Also it produces result from both models , unified and adenosine.
 - The final output dataframe from this script will have : "ids", "infos", "profile" , "adenosine", "unified". Note: no proteomics here.
 - The dataset is named as `{input*version}\_with_sleep_debt*{date_of_generation}\_PS.csv`. The file will be saved to box at:
