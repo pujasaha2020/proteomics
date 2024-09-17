@@ -28,3 +28,5 @@ In `unified_model`:
 - `plotting.py`: this scripts do the plotting of sleepdebt curve, indicates the time when the blood is collected.
 - `model.py`: this scripts includes the solution to differential equations.
 - `sleepdebt_calculation.py`: this is the main script to run the model and get the sleepdebt.
+
+TODO: there are many functions which are common in both folders. Those will be eventually be moved to a common place.
