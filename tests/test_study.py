@@ -189,7 +189,7 @@ def load_csv_path() -> list[str]:
     """
     Load the path of the csv file
     """
-    return ["tests/adenosine/faa_csrd_class.csv", "tests/unified/faa_csrd_class.csv"]
+    return ["tests/adenosine/faa_csrd_test.csv", "tests/unified/faa_csrd_test.csv"]
 
 
 def test_get_study(
