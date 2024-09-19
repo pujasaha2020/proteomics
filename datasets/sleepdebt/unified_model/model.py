@@ -1,6 +1,5 @@
 """ Unified Model for Sleep Debt Simulation """
 
-# pylint: disable=R0913
 # import pandas as pd
 import numpy as np
 
@@ -45,8 +44,9 @@ def awake_new(t, t0=0, s0=0, l0=0):
     return s_t, l_t
 
 
-def simulate_unified(t_awake, t_sleep, s0, l0, t0, forced=False):
+def simulate_unified(t_awake, t_sleep, intials, forced=False):
     """Unified Model"""
+    s0, l0, t0 = intials
     wake_times = np.linspace(t0, (t0 + t_awake), t_awake + 1)
     # print(wake_times)
 

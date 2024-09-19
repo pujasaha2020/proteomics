@@ -204,11 +204,9 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
             fd = (t_awake + t_sleep) > 1440
         if unified:
             t1, s1, l1 = simulate_unified(
-                t_awake=t_awake,
-                t_sleep=t_sleep,
-                s0=initial_values[0],
-                l0=initial_values[1],
-                t0=initial_values[2],
+                t_awake,
+                t_sleep,
+                initial_values,
                 forced=fd,
             )
         s += s1
