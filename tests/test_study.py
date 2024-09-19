@@ -221,7 +221,7 @@ def test_get_study(
             ("profile", "mins_from_admission"),
             ("profile", "admission_date_time"),
             ("profile", "date"),
-            ("profile", "time"),
+            ("profile", "adm_time"),
         ]
     )
 
@@ -246,7 +246,7 @@ def test_get_study(
             ("profile", "mins_from_admission"),
             ("profile", "admission_date_time"),
             ("profile", "date"),
-            ("profile", "time"),
+            ("profile", "adm_time"),
         ]
     )
 
