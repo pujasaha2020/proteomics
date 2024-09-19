@@ -64,7 +64,7 @@ def get_protocols() -> list:
     return protocol_list
 
 
-def construct_protocol(protocol_data, protocol_name) -> tuple:
+def construct_protocol(protocol_data: dict, protocol_name: str) -> tuple:
     """construct protocol from yaml file"""
     print(protocol_name)
     protocol = protocol_data["protocols"][protocol_name]

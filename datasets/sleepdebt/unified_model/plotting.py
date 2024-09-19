@@ -14,15 +14,15 @@ import pandas as pd
 from scipy import interpolate
 from scipy.signal import find_peaks
 
-from utils.get import get_box, get_protocols_from_box
-
 if TYPE_CHECKING:
     # Import only during type checking to avoid circular imports
     from datasets.sleepdebt.unified_model.sleepdebt_calculation import Protocol
 
 
 # def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
-def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax: plt.Axes) -> tuple:
+def get_plot(
+    pro: Protocol, df_sleep_debt: pd.DataFrame, protocol_data: dict, ax: plt.Axes
+) -> tuple:
     """getting the plot for the sleep debt"""
 
     if pro.definition == "def_1":
@@ -116,7 +116,7 @@ def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax: plt.Axes) -> tuple:
 
     else:
         print("Invalid definition")
-    ax.set_title(get_title(pro), fontsize=6)
+    ax.set_title(get_title(pro, protocol_data), fontsize=6)
 
     ax.set_xlim(
         [11, df_sleep_debt["time"][len(df_sleep_debt["time"]) - 1] / (60.0 * 24)]
@@ -136,7 +136,7 @@ def get_plot(pro: Protocol, df_sleep_debt: pd.DataFrame, ax: plt.Axes) -> tuple:
             facecolor="grey",
             alpha=0.3,
         )
-    xcoords = get_blood_collection_time(pro)
+    xcoords = get_blood_collection_time(pro, protocol_data)
     if len(xcoords) == 0:
         print("No blood collection time")
     else:
@@ -185,15 +185,11 @@ def get_lower_envelope(df_sleep_debt: pd.DataFrame) -> np.array:
     return ynew
 
 
-def get_title(pro: Protocol) -> str:
+def get_title(pro: Protocol, protocol_data: dict) -> str:
     """getting title for the plot"""
-    return DATA["protocols"][pro.name]["title"]
+    return protocol_data["protocols"][pro.name]["title"]
 
 
-def get_blood_collection_time(pro: Protocol) -> list:
+def get_blood_collection_time(pro: Protocol, protocol_data: dict) -> list:
     """getting blood collection time"""
-    return DATA["protocols"][pro.name]["blood_sample_time"]
-
-
-box = get_box()
-DATA = get_protocols_from_box(box)
+    return protocol_data["protocols"][pro.name]["blood_sample_time"]
