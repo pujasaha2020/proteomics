@@ -55,7 +55,7 @@ from utils.get import get_box
 from utils.save import save_to_csv
 
 BOX_PATH = {
-    "proteomics": Path("archives/data/proteomics_071924_AS.csv"),
+    "proteomics": Path("archives/data/proteomics_091224_AS.csv"),
     "csvs": Path("archives/sleep_debt/SleepDebt_Data/ligand_receptor_model/sleepdebt/"),
     "csvs_unified": Path("archives/sleep_debt/SleepDebt_Data/unified_model/sleepdebt/"),
     "csv_proteomics": Path(
@@ -406,7 +406,7 @@ if __name__ == "__main__":
 
     columns_to_drop = [
         ("profile", "date"),
-        ("profile", "time"),
+        ("profile", "adm_time"),
         ("profile", "mins_from_admission"),
         ("profile", "admission_date_time"),
     ]
@@ -432,7 +432,7 @@ if __name__ == "__main__":
 
     columns_to_drop = [
         ("profile", "date"),
-        ("profile", "time"),
+        ("profile", "adm_time"),
         ("profile", "mins_from_admission"),
         ("profile", "admission_date_time"),
     ]
@@ -444,17 +444,6 @@ if __name__ == "__main__":
     )
     print("shape of all samples in unified model: ", df_sleep_debt_unified.shape)
 
-    # merge on all the columns that are common on level 0
-    # columns_level_0_adenosine = df_sleep_debt_adenosine.columns.get_level_values(0)
-    # columns_level_0_unified = df_sleep_debt_unified.columns.get_level_values(0)
-
-    # common_columns = df_sleep_debt_adenosine.columns.intersection(
-    #    df_sleep_debt_unified.columns, sort=False
-    # )
-    # print("common columns: ", common_columns)
-    # set(columns_level_0_adenosine).intersection(
-    #   columns_level_0_unified
-    # )
     # Extract level 0 and level 1 column names from both DataFrames
     columns_level_0_adenosine = df_sleep_debt_adenosine.columns.get_level_values(0)
     columns_level_0_unified = df_sleep_debt_unified.columns.get_level_values(0)

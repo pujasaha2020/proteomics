@@ -32,7 +32,7 @@ def check_proteomics(df: pd.DataFrame):
     true_toplevel_val = set(df.columns.get_level_values(0).unique())
     assert expected_toplevel_val.issubset(true_toplevel_val)
     required_columns = {
-        ("profile", "clock_time"),
+        ("profile", "time"),
         ("ids", "study"),
         ("ids", "subject"),
         ("ids", "experiment"),

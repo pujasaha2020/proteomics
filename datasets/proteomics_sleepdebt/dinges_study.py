@@ -31,7 +31,7 @@ def get_dinges(
 
     print("number of subjects in dinges", len(df_id_admit_time))
 
-    df_id_admit_time[("profile", "time")] = "8:00"
+    df_id_admit_time[("profile", "adm_time")] = "8:00"
     dinges_data = proteomics_data_new[proteomics_data_new.ids["study"] == "dinges"]
 
     print("data dimension before merging admission time", dinges_data.shape)
@@ -53,18 +53,18 @@ def get_dinges(
     protemics_data1[("profile", "admission_date_time")] = (
         protemics_data1[("profile", "date")]
         + " "
-        + protemics_data1[("profile", "time")]
+        + protemics_data1[("profile", "adm_time")]
     )
     protemics_data1[("profile", "admission_date_time")] = pd.to_datetime(
         protemics_data1[("profile", "admission_date_time")]
     )
 
-    protemics_data1[("profile", "clock_time")] = pd.to_datetime(
-        protemics_data1[("profile", "clock_time")]
+    protemics_data1[("profile", "time")] = pd.to_datetime(
+        protemics_data1[("profile", "time")]
     )
     # Calculating mins_from_admission
     protemics_data1[("profile", "mins_from_admission")] = (
-        protemics_data1[("profile", "clock_time")]
+        protemics_data1[("profile", "time")]
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
     protemics_data1[("profile", "mins_from_admission")] = protemics_data1[

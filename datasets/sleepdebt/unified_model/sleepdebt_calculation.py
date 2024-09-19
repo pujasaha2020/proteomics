@@ -49,7 +49,7 @@ def get_status(t: int, time_ct: list[int]) -> str:
 def get_protocols() -> list[str]:
     "getting protocols list as string"
     protocol_list = []
-    for i in range(12, 13):  # Assuming you have 3 protocols
+    for i in range(1, 14):  # Assuming you have 3 protocols
         if i == 8:
             for j in range(1, 10):
                 function_name = f"protocol{i}_{j}"
@@ -218,7 +218,9 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
     s = np.array(s) / up
     l = np.array(l) / up
 
-    df_debt = pd.DataFrame({"time": [], "Chronic": [], "Acute": []})
+    df_debt = pd.DataFrame(
+        {"time": [], "Chronic": [], "Acute": [], "l_debt": [], "s_debt": []}
+    )
     df_debt["time"] = t  # [item for sublist in t for item in sublist]
 
     df_debt["l_debt"] = l  # [item for sublist in l for item in sublist]
@@ -319,4 +321,4 @@ if __name__ == "__main__":
     box = get_box()
     data = get_protocols_from_box(box)
     run_sleepdebt_model(box, data)
-    # zeitzer_sample(box)
+    zeitzer_sample(box)

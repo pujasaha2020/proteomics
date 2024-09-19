@@ -79,22 +79,20 @@ def get_zeitzer_protocols(proteomics_data_new: pd.DataFrame) -> pd.DataFrame:
 
         # Extract required values with checks
         sample_2 = df_sub[df_sub[("ids", "sample_id")] == "2"][
-            ("profile", "clock_time")
+            ("profile", "time")
         ].iloc[0]
         sample_15 = df_sub[df_sub[("ids", "sample_id")] == "15"][
-            ("profile", "clock_time")
+            ("profile", "time")
         ].iloc[0]
         sample_39 = df_sub[df_sub[("ids", "sample_id")] == "39"][
-            ("profile", "clock_time")
+            ("profile", "time")
         ].iloc[0]
         sample_52 = df_sub[df_sub[("ids", "sample_id")] == "52"][
-            ("profile", "clock_time")
+            ("profile", "time")
         ].iloc[0]
 
         wake_up_time = pd.to_datetime(
-            df_sub[df_sub[("ids", "sample_id")] == "2"][("profile", "clock_time")].iloc[
-                0
-            ]
+            df_sub[df_sub[("ids", "sample_id")] == "2"][("profile", "time")].iloc[0]
         ) - timedelta(minutes=126 + 7 * 60)
 
         dim = df_sub.shape[1]
@@ -198,7 +196,7 @@ def get_zeitzer(
     df_id_admit_date_time = pd.DataFrame(
         {
             ("ids", "subject"): df_zeitzer["subject"],
-            ("profile", "time"): df_zeitzer["time"],
+            ("profile", "adm_time"): df_zeitzer["time"],
         }
     )
 
@@ -221,15 +219,14 @@ def get_zeitzer(
 
     print("shape after merging admission time", protemics_data1.shape)
 
-    protemics_data1[("profile", "clock_time")] = pd.to_datetime(
-        protemics_data1[("profile", "clock_time")]
+    protemics_data1[("profile", "time")] = pd.to_datetime(
+        protemics_data1[("profile", "time")]
     )
-    protemics_data1 = protemics_data1.dropna(subset=[("profile", "clock_time")])
+    protemics_data1 = protemics_data1.dropna(subset=[("profile", "time")])
 
     # Calculating mins_from_admission
     protemics_data1[("profile", "mins_from_admission")] = (
-        protemics_data1[("profile", "clock_time")]
-        - protemics_data1[("profile", "time")]
+        protemics_data1[("profile", "time")] - protemics_data1[("profile", "adm_time")]
     ).dt.total_seconds() / 60 + 15840
 
     protemics_data1[("profile", "mins_from_admission")] = protemics_data1[

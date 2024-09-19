@@ -42,9 +42,9 @@ def get_mppg_ctl(
     )
     print("number of subjects in mppg ctl", len(df_id_admit_time))
 
-    df_id_admit_time[("profile", "time")] = df_id_admit_time[("ids", "subject")].map(
-        sub_admission_time
-    )
+    df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
+        ("ids", "subject")
+    ].map(sub_admission_time)
 
     mppg_ctl_data = proteomics_data_new[proteomics_data_new.ids["study"] == "mppg_ctl"]
     print("data dimension before merging admission time", mppg_ctl_data.shape)
@@ -58,7 +58,7 @@ def get_mppg_ctl(
     protemics_data1.loc[
         (protemics_data1[("ids", "experiment")] == "3547HY82_1")
         | (protemics_data1[("ids", "experiment")] == "3547HY82_2"),
-        ("profile", "time"),
+        ("profile", "adm_time"),
     ] = "7:01"
 
     # Adding date and admission_date_time columns
@@ -73,21 +73,21 @@ def get_mppg_ctl(
     protemics_data1[("profile", "admission_date_time")] = (
         protemics_data1[("profile", "date")]
         + " "
-        + protemics_data1[("profile", "time")]
+        + protemics_data1[("profile", "adm_time")]
     )
 
     protemics_data1[("profile", "admission_date_time")] = pd.to_datetime(
         protemics_data1[("profile", "admission_date_time")]
     )
 
-    protemics_data1[("profile", "clock_time")] = pd.to_datetime(
-        protemics_data1[("profile", "clock_time")]
+    protemics_data1[("profile", "time")] = pd.to_datetime(
+        protemics_data1[("profile", "time")]
     )
 
     # Calculating mins_from_admission
     protemics_data1[("profile", "mins_from_admission")] = (
         (
-            protemics_data1[("profile", "clock_time")]
+            protemics_data1[("profile", "time")]
             - protemics_data1[("profile", "admission_date_time")]
         ).dt.total_seconds()
         / 60

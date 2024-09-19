@@ -418,7 +418,6 @@ def get_parameters(box1: BoxManager) -> dict:
 
 
 if __name__ == "__main__":
-
     box = get_box()
     data = get_protocols_from_box(box)
     params = get_parameters(box)

@@ -51,7 +51,7 @@ def make_input_df() -> pd.DataFrame:
         ],
         "study": ["faa_csrd"] * 8,
         "sample_id": [f"sample{i}" for i in range(1, 9)],
-        "clock_time": [
+        "time": [
             "2022-01-01 08:35:00",
             "2022-01-02 09:35:00",
             "2022-01-01 7:35:00",
@@ -69,7 +69,7 @@ def make_input_df() -> pd.DataFrame:
         ("ids", "experiment"),
         ("ids", "study"),
         ("ids", "sample_id"),
-        ("profile", "clock_time"),
+        ("profile", "time"),
     ]
     input_df.columns = pd.MultiIndex.from_tuples(multi_columns)
 
@@ -104,7 +104,7 @@ def make_expected_output_df() -> pd.DataFrame:
         ],
         ("ids", "study"): ["faa_csrd"] * 8,
         ("ids", "sample_id"): [f"sample{i}" for i in range(1, 9)],
-        ("profile", "clock_time"): [
+        ("profile", "time"): [
             "2022-01-01 08:35:00",
             "2022-01-02 09:35:00",
             "2022-01-01 7:35:00",
@@ -178,8 +178,8 @@ def make_expected_output_df() -> pd.DataFrame:
 
     expected_output_df = pd.DataFrame(expected_output_dict)
     expected_output_df.columns = pd.MultiIndex.from_tuples(expected_output_df.columns)
-    expected_output_df[("profile", "clock_time")] = pd.to_datetime(
-        expected_output_df[("profile", "clock_time")]
+    expected_output_df[("profile", "time")] = pd.to_datetime(
+        expected_output_df[("profile", "time")]
     )
     return expected_output_df
 
@@ -265,7 +265,7 @@ def test_get_study(
             ("ids", "experiment"),
             ("ids", "study"),
             ("ids", "sample_id"),
-            ("profile", "clock_time"),
+            ("profile", "time"),
         ],
         how="inner",
         suffixes=("_adenosine", "_unified"),

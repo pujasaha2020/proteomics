@@ -42,9 +42,9 @@ def get_5day(
     )
     print("number of subjects in 5day", len(df_id_admit_time))
 
-    df_id_admit_time[("profile", "time")] = df_id_admit_time[("ids", "subject")].map(
-        sub_admission_time
-    )
+    df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
+        ("ids", "subject")
+    ].map(sub_admission_time)
 
     day5_data = proteomics_data_new[proteomics_data_new.ids["study"].isin(study)]
     print("data dimension before merging admission time", day5_data.shape)
@@ -66,19 +66,19 @@ def get_5day(
     protemics_data1[("profile", "admission_date_time")] = (
         protemics_data1[("profile", "date")]
         + " "
-        + protemics_data1[("profile", "time")]
+        + protemics_data1[("profile", "adm_time")]
     )
     protemics_data1[("profile", "admission_date_time")] = pd.to_datetime(
         protemics_data1[("profile", "admission_date_time")]
     )
 
-    protemics_data1[("profile", "clock_time")] = pd.to_datetime(
-        protemics_data1[("profile", "clock_time")]
+    protemics_data1[("profile", "time")] = pd.to_datetime(
+        protemics_data1[("profile", "time")]
     )
 
     # Calculating mins_from_admission
     protemics_data1[("profile", "mins_from_admission")] = (
-        protemics_data1[("profile", "clock_time")]
+        protemics_data1[("profile", "time")]
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
     protemics_data1[("profile", "mins_from_admission")] = protemics_data1[

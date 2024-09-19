@@ -35,9 +35,9 @@ def get_faa_csrd(
         }
     )
 
-    df_id_admit_time[("profile", "time")] = df_id_admit_time[("ids", "subject")].map(
-        sub_admission_time
-    )
+    df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
+        ("ids", "subject")
+    ].map(sub_admission_time)
 
     print("number of subjects in faa csrd", len(df_id_admit_time))
     faa_csrd_data = proteomics_data_new[proteomics_data_new.ids["study"] == "faa_csrd"]
@@ -48,9 +48,9 @@ def get_faa_csrd(
     )
     print("data dimension after merging admission time", protemics_data1.shape)
     # Adding date and admission_date_time columns
-    protemics_data1[("profile", "date")] = (
-        "2021-12-31"  # ["2021-12-31"] * len(protemics_data1)
-    )
+    protemics_data1[
+        ("profile", "date")
+    ] = "2021-12-31"  # ["2021-12-31"] * len(protemics_data1)
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
     )
@@ -61,23 +61,23 @@ def get_faa_csrd(
     protemics_data1[("profile", "admission_date_time")] = (
         protemics_data1[("profile", "date")]
         + " "
-        + protemics_data1[("profile", "time")]
+        + protemics_data1[("profile", "adm_time")]
     )
     protemics_data1[("profile", "admission_date_time")] = pd.to_datetime(
         protemics_data1[("profile", "admission_date_time")]
     )
-    # print(protemics_data1[("profile", "clock_time")])
-    protemics_data1[("profile", "clock_time")] = protemics_data1[
-        ("profile", "clock_time")
-    ].apply(lambda x: x.split(".")[0])
+    # print(protemics_data1[("profile", "time")])
+    protemics_data1[("profile", "time")] = protemics_data1[("profile", "time")].apply(
+        lambda x: x.split(".")[0]
+    )
 
-    protemics_data1[("profile", "clock_time")] = pd.to_datetime(
-        protemics_data1[("profile", "clock_time")]
+    protemics_data1[("profile", "time")] = pd.to_datetime(
+        protemics_data1[("profile", "time")]
     )
 
     # Calculating mins_from_admission
     protemics_data1[("profile", "mins_from_admission")] = (
-        protemics_data1[("profile", "clock_time")]
+        protemics_data1[("profile", "time")]
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
 

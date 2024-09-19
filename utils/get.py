@@ -82,9 +82,7 @@ def get_proteomics(
     }
     df = pd.read_csv(file, header=[0, 1], dtype=dtype, low_memory=False)
     check_df(df, "proteomics", path)
-    df[("profile", "clock_time")] = pd.to_datetime(
-        df.profile.clock_time, format="mixed"
-    )
+    df[("profile", "time")] = pd.to_datetime(df.profile.clock_time, format="mixed")
     if preprocessing:
         preprocess_proteomics(df, preprocessing)
     return df

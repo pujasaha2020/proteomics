@@ -47,9 +47,9 @@ def get_mppg_fd(
         }
     )
     # print(df_id_admit_time)
-    df_id_admit_time[("profile", "time")] = df_id_admit_time[("ids", "subject")].map(
-        sub_admission_time
-    )
+    df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
+        ("ids", "subject")
+    ].map(sub_admission_time)
 
     df_id_admit_time[("profile", "date")] = df_id_admit_time[("ids", "subject")].map(
         sub_admission_date
@@ -76,7 +76,7 @@ def get_mppg_fd(
         protemics_data1[("ids", "experiment")].isin(
             ["3453HY73_1", "3453HY73_2", "3453HY73_3", "3453HY73_4"]
         ),
-        ("profile", "time"),
+        ("profile", "adm_time"),
     ] = "6:31"
 
     protemics_data1.loc[
@@ -90,7 +90,7 @@ def get_mppg_fd(
         protemics_data1[("ids", "experiment")].isin(
             ["3536HY83_1", "3536HY83_2", "3536HY83_1"]
         ),
-        ("profile", "time"),
+        ("profile", "adm_time"),
     ] = "6:00"
 
     protemics_data1.loc[
@@ -104,14 +104,14 @@ def get_mppg_fd(
         protemics_data1[("ids", "experiment")].isin(
             ["3557HY73_1", "3557HY73_2", "3557HY73_3"]
         ),
-        ("profile", "time"),
+        ("profile", "adm_time"),
     ] = "6:32"
     # print(protemics_data1.head())
 
     print(
         protemics_data1.loc[
             protemics_data1[("ids", "subject")] == "3453",
-            [("ids", "experiment"), ("profile", "time")],
+            [("ids", "experiment"), ("profile", "adm_time")],
         ]
     )
     protemics_data1[("profile", "date")] = pd.to_datetime(
@@ -124,23 +124,23 @@ def get_mppg_fd(
     protemics_data1[("profile", "admission_date_time")] = (
         protemics_data1[("profile", "date")]
         + " "
-        + protemics_data1[("profile", "time")]
+        + protemics_data1[("profile", "adm_time")]
     )
     protemics_data1[("profile", "admission_date_time")] = pd.to_datetime(
         protemics_data1[("profile", "admission_date_time")]
     )
-    # print(protemics_data1[("profile", "clock_time")])
-    protemics_data1[("profile", "clock_time")] = protemics_data1[
-        ("profile", "clock_time")
-    ].apply(lambda x: x.split(".")[0])
+    # print(protemics_data1[("profile", "time")])
+    protemics_data1[("profile", "time")] = protemics_data1[("profile", "time")].apply(
+        lambda x: x.split(".")[0]
+    )
 
-    protemics_data1[("profile", "clock_time")] = pd.to_datetime(
-        protemics_data1[("profile", "clock_time")]
+    protemics_data1[("profile", "time")] = pd.to_datetime(
+        protemics_data1[("profile", "time")]
     )
 
     # Calculating mins_from_admission
     protemics_data1[("profile", "mins_from_admission")] = (
-        protemics_data1[("profile", "clock_time")]
+        protemics_data1[("profile", "time")]
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
 

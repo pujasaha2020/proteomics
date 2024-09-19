@@ -37,9 +37,9 @@ def get_faa_ctl(
         }
     )
 
-    df_id_admit_time[("profile", "time")] = df_id_admit_time[("ids", "subject")].map(
-        sub_admission_time
-    )
+    df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
+        ("ids", "subject")
+    ].map(sub_admission_time)
     # df_id_admit_time = df_id_admit_time.dropna()
 
     print("number of subjects in faa ctl", len(df_id_admit_time))
@@ -66,18 +66,18 @@ def get_faa_ctl(
     protemics_data1[("profile", "admission_date_time")] = (
         protemics_data1[("profile", "date")]
         + " "
-        + protemics_data1[("profile", "time")]
+        + protemics_data1[("profile", "adm_time")]
     )
     protemics_data1[("profile", "admission_date_time")] = pd.to_datetime(
         protemics_data1[("profile", "admission_date_time")]
     )
 
-    protemics_data1[("profile", "clock_time")] = pd.to_datetime(
-        protemics_data1[("profile", "clock_time")]
+    protemics_data1[("profile", "time")] = pd.to_datetime(
+        protemics_data1[("profile", "time")]
     )
     # Calculating mins_from_admission
     protemics_data1[("profile", "mins_from_admission")] = (
-        protemics_data1[("profile", "clock_time")]
+        protemics_data1[("profile", "time")]
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
     print(protemics_data1[("profile", "mins_from_admission")].max())
