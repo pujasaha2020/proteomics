@@ -1,5 +1,6 @@
 """
-This is a test script for model.py in datasets/sleepdebt/adenosine_model project
+This is a test script for model.py in datasets/sleepdebt/adenosine_model/model.py
+ project
 """
 
 import numpy as np

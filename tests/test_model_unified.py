@@ -1,4 +1,11 @@
-# this is a python script to test unified model.
+"""
+This is a test script for model.py 
+in datasets/sleepdebt/unified_model/sleepdebt_calculayion.py
+project
+"""
+
+# pylint: disable=R0801
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -108,10 +115,6 @@ def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
     This function tests the values of datot/dt and dr1tot/dt during sleep period
     sleep period: 961-1440, 3601-4080
 
-    solution of Atot gives equal LHS and RHS upto .0025 tolerance.
-    most of solution of R1tot gives equal LHS and RHS upto .1 tolerance over both periods.
-    Number of solutions that gives tolerance greater than .1 are 10 out of 479.
-    the absolute difference in both cases (atot,r1tot) are of the order of e-06.
 
 
     """
@@ -233,11 +236,6 @@ def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
     """
     This function tests the values of datot/dt and dr1tot/dt during sleep period
     sleep period: 961-1440, 3601-4080
-
-    solution of Atot gives equal LHS and RHS upto .0025 tolerance.
-    most of solution of R1tot gives equal LHS and RHS upto .1 tolerance over both periods.
-    Number of solutions that gives tolerance greater than .1 are 10 out of 479.
-    the absolute difference in both cases (atot,r1tot) are of the order of e-06.
 
 
     """
