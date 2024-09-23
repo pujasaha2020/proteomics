@@ -1,6 +1,7 @@
 """
 script to run the adenosine model for sleep debt calculation
-get_protocols(): get the list of protocols, currently we have 13 of them in protocols.yaml.
+get_protocols(): get the list of protocols, currently we have 13 
+                    of them in protocols.yaml.
 construct_protocol(): construct the sleep and wake time list for each protocol. 
                       t_awake_l and t_sleep_l are list of sleep and wake
                         duration respectively.
@@ -11,17 +12,20 @@ calculate_debt(): calculate sleep debt for a given protocol object from Adenosin
                   this functions call ode_chronic() to solve the differential
                   equations using solve_ivp().This function uses Protocol 
                   class to get the time sequence for sleep/awake duration.
-Protocol class: class to represent a protocol, it has name, t_awake_l and t_sleep_l as attributes.
+Protocol class: class to represent a protocol, it has
+                 name, t_awake_l and t_sleep_l as attributes.
                 fill(): fill the protocol with t_awake_l and t_sleep_l
                 time_sequence(): get time sequence for sleep-awake status
-                plot(): get plot for the protocol, calls get_plot() from plotting.py
-protocol_object_list(): create list of protocol objects     
+                
+plot_debt(): get plot for every protocol, calls get_plot() from plotting.py
+protocol_object_list(): create list of protocol objects.    
 run_sleepdebt_model(): run sleep debt model for all the protocols.  
                        It calls get_protocols(), construct_protocol(),
-                       Protocol class, calculate_debt() and Protocol.plot(). 
-At the end of the scripts all the parameters are defined.
-Some of the parameters are being read from "parameters.yaml" file. 
-Rest of them are calculated from the parameters read from the yaml file.                            
+                       Protocol class, calculate_debt() and plot_debt(). 
+zeitzer_sample(): some of the Zeitzer subject have different sleep wake schedule.
+                    So calculating  sleep debt separately for those subjects.
+get_parameters(): get the parameters from box  "parameters.yaml" 
+                 and then save them in a dictionary.                       
 """
 
 # pylint: disable=R0801

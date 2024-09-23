@@ -1,6 +1,30 @@
 """
-Re-writing the sleep debt calculation script avoiding 
-functions with too many arguments. Using "Protocol" class.
+Most of the functions in this script are same as "adenosine_model/model.py".
+upcoming changes: common functions will be moved to a 
+                 separate script and will be accessed by both models.
+script to run the adenosine model for sleep debt calculation
+get_protocols(): get the list of protocols, currently we have
+                   13 of them in "protocols.yaml".
+construct_protocol(): construct the sleep and wake time list for each protocol. 
+                      t_awake_l and t_sleep_l are list of sleep and wake
+                        duration respectively.
+get_status(): get the status of the individual, whether he is awake or asleep
+              based on the time interval.
+calculate_debt(): calculate sleep debt for a given protocol object from Unified model.
+                  this function calls simulate_unified() from model.py.
+Protocol class: class to represent a protocol, it has
+                 name,definition, t_awake_l and t_sleep_l as attributes.
+                fill(): fill the protocol with t_awake_l and t_sleep_l
+                time_sequence(): get time sequence for sleep-awake status
+                
+plot_debt(): get plot for every protocol, calls get_plot() from plotting.py
+protocol_object_list(): create list of protocol objects.    
+run_sleepdebt_model(): run sleep debt model for all the protocols.  
+                       It calls get_protocols(), construct_protocol(),
+                       Protocol class, calculate_debt() and plot_debt(). 
+zeitzer_sample(): some of the Zeitzer subject have different sleep wake schedule.
+                    So calculating  sleep debt separately for those subjects.
+                
 """
 
 # pylint: disable=R0801

@@ -2,7 +2,8 @@
 this test script is for testing functions in 
 datasets/proteomics_sleepdebt/*_study.py
 for all the study same pattern for data structuring 
-was followed so only one function is tested.
+was followed so only one function 
+(get_faa_csrd() from "faa_csrd_study.py") is tested.
 """
 
 import io
