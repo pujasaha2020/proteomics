@@ -1,4 +1,12 @@
-## calculate Sleepdebt
+## Calculate sleep debt at every minute
+
+**Read before you move forward**
+
+Adenosine Model:https://journals.plos.org/ploscompbiol/article/file?id=10.1371/journal.pcbi.1005759&type=printable
+
+Unified Model: https://www.sciencedirect.com/science/article/pii/S0022519313001811
+
+**First step in sleep deprivation analysis**
 
 Scripts in this folder, calculate sleepdebt at every minute from two different models: adenosine and unified.
 
@@ -28,4 +36,6 @@ In `unified_model`:
 - `model.py`: this scripts includes the solution to differential equations.
 - `sleepdebt_calculation.py`: this is the main script to run the model and get the sleepdebt.
 
-TODO: there are many functions which are common in both folders. Those will be eventually be moved to a common place.
+**TODO**: there are many functions which are common in both folders. Those will be eventually be moved to a common place.
+
+For question, comments and bug please contact Puja Saha @ puja2023@stanford.edu .
