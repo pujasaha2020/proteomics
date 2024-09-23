@@ -1,11 +1,10 @@
 """
 This script is used to get the input data from the box and clean the data.
 The cleaned data is then used to get the sleep debt data for each protocol.
-The sleep debt data is then merged with the proteomics data.
 get_ids_profile_drop_rows_missing_proteins:
                 function that removes all rows that have no proteins. 
                 and keeps only the ids and profile and infos columns.
-get_ids_profile: function that keeps all the columns in the proteomics data.
+get_ids_profile: function that keeps all the rows in the proteomics data.
              but filters only the ids and profile and infos columns.This 
              function is needed to get sleep/wake schedule for Zeitzer subjects
                that have different schedule than common subjects. removing 
@@ -24,9 +23,9 @@ get_faa: function that gets the faa protocol and returns the
 get_mri_day5: function that gets the mri and day5 and mri protocol 
               and returns the sleepdebt at clock time.
 get_dinges_zeitzer: function that gets the dinges and zeitzer protocol and returns
-                     the sleepdebt at clock time.at the end of the scripts data 
-                     from unified and adenosine models are merged and saved to a csv 
-                     file and stored in box.
+                     the sleepdebt at clock time.
+At the end of the scripts data from unified and adenosine models
+are merged and saved to a csv file and stored in box.
 
 
 """

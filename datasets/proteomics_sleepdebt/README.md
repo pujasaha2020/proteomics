@@ -9,7 +9,7 @@ python run_analysis.py
 All the files in this folder which ends with `\*\_study.py` are specific to different protocols.
 Each of them structure the data and then apply the sleep debt at the time when proteomics data is available.
 
-The main script "run_analysis.py" does the follwoing jobs:
+The main script "run_analysis.py" does the following jobs:
 
 - It removes the rows which do not have any proteins and pass them to each `\*\_study.py`. It only filters the columns : "ids", "infos", "profile".
 - It also pass the full dataset to `zeitzer_study.py` to get sleep wake schedule. It is explained at the top of "run_analysis.py".
@@ -17,3 +17,5 @@ The main script "run_analysis.py" does the follwoing jobs:
 - The final output dataframe from this script will have : "ids", "infos", "profile" , "adenosine", "unified". Note: no proteomics here.
 - The dataset is named as `{input*version}\_with_sleep_debt*{date_of_generation}\_PS.csv`. The file will be saved to box at:
   `archives/sleep_debt/SleepDebt_Data/dataset_with_sleepdebt_at_clocktime/`.
+
+To understand how the sleepdebt at specific time is extracted for each protocol, please read the documentation in `day5_study.py`. Pretty much same format is followed for other studies.
