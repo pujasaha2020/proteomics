@@ -1,4 +1,4 @@
-## Sleepdebt extraction
+## Prepare sleepdebt dataset for Biomarker and prediction analysis
 
 This scripts structures the data and extract sleep debt at blood collection time when proteomics data is also available.
 
@@ -18,4 +18,11 @@ The main script "run_analysis.py" does the following jobs:
 - The dataset is named as `{input*version}\_with_sleep_debt*{date_of_generation}\_PS.csv`. The file will be saved to box at:
   `archives/sleep_debt/SleepDebt_Data/dataset_with_sleepdebt_at_clocktime/`.
 
+## How sleepdebt is extracted at specific time
+
 To understand how the sleepdebt at specific time is extracted for each protocol, please read the documentation in `day5_study.py`. Pretty much same format is followed for other studies.
+
+IMPORTANT: once you run "run_analysis.py" on new/updated dataset,
+gets the number of subjects and samples in each study from get_no_of_subjects_samples().
+Then update that in box `protocol.yaml` --> `title` line. No need to update `protocol.yaml`
+in github. The code always reads it from box directly.
