@@ -22,6 +22,10 @@ The main script "run_analysis.py" does the following jobs:
 - The dataset is named as `{input*version}\_with_sleep_debt*{date_of_generation}\_PS.csv`. The file will be saved to box at:
   `archives/sleep_debt/SleepDebt_Data/dataset_with_sleepdebt_at_clocktime/`.
 
+**What to expect from `run_analysis.py'**
+
+- The output is stored in box: `archives/sleep_debt/SleepDebt_Data/dataset_with_sleepdebt_at_clocktime/`
+
 ## How sleepdebt is extracted at specific time
 
 To understand how the sleepdebt at specific time is extracted for each protocol, please read the documentation in `day5_study.py`. Pretty much same format is followed for other studies.

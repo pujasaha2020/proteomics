@@ -23,6 +23,14 @@ In `adenosine_model`:
 - `plotting.py`: this scripts do the plotting of sleepdebt curve, indicates the time when the blood is collected.
 - `model.py`: this is the main script to run the model and get the sleepdebt.
 
+**What to expect from `model.py'**
+
+- The output of the models are stored in box.
+- All the csv files containing sleep debt at every minute are stored in
+  `archives/sleep_debt/SleepDebt_Data/ligand_receptor_model/sleepdebt/`
+- All the plots of sleep debt curves are stored in
+  `"results/sleep_debt/sleepDebt_curves/ligand_receptor_model/`
+
 To run unified model:
 
 ```shell
@@ -35,6 +43,15 @@ In `unified_model`:
 - `plotting.py`: this scripts do the plotting of sleepdebt curve, indicates the time when the blood is collected.
 - `model.py`: this scripts includes the solution to differential equations.
 - `sleepdebt_calculation.py`: this is the main script to run the model and get the sleepdebt.
+
+**What to expect from `sleepdebt_calculation.py'**
+
+- The output of the models are stored in box.
+- All the csv files containing sleep debt at every minute are stored in
+  `archives/sleep_debt/SleepDebt_Data/unified_model/sleepdebt/`
+- All the plots of sleep debt curves are stored in
+  `results/sleep_debt/sleepDebt_curves/unified_model/`  
+
 
 **TODO**: there are many functions which are common in both folders. Those will be eventually be moved to a common place.
 
