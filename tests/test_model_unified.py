@@ -52,7 +52,7 @@ def define_protocol(input_yaml_construct_protocol: dict):
 def test_awake_period1(df: pd.DataFrame, param_dict: dict) -> None:
     """
     This function tests the values of dl/dt and ds/dt during awake period
-    In the toy protocol there are two awake period:0-960, 1441-3600
+    awake period:0-960
 
 
     """
@@ -112,8 +112,8 @@ def test_awake_period1(df: pd.DataFrame, param_dict: dict) -> None:
 
 def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
     """
-    This function tests the values of datot/dt and dr1tot/dt during sleep period
-    sleep period: 961-1440, 3601-4080
+    This function tests the values of dl/dt and ds/dt during sleep period
+    sleep period: 961-1440
 
 
 
@@ -174,7 +174,7 @@ def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
 def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
     """
     This function tests the values of dl/dt and ds/dt during awake period
-    In the toy protocol there are two awake period:0-960, 1441-3600
+    awake period:1441-3600
 
 
     """
@@ -234,8 +234,8 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
 
 def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
     """
-    This function tests the values of datot/dt and dr1tot/dt during sleep period
-    sleep period: 961-1440, 3601-4080
+    This function tests the values of dl/dt and ds/dt during sleep period
+    sleep period:  3601-4080
 
 
     """
