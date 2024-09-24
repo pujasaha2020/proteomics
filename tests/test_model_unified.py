@@ -1,6 +1,6 @@
 """
 This is a test script for model.py 
-in datasets/sleepdebt/unified_model/sleepdebt_calculayion.py
+in datasets/sleepdebt/unified_model/sleepdebt_calculation.py
 project
 """
 
