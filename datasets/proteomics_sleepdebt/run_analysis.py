@@ -62,17 +62,17 @@ BOX_PATH = {
     ),
     "yaml_path": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/protocols.yaml"),
 }
-box1 = get_box()
+# box1 = get_box()
 
 
 def get_ids_profile_drop_rows_missing_proteins(
-    box: BoxManager, path: Path = BOX_PATH["proteomics"]
+    box1: BoxManager, path: Path = BOX_PATH["proteomics"]
 ) -> pd.DataFrame:
     """
     getting "ids" and  "profile" from proteomics data.
     data is filtered depending on the availability of proteomics data
     """
-    file = box.get_file(path)
+    file = box1.get_file(path)
     dtype = {
         ("ids", "study"): str,
         ("ids", "subject"): str,
@@ -92,13 +92,13 @@ def get_ids_profile_drop_rows_missing_proteins(
 
 
 def get_ids_profile(
-    box: BoxManager, path: Path = BOX_PATH["proteomics"]
+    box1: BoxManager, path: Path = BOX_PATH["proteomics"]
 ) -> pd.DataFrame:
     """
     getting "ids" and  "profile" from proteomics data.
     data is filtered depending on the availability of proteomics data
     """
-    file = box.get_file(path)
+    file = box1.get_file(path)
     dtype = {
         ("ids", "study"): str,
         ("ids", "subject"): str,
@@ -143,7 +143,7 @@ def get_blood_collection_time(df_protocol: pd.DataFrame) -> pd.Series:
 
 
 def get_mppg_ctl_csr_fd(
-    df_ids_profile: pd.DataFrame, path_to_box: Path
+    df_ids_profile: pd.DataFrame, path_to_box: Path, box1: BoxManager
 ) -> pd.DataFrame:
     """
     get the mppg protocol
@@ -270,7 +270,9 @@ def get_mppg_ctl_csr_fd(
     return pd.concat([mppg_ctl_sample, mppg_csr_sample, mppg_fd_sample])
 
 
-def get_faa(df_ids_profile: pd.DataFrame, path_to_box: Path) -> pd.DataFrame:
+def get_faa(
+    df_ids_profile: pd.DataFrame, path_to_box: Path, box1: BoxManager
+) -> pd.DataFrame:
     """
     get the faa protocol
     """
@@ -329,7 +331,9 @@ def get_faa(df_ids_profile: pd.DataFrame, path_to_box: Path) -> pd.DataFrame:
     )
 
 
-def get_mri_day5(df_ids_profile: pd.DataFrame, path_to_box: Path) -> pd.DataFrame:
+def get_mri_day5(
+    df_ids_profile: pd.DataFrame, path_to_box: Path, box1: BoxManager
+) -> pd.DataFrame:
     """
     get the mri and day5 protocol
     """
@@ -357,6 +361,7 @@ def get_dinges_zeitzer(
     df_ids_profile: pd.DataFrame,
     df_ids_profile_with_all_rows: pd.DataFrame,
     path_to_box: Path,
+    box1: BoxManager,
 ) -> pd.DataFrame:
     """
     get the dinges and zeitzer protocol
@@ -387,18 +392,20 @@ def get_dinges_zeitzer(
 
 
 if __name__ == "__main__":
-    df_ids_prof_no_proteins = get_ids_profile_drop_rows_missing_proteins(box1)
-    df_ids_prof_proteins = get_ids_profile(box1)
+    box = get_box()
+
+    df_ids_prof_no_proteins = get_ids_profile_drop_rows_missing_proteins(box)
+    df_ids_prof_proteins = get_ids_profile(box)
 
     # adenosine model
 
     dinges_zeitzer = get_dinges_zeitzer(
-        df_ids_prof_no_proteins, df_ids_prof_proteins, BOX_PATH["csvs"]
+        df_ids_prof_no_proteins, df_ids_prof_proteins, BOX_PATH["csvs"], box
     )
-    mppg = get_mppg_ctl_csr_fd(df_ids_prof_no_proteins, BOX_PATH["csvs"])
+    mppg = get_mppg_ctl_csr_fd(df_ids_prof_no_proteins, BOX_PATH["csvs"], box)
     # print("sample id", mppg["ids"]["sample_id"])
-    mri_5day = get_mri_day5(df_ids_prof_no_proteins, BOX_PATH["csvs"])
-    faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs"])
+    mri_5day = get_mri_day5(df_ids_prof_no_proteins, BOX_PATH["csvs"], box)
+    faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs"], box)
 
     df_sleep_debt_adenosine = pd.concat([dinges_zeitzer, mppg, mri_5day, faa])
     print("shape of all samples: ", df_sleep_debt_adenosine.shape)
@@ -420,11 +427,11 @@ if __name__ == "__main__":
     # unified model
 
     dinges_zeitzer = get_dinges_zeitzer(
-        df_ids_prof_no_proteins, df_ids_prof_proteins, BOX_PATH["csvs_unified"]
+        df_ids_prof_no_proteins, df_ids_prof_proteins, BOX_PATH["csvs_unified"], box
     )
-    mppg = get_mppg_ctl_csr_fd(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"])
-    mri_5day = get_mri_day5(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"])
-    faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"])
+    mppg = get_mppg_ctl_csr_fd(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box)
+    mri_5day = get_mri_day5(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box)
+    faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box)
 
     df_sleep_debt_unified = pd.concat([dinges_zeitzer, mppg, mri_5day, faa])
     print("shape of all samples: ", df_sleep_debt_unified.shape)
@@ -485,11 +492,13 @@ if __name__ == "__main__":
     print(today)
     input_version = BOX_PATH["proteomics"].stem
     print(input_version)
+    split_string = input_version.split("_")
     # save the dataset as csv to BOX
 
     save_to_csv(
-        box1,
+        box,
         df_proteomics_with_sleep_debt,
-        BOX_PATH["csv_proteomics"] / f"{input_version}_with_sleep_debt_{today}_PS.csv",
+        BOX_PATH["csv_proteomics"]
+        / f"data_{split_string[1]}_{split_string[2]}_with_sleep_debt_{today}_PS.csv",
         index=False,
     )

@@ -19,7 +19,7 @@ The main script "run_analysis.py" does the following jobs:
 - It also pass the full dataset to `zeitzer_study.py` to get sleep wake schedule. It is explained at the top of "run_analysis.py".
 - Get the dataframe from each protocol(`\*\_study.py`) and concatenate them together. Also it produces result from both models , unified and adenosine.
 - The final output dataframe from this script will have : "ids", "infos", "profile" , "adenosine", "unified". **Note**: no proteomics here.
-- The dataset is named as `{input*version}\_with_sleep_debt*{date_of_generation}\_PS.csv`. The file will be saved to box at:
+- The dataset is named as `data_{input_version}_with_sleep_debt_{date_of_generation}_PS.csv`. The file will be saved to box at:
   `archives/sleep_debt/SleepDebt_Data/dataset_with_sleepdebt_at_clocktime/`.
 
 **What to expect from `run_analysis.py'**
