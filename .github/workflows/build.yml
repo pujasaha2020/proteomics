@@ -94,7 +94,8 @@ jobs:
               with:
                   name: coverage-data
                   path: .coverage
-                  if-no-files-found: ignore
+                  include-hidden-files: true
+                  retention-days: 400
 
     Coverage:
         name: Coverage
