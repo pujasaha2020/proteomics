@@ -23,4 +23,10 @@ pytest tests/test_model_unified.py
 
 `test_study.py` corresponds to the scripts `\*\_study.py` in `datasets/proteomics_sleepdebt` folder. All of these scripts are written in same format so only one is tested. For more detail, please look at the documentation inside `test_study.py` and `day5_study.py`.
 
+To run:
+
+```shell
+pytest tests/test_study.py
+```
+
 Remember, test scripts can not access input from BOX, so there are two toy inputs inside the `tests/adenosine` and `tests/unified`.
