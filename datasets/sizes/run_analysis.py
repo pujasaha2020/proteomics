@@ -64,7 +64,7 @@ if __name__ == "__main__":
         description="Solve MILP problems to optimize (n_samples, n_proteins)"
     )
     parser.add_argument(
-        "path",
+        "--path",
         type=str,
         nargs="?",
         help="Path to the proteomics dataset",
