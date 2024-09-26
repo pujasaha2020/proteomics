@@ -6,8 +6,10 @@ If you have generated the sleep debt at every minute from both models in `datase
 
 This scripts structures the data and extract sleep debt at blood collection time when proteomics data is also available.
 
+**NOTE**: you have to be in `proteomics' directory, to run the following scripts, otherwise it will not be able to access box token and other dependencies.
+
 ```shell
-python run_analysis.py
+python datasets/proteomics_sleepdebt/run_analysis.py
 ```
 
 All the files in this folder which ends with `\*\_study.py` are specific to different protocols.

@@ -8,12 +8,14 @@ Unified Model: https://www.sciencedirect.com/science/article/pii/S00225193130018
 
 **First step in sleep deprivation analysis**
 
+**NOTE**: you have to be in `proteomics' directory, to run the following scripts, otherwise it will not be able to access box token and other dependencies.
+
 Scripts in this folder, calculate sleepdebt at every minute from two different models: adenosine and unified.
 
 To run adenosine model:
 
 ```shell
-python sleepdebt/adenosine_model/model.py
+python datasets/sleepdebt/adenosine_model/model.py
 ```
 
 In `adenosine_model`:
@@ -34,7 +36,7 @@ In `adenosine_model`:
 To run unified model:
 
 ```shell
-python sleepdebt/unified_model/sleepdebt_calculation.py
+python datasets/sleepdebt/unified_model/sleepdebt_calculation.py
 ```
 
 In `unified_model`:
@@ -50,8 +52,7 @@ In `unified_model`:
 - All the csv files containing sleep debt at every minute are stored in
   `archives/sleep_debt/SleepDebt_Data/unified_model/sleepdebt/`
 - All the plots of sleep debt curves are stored in
-  `results/sleep_debt/sleepDebt_curves/unified_model/`  
-
+  `results/sleep_debt/sleepDebt_curves/unified_model/`
 
 **TODO**: there are many functions which are common in both folders. Those will be eventually be moved to a common place.
 
