@@ -3,9 +3,9 @@ name: Lint, Format & Test
 on: [push, pull_request]
 
 permissions:
-  contents: write
-  checks: write
-  pull-requests: write
+    contents: write
+    checks: write
+    pull-requests: write
 
 jobs:
     Quality:
