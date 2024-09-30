@@ -136,7 +136,7 @@ def get_sizes(box: BoxManager, path: Path = PATH["proteomics"]) -> list[list[int
         raise ValueError("Invalid size analysis results")
     return sizes["n_samples, n_proteins"]
 
-
+  
 def get_protocols_from_box(box: BoxManager, path: Path = PATH["protocols"]) -> dict:
     """get protocols from box"""
     file = box.get_file(path)

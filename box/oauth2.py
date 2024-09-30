@@ -9,7 +9,6 @@ from boxsdk import Client, OAuth2
 CLIENT_ID = "le8w82s9irj8pv6kv5ze61j7fc28tggo"
 CLIENT_SECRET = "7KaS61xBX6QYjBX5p1thNdUnFiQv6CHw"
 REDIRECT_URI = "http://localhost:5000/oauth/callback"
-FOLDER_ID = "200099021915"
 ###################################################
 
 
@@ -52,12 +51,6 @@ def get_box_client() -> Client:
     client = Client(oauth2)
 
     return client
-
-
-def get_box_folder():
-    """Get box folder to proteomics"""
-    client = get_box_client()
-    return client.folder(folder_id=FOLDER_ID).get()
 
 
 if __name__ == "__main__":
