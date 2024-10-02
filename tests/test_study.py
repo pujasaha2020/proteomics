@@ -14,7 +14,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from box.manager import BoxManager
-from datasets.proteomics_sleepdebt.faa_csrd_study import get_faa_csrd
+from datasets.sleepdebt.studies.faa_csrd_study import get_faa_csrd
 
 # from utils.get import get_box
 

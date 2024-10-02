@@ -1,6 +1,5 @@
 """
 This is a test script for model.py 
-in datasets/sleepdebt/unified_model/sleepdebt_calculation.py
 project
 """
 
@@ -12,11 +11,9 @@ import pytest
 import yaml
 
 # from box.manager import BoxManager
-from datasets.sleepdebt.unified_model.sleepdebt_calculation import (
-    Protocol,
-    calculate_debt,
-    construct_protocol,
-)
+from datasets.sleepdebt.class_def import Protocol
+from datasets.sleepdebt.model.unified import calculate_debt
+from utils.make import make_sleep_wake_tuple
 
 
 # Function to read a YAML file
@@ -29,7 +26,7 @@ def read_yaml(file_path):
     return data
 
 
-@pytest.fixture(name="input_yaml_construct_protocol")
+@pytest.fixture(name="input_yaml")
 def get_toy_protocol():
     """
     This function reads the yaml file and returns the data"""
@@ -38,12 +35,12 @@ def get_toy_protocol():
 
 
 @pytest.fixture(name="protocol")
-def define_protocol(input_yaml_construct_protocol: dict):
+def define_protocol(input_yaml: dict):
     """
     This function defines the protocol
     """
     protocol = Protocol("protocol1", "def_2")
-    t_ae_sl = construct_protocol(input_yaml_construct_protocol, protocol.name)
+    t_ae_sl = make_sleep_wake_tuple(input_yaml, protocol.name)
 
     protocol.fill(t_ae_sl[0], t_ae_sl[1])
     return protocol

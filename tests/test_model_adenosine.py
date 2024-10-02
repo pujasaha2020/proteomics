@@ -9,14 +9,10 @@ import pytest
 import yaml
 
 # from box.manager import BoxManager
-# from datasets.sleepdebt.adenosine_model import model
-from datasets.sleepdebt.adenosine_model.model import (
-    Protocol,
-    calculate_debt,
-    construct_protocol,
-    get_protocols,
-    get_status,
-)
+from datasets.sleepdebt.class_def import Protocol
+from datasets.sleepdebt.model.adenosine import calculate_debt
+from utils.get import get_status
+from utils.make import make_protocol_list, make_sleep_wake_tuple
 
 # from pytest_mock import MockerFixture
 
@@ -63,7 +59,7 @@ def test_get_protocols(expected_protocol_list: list):
     Because different subject has
     different sleep/wake schedule.
     """
-    info = get_protocols()
+    info = make_protocol_list()
     assert (
         info == expected_protocol_list
     ), "The actual output does not match the expected output."
@@ -104,7 +100,7 @@ def test_construct_protocol(
     """
     This function tests the function construct_protocol in the adenosine_model.py
     """
-    protocols = construct_protocol(input_yaml_construct_protocol, "protocol1")
+    protocols = make_sleep_wake_tuple(input_yaml_construct_protocol, "protocol1")
     print(protocols)
 
     assert (
@@ -125,8 +121,8 @@ def define_protocol(input_yaml_construct_protocol: dict):
     """
     This function defines the protocol
     """
-    protocol = Protocol("protocol1")
-    t_ae_sl = construct_protocol(input_yaml_construct_protocol, protocol.name)
+    protocol = Protocol("protocol1", "def_2")
+    t_ae_sl = make_sleep_wake_tuple(input_yaml_construct_protocol, protocol.name)
 
     protocol.fill(t_ae_sl[0], t_ae_sl[1])
     return protocol
