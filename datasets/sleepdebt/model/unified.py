@@ -1,7 +1,13 @@
-""" Unified Model for Sleep Debt Simulation """
+"""
+unified
+"""
 
 # import pandas as pd
 import numpy as np
+import pandas as pd
+
+# from box.manager import BoxManager
+from datasets.sleepdebt.class_def import Protocol
 
 # Unified Model
 U = 24.1
@@ -44,9 +50,9 @@ def awake_new(t, t0=0, s0=0, l0=0):
     return s_t, l_t
 
 
-def simulate_unified(t_awake, t_sleep, intials, forced=False):
+def simulate_unified(t_awake, t_sleep, initials, forced=False):
     """Unified Model"""
-    s0, l0, t0 = intials
+    s0, l0, t0 = initials
     wake_times = np.linspace(t0, (t0 + t_awake), t_awake + 1)
     # print(wake_times)
 
@@ -67,3 +73,42 @@ def simulate_unified(t_awake, t_sleep, intials, forced=False):
     # eff_sleep= [eff]*len(sleep_times)
 
     return list(wake_times) + list(sleep_times), s_awake + s_sleep, l_awake + l_sleep
+
+
+def calculate_debt(protocol: Protocol) -> pd.DataFrame:
+    """
+    Calculate sleep debt for a given protocol from Unified model
+    """
+    initial_values = np.zeros(3)
+    s, t, l = [], [], []
+    s1, t1, l1 = [], [], []
+
+    for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):
+        fd = False
+        # for FD protocol only
+        if "protocol8" in protocol.name:
+            fd = (t_awake + t_sleep) > 1440
+        t1, s1, l1 = simulate_unified(
+            t_awake,
+            t_sleep,
+            initial_values,
+            forced=fd,
+        )
+        s += s1
+        t += t1
+        l += l1
+
+        initial_values[:] = [s1[-1], l1[-1], t1[-1]]
+
+    s = (np.array(s) / U).tolist()
+    l = (np.array(l) / U).tolist()
+
+    df_debt = pd.DataFrame(
+        {"time": [], "Chronic": [], "Acute": [], "l_debt": [], "s_debt": []}
+    )
+    df_debt["time"] = t  # [item for sublist in t for item in sublist]
+
+    df_debt["l_debt"] = l  # [item for sublist in l for item in sublist]
+    df_debt["s_debt"] = s  # [item for sublist in s for item in sublist]
+
+    return df_debt
