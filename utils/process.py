@@ -30,7 +30,7 @@ def drop_proteins_with_missing_samples(df: pd.DataFrame):
     empty_proteins = [col for col in proteins if df[col].isna().any()]
     df.drop(columns=empty_proteins, inplace=True)
 
-    
+
 def drop_all_but_circadian_proteins(df: pd.DataFrame, aptamers: pd.DataFrame):
     """Drop proteins that are not circadian"""
     df_proteins = set(df[["proteins"]].droplevel(0, axis=1).columns)
