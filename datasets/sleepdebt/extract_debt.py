@@ -26,8 +26,8 @@ BOX_PATH = {
     "proteomics": Path("archives/data/proteomics_091224_AS.csv"),
     "csvs": Path("archives/sleepdebt/sleepdebt_data/ligand_receptor_model/sleepdebt/"),
     "csvs_unified": Path("archives/sleepdebt/sleepdebt_data/unified_model/sleepdebt/"),
-    "csv_proteomics": Path(
-        "archives/sleep_debt/SleepDebt_Data/dataset_with_sleepdebt_at_clocktime/"
+    "csv_final": Path(
+        "archives/sleep_debt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/"
     ),
     "yaml_path": Path("archives/sleepdebt/sleepdebt_data/yaml_files/protocols.yaml"),
 }
@@ -50,15 +50,11 @@ if __name__ == "__main__":
     df = get_proteomics(box)
 
     # adenosine model
-    """
-    dinges_zeitzer, dict_count
-    
- = get_dinges_zeitzer(
-        df_ids_prof_no_proteins, df, BOX_PATH["csvs"], box, dict_count
-    
 
+    dinges_zeitzer, dict_count = get_dinges_zeitzer(
+        df_ids_prof_no_proteins, df, BOX_PATH["csvs"], box, dict_count
     )
-    """
+
     mppg, dict_count = get_mppg_ctl_csr(
         df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count
     )
@@ -90,19 +86,15 @@ if __name__ == "__main__":
     )
     print("shape of all samples in adenosine system: ", df_sleep_debt_adenosine.shape)
     # unified model
-    """
-    dinges_zeitzer, dict_count
-    
- = get_dinges_zeitzer(
+
+    dinges_zeitzer, dict_count = get_dinges_zeitzer(
         df_ids_prof_no_proteins,
         df,
         BOX_PATH["csvs_unified"],
         box,
-        dict_count
-    
-,
+        dict_count,
     )
-    """
+
     mppg, dict_count = get_mppg_ctl_csr(
         df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count
     )
@@ -194,7 +186,7 @@ if __name__ == "__main__":
     save_to_csv(
         box,
         df_proteomics_with_sleep_debt,
-        BOX_PATH["csv_proteomics"]
+        BOX_PATH["csv_final"]
         / f"data_{split_string[1]}_{split_string[2]}_with_sleep_debt_{today}_PS.csv",
         index=False,
     )
