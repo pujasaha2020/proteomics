@@ -1,4 +1,9 @@
-# create_debt
+"""
+This scripts takes model name "Adenosine" or "unified" 
+and definition ("def_1", "def_2', "def_3") of acute and chronic sleep debt 
+as input and runs the sleep debt model.
+"""
+
 import argparse
 import io
 from pathlib import Path
@@ -200,7 +205,7 @@ if __name__ == "__main__":
         help="model to run",
         default="adenosine",
     )
-    # for adenosine model you need to give the definition of acute and chronic.
+    # for unified model you need to give the definition of acute and chronic.
     # For adensoine model it does not matter.
     parser.add_argument(
         "--definition",
@@ -220,4 +225,5 @@ if __name__ == "__main__":
     data = get_protocols(box)
     params = make_parameters_dict(box)
     run_sleepdebt_model(data, box, params, **vars(args))
-    # run_zeitzer_sample(box, params, **vars(args))
+    # if you want to run the zeitzer sample
+    run_zeitzer_sample(box, params, **vars(args))

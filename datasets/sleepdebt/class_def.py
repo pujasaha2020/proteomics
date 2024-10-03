@@ -1,5 +1,5 @@
 """
-Define class
+Define Protocol class
 """
 
 

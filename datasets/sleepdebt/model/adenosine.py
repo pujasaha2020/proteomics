@@ -1,5 +1,6 @@
-# adenosine model
-
+"""
+This scripts calculate the sleep debt from adenosine model for a given protocol.
+"""
 
 import numpy as np
 import pandas as pd
