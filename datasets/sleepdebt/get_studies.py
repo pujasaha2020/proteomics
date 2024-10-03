@@ -56,7 +56,8 @@ def get_mppg_ctl_csr(
     sub_samples = get_subjects_samples(protemics)
 
     blood_time = round(get_time_per_subject(protemics), 2)
-    dict_count = fill_count_dict(dict_count, "mppg_8h", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "mppg_8h", sub_samples, list(blood_time))
 
     protemics = mppg_ctl_sample[mppg_ctl_sample.ids["subject"].isin(id_10h)]
 
@@ -70,7 +71,8 @@ def get_mppg_ctl_csr(
     sub_samples = get_subjects_samples(protemics)
 
     blood_time = round(get_time_per_subject(protemics), 2)
-    dict_count = fill_count_dict(dict_count, "mppg_10h", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "mppg_10h", sub_samples, list(blood_time))
 
     print("=================================================================")
 
@@ -93,7 +95,8 @@ def get_mppg_ctl_csr(
 
     sub_samples = get_subjects_samples(protemics)
     blood_time = round(get_time_per_subject(protemics), 2)
-    dict_count = fill_count_dict(dict_count, "mppg_5h", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "mppg_5h", sub_samples, list(blood_time))
 
     print("==============================================================")
 
@@ -112,10 +115,11 @@ def get_mppg_ctl_csr(
     sub_samples = get_subjects_samples(protemics)
 
     blood_time = round(get_time_per_subject(protemics), 2)
-    dict_count = fill_count_dict(dict_count, "mppg_56h", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "mppg_56h", sub_samples, list(blood_time))
 
     print("===============================================")
-    return (pd.concat([mppg_ctl_sample, mppg_csr_sample]), dict_count)
+    return pd.concat([mppg_ctl_sample, mppg_csr_sample])
 
 
 def get_fd(
@@ -142,11 +146,12 @@ def get_fd(
     )
 
     blood_time = round(get_time_per_subject(mppg_fd_sample), 2)
-    dict_count = fill_count_dict(dict_count, "mppg_fd", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "mppg_fd", sub_samples, list(blood_time))
 
     print("===============================================")
 
-    return (mppg_fd_sample, dict_count)
+    return mppg_fd_sample
 
 
 def get_faa(
@@ -163,7 +168,8 @@ def get_faa(
     print("shape of faa_ctl sample: ", faa_ctl_sample.shape)
     sub_samples = get_subjects_samples(faa_ctl_sample)
     blood_time = round(get_time_per_subject(faa_ctl_sample), 2)
-    dict_count = fill_count_dict(dict_count, "faa_ctl", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "faa_ctl", sub_samples, list(blood_time))
 
     print("===============================================")
 
@@ -173,7 +179,8 @@ def get_faa(
 
     sub_samples = get_subjects_samples(faa_tsd_sample)
     blood_time = round(get_time_per_subject(faa_tsd_sample), 2)
-    dict_count = fill_count_dict(dict_count, "faa_tsd", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "faa_tsd", sub_samples, list(blood_time))
 
     print("===============================================")
 
@@ -181,7 +188,8 @@ def get_faa(
     print("shape of faa_csrn sample: ", faa_csrn_sample.shape)
     sub_samples = get_subjects_samples(faa_csrn_sample)
     blood_time = round(get_time_per_subject(faa_csrn_sample), 2)
-    dict_count = fill_count_dict(dict_count, "faa_csrn", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "faa_csrn", sub_samples, list(blood_time))
 
     print("===============================================")
 
@@ -189,7 +197,8 @@ def get_faa(
     print("shape of faa_csrd sample: ", faa_csrd_sample.shape)
     sub_samples = get_subjects_samples(faa_csrd_sample)
     blood_time = round(get_time_per_subject(faa_csrd_sample), 2)
-    dict_count = fill_count_dict(dict_count, "faa_csrd", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "faa_csrd", sub_samples, list(blood_time))
 
     print("===============================================")
 
@@ -202,7 +211,6 @@ def get_faa(
                 faa_csrd_sample,
             ]
         ),
-        dict_count,
     )
 
 
@@ -220,7 +228,8 @@ def get_mri_day5(
     sub_samples = get_subjects_samples(mri_sample)
     print("shape of mri sample: ", mri_sample.shape)
     blood_time = round(get_time_per_subject(mri_sample), 2)
-    dict_count = fill_count_dict(dict_count, "mri", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "mri", sub_samples, list(blood_time))
 
     print("===============================================")
 
@@ -228,10 +237,11 @@ def get_mri_day5(
     sub_samples = get_subjects_samples(day5_sample)
     print("shape of day5 sample: ", day5_sample.shape)
     blood_time = round(get_time_per_subject(day5_sample), 2)
-    dict_count = fill_count_dict(dict_count, "5day", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "5day", sub_samples, list(blood_time))
 
     print("===============================================")
-    return (pd.concat([mri_sample, day5_sample]), dict_count)
+    return pd.concat([mri_sample, day5_sample])
 
 
 def get_dinges_zeitzer(
@@ -249,7 +259,8 @@ def get_dinges_zeitzer(
     print("shape of zeitzer sample: ", zeitzer_sample.shape)
     sub_samples = get_subjects_samples(zeitzer_sample)
     blood_time = round(get_time_per_subject(zeitzer_sample), 2)
-    dict_count = fill_count_dict(dict_count, "Zeitzer", sub_samples, list(blood_time))
+
+    fill_count_dict(dict_count, "Zeitzer", sub_samples, list(blood_time))
 
     print("===============================================")
 
@@ -257,14 +268,13 @@ def get_dinges_zeitzer(
     print("shape of dinges sample: ", dinges_sample.shape)
     sub_samples = get_subjects_samples(dinges_sample)
     blood_time = round(get_time_per_subject(dinges_sample), 2)
-    dict_count = fill_count_dict(dict_count, "Dinges", sub_samples, list(blood_time))
 
-    return (pd.concat([zeitzer_sample, dinges_sample]), dict_count)
+    fill_count_dict(dict_count, "Dinges", sub_samples, list(blood_time))
+
+    return pd.concat([zeitzer_sample, dinges_sample])
 
 
-def fill_count_dict(
-    dict_count: dict, name: str, sub_sample: list, blood_time: list
-) -> dict:
+def fill_count_dict(dict_count: dict, name: str, sub_sample: list, blood_time: list):
     """
     fill the count dictionary with missing values
     """
@@ -273,5 +283,3 @@ def fill_count_dict(
     dict_count["subject_count"].append(sub_sample[0])
     dict_count["sample_count"].append(sub_sample[1])
     dict_count["blood_time"].append(blood_time)
-
-    return dict_count

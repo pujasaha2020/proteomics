@@ -51,24 +51,18 @@ if __name__ == "__main__":
 
     # adenosine model
 
-    dinges_zeitzer, dict_count = get_dinges_zeitzer(
+    dinges_zeitzer = get_dinges_zeitzer(
         df_ids_prof_no_proteins, df, BOX_PATH["csvs"], box, dict_count
     )
 
-    mppg, dict_count = get_mppg_ctl_csr(
-        df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count
-    )
+    mppg = get_mppg_ctl_csr(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
     print(dict_count)
 
-    fd, dict_count = get_fd(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
-    mri_5day, dict_count = get_mri_day5(
-        df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count
-    )
-    faa, dict_count = get_faa(
-        df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count
-    )
+    fd = get_fd(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
+    mri_5day = get_mri_day5(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
+    faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
 
-    df_sleep_debt_adenosine = pd.concat([mppg, fd, mri_5day, faa])
+    df_sleep_debt_adenosine = pd.concat([dinges_zeitzer, mppg, fd, mri_5day, faa])
     print("shape of all samples: ", df_sleep_debt_adenosine.shape)
 
     columns_to_drop = [
@@ -87,7 +81,7 @@ if __name__ == "__main__":
     print("shape of all samples in adenosine system: ", df_sleep_debt_adenosine.shape)
     # unified model
 
-    dinges_zeitzer, dict_count = get_dinges_zeitzer(
+    dinges_zeitzer = get_dinges_zeitzer(
         df_ids_prof_no_proteins,
         df,
         BOX_PATH["csvs_unified"],
@@ -95,22 +89,18 @@ if __name__ == "__main__":
         dict_count,
     )
 
-    mppg, dict_count = get_mppg_ctl_csr(
+    mppg = get_mppg_ctl_csr(
         df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count
     )
     print(dict_count)
 
-    fd, dict_count = get_fd(
+    fd = get_fd(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count)
+    mri_5day = get_mri_day5(
         df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count
     )
-    mri_5day, dict_count = get_mri_day5(
-        df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count
-    )
-    faa, dict_count = get_faa(
-        df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count
-    )
+    faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count)
 
-    df_sleep_debt_unified = pd.concat([mppg, fd, mri_5day, faa])
+    df_sleep_debt_unified = pd.concat([dinges_zeitzer, mppg, fd, mri_5day, faa])
     print("shape of all samples: ", df_sleep_debt_unified.shape)
 
     columns_to_drop = [
