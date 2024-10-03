@@ -1,4 +1,4 @@
-## Welcome to Sleep Deprivation Analysis!!\*\*
+## Welcome to Sleep Deprivation Analysis!!
 
 ## Step 1: Calculate sleep debt at every minute
 
