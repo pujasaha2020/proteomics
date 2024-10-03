@@ -1,13 +1,13 @@
 # get_studies
 """
-get_mppg_ctl_csr_fd: function that gets the mppg protocol and returns 
+get_mppg_ctl_csr_fd: function that gets the mppg protocol from "studies" and returns 
                      the sleepdebt at clock time.
-get_faa: function that gets the faa protocol and returns the 
+get_faa: function that gets the faa protocol  "studies" and returns the 
         sleepdebt at clock time.
-get_mri_day5: function that gets the mri and day5 and mri protocol 
+get_mri_day5: function that gets the mri and day5 and mri protocol "studies" 
               and returns the sleepdebt at clock time.
-get_dinges_zeitzer: function that gets the dinges and zeitzer protocol and returns
-                     the sleepdebt at clock time.
+get_dinges_zeitzer: function that gets the dinges and zeitzer protocol "studies"
+            and returns the sleepdebt at clock time.
 """
 from pathlib import Path
 
