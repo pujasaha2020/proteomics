@@ -59,12 +59,15 @@ def check_aptamers(df: pd.DataFrame):
 def check_debt(df: pd.DataFrame):
     """Ensure debt dataframe is correctly formatted"""
     required_columns = {
-        "study",
-        "subject",
-        "experiment",
-        "sample_id",
-        "status",
-        "s",
-        "l",
+        ("ids", "study"),
+        ("ids", "subject"),
+        ("ids", "experiment"),
+        ("ids", "sample_id"),
+        ("adenosine", "status"),
+        ("adenosine", "chronic"),
+        ("adenosine", "acute"),
+        ("unified", "status"),
+        ("unified", "chronic"),
+        ("unified", "acute"),
     }
     assert required_columns.issubset(df.columns)

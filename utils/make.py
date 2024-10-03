@@ -10,7 +10,7 @@ from utils.get import get_parameters
 def make_protocol_list() -> list:
     "getting protocols list as string"
     protocol_list = []
-    for i in range(1, 2):  # Assuming you have 3 protocols
+    for i in range(1, 14):  # Assuming you have 3 protocols
         if i == 8:
             for j in range(1, 10):
                 function_name = f"protocol{i}_{j}"

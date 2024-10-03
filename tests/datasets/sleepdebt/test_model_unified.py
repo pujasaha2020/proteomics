@@ -30,7 +30,7 @@ def read_yaml(file_path):
 def get_toy_protocol():
     """
     This function reads the yaml file and returns the data"""
-    file_path = "tests/test_protocol.yaml"
+    file_path = "tests/utils/test_protocol.yaml"
     return read_yaml(file_path)
 
 
@@ -43,6 +43,7 @@ def define_protocol(input_yaml: dict):
     t_ae_sl = make_sleep_wake_tuple(input_yaml, protocol.name)
 
     protocol.fill(t_ae_sl[0], t_ae_sl[1])
+
     return protocol
 
 
@@ -309,6 +310,7 @@ def parameters() -> dict:
     return model_parameters
 
 
+#####testing calculate_debt function in datasets/sleepdebt/model/unified.py####
 @pytest.fixture(name="df")
 def df_model(protocol: Protocol) -> pd.DataFrame:
     """

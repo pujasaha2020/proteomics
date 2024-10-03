@@ -15,8 +15,7 @@ PATH = {
     "proteomics": Path("archives/data/proteomics_091224_AS.csv"),
     "aptamers": Path("archives/data/aptamers.csv"),
     "debt": Path(
-        "archives/sleep_debt/SleepDebt_Data/proteomic_with_sleepdebt_mri_5day_mppg_"
-        + "dinges_faa_FD_Zeitzer_030124AS_062524PS.csv"
+        "archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/data_091224_AS_with_sleep_debt_2024-10-02_PS.csv"
     ),
     "protocols": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/protocols.yaml"),
     "parameters": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/parameters.yaml"),
@@ -101,12 +100,12 @@ def get_debt(box: BoxManager, path: Path = PATH["debt"]) -> pd.DataFrame:
     This function will be deprecated once sleep debt values are add to proteomics."""
     file = box.get_file(path)
     dtype = {
-        "study": str,
-        "subject": str,
-        "experiment": str,
-        "sample_id": str,
+        ("ids", "study"): str,
+        ("ids", "subject"): str,
+        ("ids", "experiment"): str,
+        ("ids", "sample_id"): str,
     }
-    df = pd.read_csv(file, dtype=dtype)
+    df = pd.read_csv(file, dtype=dtype, header=[0, 1], low_memory=False)
     check_df(df, "debt", path)
     return df
 
@@ -223,7 +222,6 @@ def get_time_per_subject(df_protocol: pd.DataFrame) -> pd.Series:
     max_count = subject_counts.idxmax()
     print(max_count)
     # Find the subject with the maximum count
-    # max_subject_ids = subject_counts[subject_counts == max_count]
     time = df_protocol[df_protocol[("ids", "subject")] == max_count][
         ("profile", "mins_from_admission")
     ] / (60 * 24)

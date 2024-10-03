@@ -11,58 +11,12 @@ import yaml
 # from box.manager import BoxManager
 from datasets.sleepdebt.class_def import Protocol
 from datasets.sleepdebt.model.adenosine import calculate_debt
-from utils.get import get_status
-from utils.make import make_protocol_list, make_sleep_wake_tuple
+from utils.make import make_sleep_wake_tuple
 
 # from pytest_mock import MockerFixture
 
 
 # from pytest_mock import MockerFixture
-
-
-@pytest.fixture(name="expected_protocol_list")
-def protocol_list():
-    """
-    This function returns the list of protocols
-    """
-    return [
-        "protocol1",
-        "protocol2",
-        "protocol3",
-        "protocol4",
-        "protocol5",
-        "protocol6",
-        "protocol7",
-        "protocol8_1",
-        "protocol8_2",
-        "protocol8_3",
-        "protocol8_4",
-        "protocol8_5",
-        "protocol8_6",
-        "protocol8_7",
-        "protocol8_8",
-        "protocol8_9",
-        "protocol9",
-        "protocol10",
-        "protocol11",
-        "protocol12",
-        "protocol13",
-    ]
-
-
-def test_get_protocols(expected_protocol_list: list):
-    """
-    this functions creates a list of protocols that should look
-    similar to inout_for_get_protocol
-    Protocols in the yaml file are named as "protcol1", "protocol2", etc.
-    Protocol for Forced Dysynchrony  is named as "protocol8_1" and "protocol8_2".
-    Because different subject has
-    different sleep/wake schedule.
-    """
-    info = make_protocol_list()
-    assert (
-        info == expected_protocol_list
-    ), "The actual output does not match the expected output."
 
 
 # Function to read a YAML file
@@ -79,41 +33,8 @@ def read_yaml(file_path):
 def get_toy_protocol():
     """
     This function reads the yaml file and returns the data"""
-    file_path = "tests/test_protocol.yaml"
+    file_path = "tests/utils/test_protocol.yaml"
     return read_yaml(file_path)
-
-
-@pytest.fixture(name="expected_protocol")
-def expected_output_from_construct_protocol():
-    """
-    This function returns the expected protocol
-    """
-    return (
-        [960, 2160],
-        [480, 480],
-    )
-
-
-def test_construct_protocol(
-    input_yaml_construct_protocol: dict, expected_protocol: tuple
-):
-    """
-    This function tests the function construct_protocol in the adenosine_model.py
-    """
-    protocols = make_sleep_wake_tuple(input_yaml_construct_protocol, "protocol1")
-    print(protocols)
-
-    assert (
-        protocols == expected_protocol
-    ), "The actual output does not match the expected output."
-
-
-@pytest.fixture(name="expected_output_from_time_sequence")
-def output_time_sequence():
-    """
-    This function returns the expected output from time_sequence
-    """
-    return [0, 960, 1440, 3600, 4080]
 
 
 @pytest.fixture(name="protocol")
@@ -128,6 +49,14 @@ def define_protocol(input_yaml_construct_protocol: dict):
     return protocol
 
 
+@pytest.fixture(name="expected_output_from_time_sequence")
+def output_time_sequence():
+    """
+    This function returns the expected output from time_sequence
+    """
+    return [0, 960, 1440, 3600, 4080]
+
+
 def test_time_sequence(protocol: Protocol, expected_output_from_time_sequence: list):
     """
     This function tests the function time_sequence in the adenosine_model.py
@@ -138,30 +67,6 @@ def test_time_sequence(protocol: Protocol, expected_output_from_time_sequence: l
     print(time_count)
     assert (
         time_count == expected_output_from_time_sequence
-    ), "The actual output does not match the expected output."
-
-
-@pytest.fixture(name="expected_output_get_status")
-def output_from_get_status():
-    """
-    This function returns the expected output from get_status
-    """
-    return pd.DataFrame(
-        {"time": [200, 970, 1552], "status": ["awake", "sleep", "awake"]}
-    )
-
-
-def test_get_status(protocol: Protocol, expected_output_get_status: pd.DataFrame):
-    """
-    This function tests the function get_status in the adenosine_model.py
-    """
-    print(protocol.time_sequence())
-    status = expected_output_get_status["time"].apply(
-        lambda x: get_status(x, protocol.time_sequence())
-    )
-    print(status)
-    assert status.equals(
-        expected_output_get_status["status"]
     ), "The actual output does not match the expected output."
 
 
@@ -475,6 +380,7 @@ def parameters() -> dict:
     return model_parameters
 
 
+#####testing calculate_debt function in datasets/sleepdebt/model/adenosine.py####
 @pytest.fixture(name="df")
 def df_model(protocol: Protocol, param_dict: dict) -> pd.DataFrame:
     """
