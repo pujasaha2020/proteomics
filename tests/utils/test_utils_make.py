@@ -1,4 +1,5 @@
-# test make scripts
+"""test scripts for utils/make.py"""
+
 import pytest
 import yaml
 
@@ -7,9 +8,7 @@ from utils.make import make_protocol_list, make_sleep_wake_tuple
 
 @pytest.fixture(name="expected_protocol_list")
 def protocol_list():
-    """
-    This function returns the list of protocols
-    """
+    """This function returns the list of protocols"""
     return [
         "protocol1",
         "protocol2",
@@ -37,7 +36,6 @@ def protocol_list():
 
 def test_make_protocol_list(expected_protocol_list: list):
     """
-
     Protocols in the yaml file are named as "protocol1", "protocol2", etc.
     Protocol for Forced Dysynchrony  is named as "protocol8_1" and "protocol8_2".
     Because different subject has
@@ -51,9 +49,7 @@ def test_make_protocol_list(expected_protocol_list: list):
 
 # Function to read a YAML file
 def read_yaml(file_path):
-    """
-    This function reads a yaml file and returns the data
-    """
+    """This function reads a yaml file and returns the data"""
     with open(file_path, encoding="utf-8") as file:
         data = yaml.safe_load(file)
     return data
@@ -61,17 +57,14 @@ def read_yaml(file_path):
 
 @pytest.fixture(name="input_yaml_construct_protocol")
 def get_toy_protocol():
-    """
-    This function reads the yaml file and returns the data"""
+    """This function reads the yaml file and returns the data"""
     file_path = "tests/utils/test_protocol.yaml"
     return read_yaml(file_path)
 
 
 @pytest.fixture(name="expected_protocol")
 def expected_output_from_make_sleep_wake_tuple():
-    """
-    This function returns the expected protocol
-    """
+    """This function returns the expected protocol"""
     return (
         [960, 2160],
         [480, 480],
@@ -81,11 +74,8 @@ def expected_output_from_make_sleep_wake_tuple():
 def test_make_sleep_wake_tuple(
     input_yaml_construct_protocol: dict, expected_protocol: tuple
 ):
-    """
-    This function tests the function construct_protocol in the adenosine_model.py
-    """
+    """This function tests the function construct_protocol in the adenosine_model.py"""
     protocols = make_sleep_wake_tuple(input_yaml_construct_protocol, "protocol1")
-    print(protocols)
 
     assert (
         protocols == expected_protocol

@@ -1,7 +1,9 @@
 """
 This is a test script for model.py in datasets/sleepdebt/adenosine_model/model.py
- project
+project
 """
+
+# pylint: disable=R0801
 
 import numpy as np
 import pandas as pd
@@ -51,20 +53,15 @@ def define_protocol(input_yaml_construct_protocol: dict):
 
 @pytest.fixture(name="expected_output_from_time_sequence")
 def output_time_sequence():
-    """
-    This function returns the expected output from time_sequence
-    """
+    """This function returns the expected output from time_sequence"""
     return [0, 960, 1440, 3600, 4080]
 
 
 def test_time_sequence(protocol: Protocol, expected_output_from_time_sequence: list):
-    """
-    This function tests the function time_sequence in the adenosine_model.py
-    """
+    """This function tests the function time_sequence in the adenosine_model.py"""
 
     print(protocol.t_awake_l)
     time_count = protocol.time_sequence()
-    print(time_count)
     assert (
         time_count == expected_output_from_time_sequence
     ), "The actual output does not match the expected output."
@@ -82,21 +79,13 @@ def test_awake_period1(df: pd.DataFrame, param_dict: dict) -> None:
 
     """
 
-    start = 0  # 0  # 1441
-    end = 961  # 961  # 3601
-    print("debt from model.py Acute", df["Acute"][0:20])
-    print("debt from model.py Chronic", df["Chronic"][0:20])
+    start = 0
+    end = 961
 
-    dy1_dt_lhs = np.diff(df["Acute"][start:end])  # [start:end]
-    # )  # LHS of dy1/dt from the solution
-    dy2_dt_lhs = np.diff(df["Chronic"][start:end])  # [start:end]
-    # )  # LHS of dy2/dt from the solution
+    dy1_dt_lhs = np.diff(df["Acute"][start:end])
+    dy2_dt_lhs = np.diff(df["Chronic"][start:end])
 
-    print(dy1_dt_lhs[0:10])
-    print(dy2_dt_lhs[0:10])
-    dy1_dt_rhs = (param_dict["mu_w"] - df["Acute"][start:end]) / param_dict[
-        "chi_w"
-    ]  # RHS of dy1/dt
+    dy1_dt_rhs = (param_dict["mu_w"] - df["Acute"][start:end]) / param_dict["chi_w"]
     term = (
         df["Acute"][start:end]
         + df["Chronic"][start:end]
@@ -107,8 +96,6 @@ def test_awake_period1(df: pd.DataFrame, param_dict: dict) -> None:
     dy2_dt_rhs = (a1b - (df["Chronic"][start:end] * param_dict["gamma"])) / param_dict[
         "lambda1"
     ]
-    print(dy1_dt_rhs[0:10])
-    print(dy2_dt_rhs[0:10])
 
     if len(dy1_dt_lhs) != len(dy1_dt_rhs):
         min_len = min(len(dy1_dt_lhs), len(dy1_dt_rhs))
@@ -120,8 +107,6 @@ def test_awake_period1(df: pd.DataFrame, param_dict: dict) -> None:
         dy2_dt_lhs = dy2_dt_lhs[:min_len]
         dy2_dt_rhs = dy2_dt_rhs[:min_len]
 
-    # diff_y1 = np.abs(dy1_dt_lhs - dy1_dt_rhs)  # Difference for y1
-    # diff_y2 = np.abs(dy2_dt_lhs - dy2_dt_rhs)  # Difference for y2
     np.testing.assert_allclose(
         dy1_dt_lhs,
         dy1_dt_rhs,
@@ -134,7 +119,6 @@ def test_awake_period1(df: pd.DataFrame, param_dict: dict) -> None:
         rtol=0.1,
         err_msg="Chronic values do not match awake(period1)",
     )
-    # return diff_y1, diff_y2
 
 
 def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
@@ -150,22 +134,15 @@ def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
 
     """
 
-    start = 961  # 961  # 3601
-    end = 1441  # 1441  # 4081
-    print("debt from model.py", df["Acute"][960:970])
+    start = 961
+    end = 1441
 
-    dy1_dt_lhs = np.diff(
-        df["Acute"][start:end]
-    )  # start:end, LHS of dy1/dt from the solution
-    dy2_dt_lhs = np.diff(
-        df["Chronic"][start:end]
-    )  # start:end, LHS of dy2/dt from the solution
+    dy1_dt_lhs = np.diff(df["Acute"][start:end])
+    dy2_dt_lhs = np.diff(df["Chronic"][start:end])
 
     print(dy1_dt_lhs[0:10])
     print(dy2_dt_lhs[0:10])
-    dy1_dt_rhs = (param_dict["mu_s"] - df["Acute"][start:end]) / param_dict[
-        "chi_s"
-    ]  # RHS of dy1/dt
+    dy1_dt_rhs = (param_dict["mu_s"] - df["Acute"][start:end]) / param_dict["chi_s"]
     term = (
         df["Acute"][start:end]
         + df["Chronic"][start:end]
@@ -176,8 +153,6 @@ def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
     dy2_dt_rhs = (a1b - (df["Chronic"][start:end] * param_dict["gamma"])) / param_dict[
         "lambda1"
     ]
-    print(dy1_dt_rhs[1:10])
-    print(dy2_dt_rhs[1:10])
 
     if len(dy1_dt_lhs) != len(dy1_dt_rhs):
         min_len = min(len(dy1_dt_lhs), len(dy1_dt_rhs))
@@ -188,9 +163,6 @@ def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
         min_len = min(len(dy2_dt_lhs), len(dy2_dt_rhs))
         dy2_dt_lhs = dy2_dt_lhs[:min_len]
         dy2_dt_rhs = dy2_dt_rhs[:min_len]
-
-    # diff_y1 = np.abs(dy1_dt_lhs - dy1_dt_rhs)  # Difference for y1
-    # diff_y2 = np.abs(dy2_dt_lhs - dy2_dt_rhs)  # Difference for y2
 
     np.testing.assert_allclose(
         dy1_dt_lhs,
@@ -220,21 +192,13 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
 
     """
 
-    start = 1441  # 0  # 1441
-    end = 3601  # 961  # 3601
-    print("debt from model.py Acute", df["Acute"][0:20])
-    print("debt from model.py Chronic", df["Chronic"][0:20])
+    start = 1441
+    end = 3601
 
-    dy1_dt_lhs = np.diff(df["Acute"][start:end])  # [start:end]
-    # )  # LHS of dy1/dt from the solution
-    dy2_dt_lhs = np.diff(df["Chronic"][start:end])  # [start:end]
-    # )  # LHS of dy2/dt from the solution
+    dy1_dt_lhs = np.diff(df["Acute"][start:end])
+    dy2_dt_lhs = np.diff(df["Chronic"][start:end])
 
-    print(dy1_dt_lhs[0:10])
-    print(dy2_dt_lhs[0:10])
-    dy1_dt_rhs = (param_dict["mu_w"] - df["Acute"][start:end]) / param_dict[
-        "chi_w"
-    ]  # RHS of dy1/dt
+    dy1_dt_rhs = (param_dict["mu_w"] - df["Acute"][start:end]) / param_dict["chi_w"]
     term = (
         df["Acute"][start:end]
         + df["Chronic"][start:end]
@@ -245,8 +209,6 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
     dy2_dt_rhs = (a1b - (df["Chronic"][start:end] * param_dict["gamma"])) / param_dict[
         "lambda1"
     ]
-    print(dy1_dt_rhs[0:10])
-    print(dy2_dt_rhs[0:10])
 
     if len(dy1_dt_lhs) != len(dy1_dt_rhs):
         min_len = min(len(dy1_dt_lhs), len(dy1_dt_rhs))
@@ -258,8 +220,6 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
         dy2_dt_lhs = dy2_dt_lhs[:min_len]
         dy2_dt_rhs = dy2_dt_rhs[:min_len]
 
-    # diff_y1 = np.abs(dy1_dt_lhs - dy1_dt_rhs)  # Difference for y1
-    # diff_y2 = np.abs(dy2_dt_lhs - dy2_dt_rhs)  # Difference for y2
     np.testing.assert_allclose(
         dy1_dt_lhs,
         dy1_dt_rhs,
@@ -272,7 +232,6 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
         rtol=5.0,
         err_msg="Chronic values do not match awake(period2)",
     )
-    # return diff_y1, diff_y2
 
 
 def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
@@ -288,22 +247,15 @@ def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
 
     """
 
-    start = 3601  # 961  # 3601
-    end = 4081  # 1441  # 4081
-    print("debt from model.py", df["Acute"][960:970])
+    start = 3601
+    end = 4081
 
-    dy1_dt_lhs = np.diff(
-        df["Acute"][start:end]
-    )  # start:end, LHS of dy1/dt from the solution
-    dy2_dt_lhs = np.diff(
-        df["Chronic"][start:end]
-    )  # start:end, LHS of dy2/dt from the solution
+    dy1_dt_lhs = np.diff(df["Acute"][start:end])
+    dy2_dt_lhs = np.diff(df["Chronic"][start:end])
 
     print(dy1_dt_lhs[0:10])
     print(dy2_dt_lhs[0:10])
-    dy1_dt_rhs = (param_dict["mu_s"] - df["Acute"][start:end]) / param_dict[
-        "chi_s"
-    ]  # RHS of dy1/dt
+    dy1_dt_rhs = (param_dict["mu_s"] - df["Acute"][start:end]) / param_dict["chi_s"]
     term = (
         df["Acute"][start:end]
         + df["Chronic"][start:end]
@@ -314,8 +266,6 @@ def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
     dy2_dt_rhs = (a1b - (df["Chronic"][start:end] * param_dict["gamma"])) / param_dict[
         "lambda1"
     ]
-    print(dy1_dt_rhs[1:10])
-    print(dy2_dt_rhs[1:10])
 
     if len(dy1_dt_lhs) != len(dy1_dt_rhs):
         min_len = min(len(dy1_dt_lhs), len(dy1_dt_rhs))
@@ -326,9 +276,6 @@ def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
         min_len = min(len(dy2_dt_lhs), len(dy2_dt_rhs))
         dy2_dt_lhs = dy2_dt_lhs[:min_len]
         dy2_dt_rhs = dy2_dt_rhs[:min_len]
-
-    # diff_y1 = np.abs(dy1_dt_lhs - dy1_dt_rhs)  # Difference for y1
-    # diff_y2 = np.abs(dy2_dt_lhs - dy2_dt_rhs)  # Difference for y2
 
     np.testing.assert_allclose(
         dy1_dt_lhs,
@@ -343,8 +290,6 @@ def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
         rtol=2.0,
         err_msg="Chronic values do not match during sleep(period2)",
     )
-
-    # return diff_y1, diff_y2
 
 
 # solution of the differential equation of atot and r1tot from
@@ -387,8 +332,8 @@ def df_model(protocol: Protocol, param_dict: dict) -> pd.DataFrame:
     This function returns the dataframe for testing the model
     """
     debt = calculate_debt(protocol, param_dict)
-    print(debt.shape)
+
     debt.drop_duplicates(inplace=True)
     debt.reset_index(inplace=True, drop=True)
-    print(debt.head())
+
     return debt

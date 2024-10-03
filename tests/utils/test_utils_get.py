@@ -24,7 +24,7 @@ from utils.make import make_sleep_wake_tuple
 # Apply the filterwarnings marker to all tests in this file
 pytestmark = pytest.mark.filterwarnings("ignore:Package 'boxsdk'*:DeprecationWarning")
 TOKEN_PATH = Path("box/tokens.yaml")
-'''
+
 
 def test_get_box():
     """Test get_box function"""
@@ -61,8 +61,6 @@ def test_get_aptamers():
     with pytest.raises(AssertionError):
         get_aptamers(box, wrong_path)
 
-'''
-
 
 def test_get_debt():
     """Test get_debt function"""
@@ -77,7 +75,6 @@ def test_get_debt():
         get_debt(box, wrong_path)
 
 
-'''
 ############# INFO PER SOMALOGIC ################
 @pytest.fixture(name="df")
 def input_df() -> pd.DataFrame:
@@ -131,7 +128,6 @@ def test_get_sizes(mocker: MockFixture):
         get_sizes(box)
 
 
-'''
 ########GET STATUS########
 
 
@@ -177,12 +173,12 @@ def output_from_get_status():
 
 def test_get_status(protocol: Protocol, expected_output_get_status: pd.DataFrame):
     """
-    This function tests the function get_status in the adenosine_model.py
+    This function tests the function get_status in the
+    adenosine_model.py
     """
     status = expected_output_get_status["time"].apply(
         lambda x: get_status(x, protocol.time_sequence())
     )
-    print(status)
     assert status.equals(
         expected_output_get_status["status"]
     ), "The actual output does not match the expected output."
