@@ -5,6 +5,8 @@ import yaml
 
 from utils.make import make_protocol_list, make_sleep_wake_tuple
 
+# pylint: disable=R0801
+
 
 @pytest.fixture(name="expected_protocol_list")
 def protocol_list():

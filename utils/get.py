@@ -15,7 +15,8 @@ PATH = {
     "proteomics": Path("archives/data/proteomics_091224_AS.csv"),
     "aptamers": Path("archives/data/aptamers.csv"),
     "debt": Path(
-        "archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/data_091224_AS_with_sleep_debt_2024-10-02_PS.csv"
+        "archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/"
+        + "data_091224_AS_with_sleep_debt_2024-10-02_PS.csv"
     ),
     "protocols": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/protocols.yaml"),
     "parameters": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/parameters.yaml"),
@@ -199,9 +200,7 @@ def get_ids_profile_drop_missing_proteins(
 
 
 def get_subjects_samples(df_protocol: pd.DataFrame) -> list:
-    """
-    get the number of subjects and samples in each study
-    """
+    """get the number of subjects and samples in each study"""
     subs = df_protocol[("ids", "subject")].unique()
     print(subs)
     samples = df_protocol.shape[0]
