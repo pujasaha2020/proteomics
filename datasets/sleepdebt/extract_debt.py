@@ -24,12 +24,12 @@ from utils.save import save_to_csv
 
 BOX_PATH = {
     "proteomics": Path("archives/data/proteomics_091224_AS.csv"),
-    "csvs": Path("archives/sleep_debt/SleepDebt_Data/ligand_receptor_model/sleepdebt/"),
-    "csvs_unified": Path("archives/sleep_debt/SleepDebt_Data/unified_model/sleepdebt/"),
+    "csvs": Path("archives/sleepdebt/sleepdebt_data/ligand_receptor_model/sleepdebt/"),
+    "csvs_unified": Path("archives/sleepdebt/sleepdebt_data/unified_model/sleepdebt/"),
     "csv_proteomics": Path(
         "archives/sleep_debt/SleepDebt_Data/dataset_with_sleepdebt_at_clocktime/"
     ),
-    "yaml_path": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/protocols.yaml"),
+    "yaml_path": Path("archives/sleepdebt/sleepdebt_data/yaml_files/protocols.yaml"),
 }
 # box1 = get_box()
 

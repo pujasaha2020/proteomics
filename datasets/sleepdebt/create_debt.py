@@ -24,13 +24,13 @@ from utils.save import save_to_csv
 
 BOX_PATH = {
     "plots_adenosine": Path(
-        "results/sleep_debt/sleepDebt_curves/ligand_receptor_model/"
+        "results/sleepdebt/sleepdebt_curves/ligand_receptor_model/"
     ),
-    "plots_unified": Path("results/sleep_debt/sleepDebt_curves/unified_model/"),
+    "plots_unified": Path("results/sleepdebt/sleepdebt_curves/unified_model/"),
     "csvs_adenosine": Path(
-        "archives/sleep_debt/SleepDebt_Data/ligand_receptor_model/sleepdebt/"
+        "archives/sleep_debt/sleepdebt_data/ligand_receptor_model/sleepdebt/"
     ),
-    "csvs_unified": Path("archives/sleep_debt/SleepDebt_Data/unified_model/sleepdebt/"),
+    "csvs_unified": Path("archives/sleep_debt/sleepdebt_data/unified_model/sleepdebt/"),
 }
 
 
