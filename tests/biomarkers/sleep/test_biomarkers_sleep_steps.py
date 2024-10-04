@@ -31,11 +31,12 @@ def input_debts() -> pd.DataFrame:
     """Return a dataframe with debts information"""
     debts = pd.DataFrame(
         {
-            "sample_id": [1, 2, 3, 4, 5, 6, 7, 8, 9],
-            "l": [0.1, 0.2, 0.3, 0.4, None, 0.6, 0.7, 0.8, 0.9],
-            "s": [0.5, 0.6, 0.7, None, 0.9, 1.0, 1.1, 1.2, 1.3],
+            ("info", "sample_id"): [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            ("adenosine", "chronic"): [0.1, 0.2, 0.3, 0.4, None, 0.6, 0.7, 0.8, 0.9],
+            ("adenosine", "acute"): [0.5, 0.6, 0.7, None, 0.9, 1.0, 1.1, 1.2, 1.3],
         }
     )
+    print(debts)
     return debts
 
 
