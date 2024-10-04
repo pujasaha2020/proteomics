@@ -29,8 +29,6 @@ def get_dinges(
         }
     )
 
-    print("number of subjects in dinges", len(df_id_admit_time))
-
     df_id_admit_time[("profile", "adm_time")] = "8:00"
     dinges_data = proteomics_data_new[proteomics_data_new.ids["study"] == "dinges"]
 
@@ -83,7 +81,6 @@ def get_dinges(
         ("debt", "status"),
     ]
     sleep_debt_dinges.columns = pd.MultiIndex.from_tuples(multi_level_columns)
-    print(sleep_debt_dinges.head())
 
     # Renaming columns
     sleep_debt_dinges.columns = pd.MultiIndex.from_tuples(

@@ -7,14 +7,13 @@ import numpy as np
 import pandas as pd
 
 # from box.manager import BoxManager
-from datasets.sleepdebt.class_def import Protocol
+from datasets.sleepdebt.protocol import Protocol
 
 # Unified Model
 U = 24.1
 TAU_LA = 4.06 * 24 * 60  # 4.06
 TAU_W = 40 * 60
 TAU_S = 1 * 60  # 8/3
-# s_e= U/5
 
 
 def sleep_new(t, t0=0, s0=0, l0=0, fd=False):
@@ -43,9 +42,6 @@ def awake_new(t, t0=0, s0=0, l0=0):
     """debt during awake"""
     s_t = U - np.exp(-(t - t0) / TAU_W) * (U - s0)
     l_t = U - np.exp(-(t - t0) / TAU_LA) * (U - l0)
-    # L_t=0
-
-    # eff_t= (1-np.exp(-(S_t/s_e)))*100
 
     return s_t, l_t
 
@@ -70,15 +66,11 @@ def simulate_unified(t_awake, t_sleep, initials, forced=False):
 
     s_sleep, l_sleep = list(map(list, zip(*res_sleep)))
 
-    # eff_sleep= [eff]*len(sleep_times)
-
     return list(wake_times) + list(sleep_times), s_awake + s_sleep, l_awake + l_sleep
 
 
 def calculate_debt(protocol: Protocol) -> pd.DataFrame:
-    """
-    Calculate sleep debt for a given protocol from Unified model
-    """
+    """Calculate sleep debt for a given protocol from Unified model"""
     initial_values = np.zeros(3)
     s, t, l = [], [], []
     s1, t1, l1 = [], [], []

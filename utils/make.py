@@ -3,7 +3,7 @@ make scripts
 """
 
 from box.manager import BoxManager
-from datasets.sleepdebt.class_def import Protocol
+from datasets.sleepdebt.protocol import Protocol
 from utils.get import get_parameters
 
 

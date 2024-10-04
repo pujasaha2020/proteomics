@@ -15,9 +15,7 @@ from box.manager import BoxManager
 def get_faa_csrd(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
-    """
-    get the sleep debt for the "FAA CSRD" sample
-    """
+    """get the sleep debt for the "FAA CSRD" sample"""
     # DataFrame with unique subjects and admission times
 
     sub_admission_time = {
@@ -39,7 +37,6 @@ def get_faa_csrd(
         ("ids", "subject")
     ].map(sub_admission_time)
 
-    print("number of subjects in faa csrd", len(df_id_admit_time))
     faa_csrd_data = proteomics_data_new[proteomics_data_new.ids["study"] == "faa_csrd"]
 
     print("data dimension before merging admission time", faa_csrd_data.columns)
@@ -47,10 +44,9 @@ def get_faa_csrd(
         faa_csrd_data, df_id_admit_time, on=[("ids", "subject")], how="inner"
     )
     print("data dimension after merging admission time", protemics_data1.shape)
+
     # Adding date and admission_date_time columns
-    protemics_data1[("profile", "date")] = (
-        "2021-12-31"  # ["2021-12-31"] * len(protemics_data1)
-    )
+    protemics_data1[("profile", "date")] = "2021-12-31"
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
     )
@@ -66,7 +62,6 @@ def get_faa_csrd(
     protemics_data1[("profile", "admission_date_time")] = pd.to_datetime(
         protemics_data1[("profile", "admission_date_time")]
     )
-    # print(protemics_data1[("profile", "time")])
     protemics_data1[("profile", "time")] = protemics_data1[("profile", "time")].apply(
         lambda x: x.split(".")[0]
     )
@@ -115,7 +110,6 @@ def get_faa_csrd(
     )
 
     print("shape after merging sleep debt", faa_csrd_sleepdebt.shape)
-    # print("final data", faa_csrd_sleepdebt)
 
     timing = [17436, 18936, 17196, 18876, 20376, 17306, 17461, 18961]
 

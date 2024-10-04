@@ -27,17 +27,16 @@ BOX_PATH = {
     "csvs": Path("archives/sleepdebt/sleepdebt_data/ligand_receptor_model/sleepdebt/"),
     "csvs_unified": Path("archives/sleepdebt/sleepdebt_data/unified_model/sleepdebt/"),
     "csv_final": Path(
-        "archives/sleep_debt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/"
+        "archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/"
     ),
     "yaml_path": Path("archives/sleepdebt/sleepdebt_data/yaml_files/protocols.yaml"),
 }
-# box1 = get_box()
 
 
 if __name__ == "__main__":
     box = get_box()
 
-    # creating a dataframe that contains, study,subject and sample count,
+    # creating a dict that contains, study,subject and sample count,
     # and blood collection time for subject with maximum count.
     dict_count: dict[str, list] = {
         "study": [],
@@ -56,14 +55,20 @@ if __name__ == "__main__":
     )
 
     mppg = get_mppg_ctl_csr(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
+    print(type(mppg))
+
     print(dict_count)
 
     fd = get_fd(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
+    print(type(fd))
+
     mri_5day = get_mri_day5(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
+    print(type(mri_5day))
+
     faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
+    print(type(faa))
 
     df_sleep_debt_adenosine = pd.concat([dinges_zeitzer, mppg, fd, mri_5day, faa])
-    print("shape of all samples: ", df_sleep_debt_adenosine.shape)
 
     columns_to_drop = [
         ("profile", "date"),
@@ -79,6 +84,7 @@ if __name__ == "__main__":
         columns={"Acute": "acute", "Chronic": "chronic"}, level=1, inplace=True
     )
     print("shape of all samples in adenosine system: ", df_sleep_debt_adenosine.shape)
+
     # unified model
 
     dinges_zeitzer = get_dinges_zeitzer(
@@ -101,7 +107,6 @@ if __name__ == "__main__":
     faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count)
 
     df_sleep_debt_unified = pd.concat([dinges_zeitzer, mppg, fd, mri_5day, faa])
-    print("shape of all samples: ", df_sleep_debt_unified.shape)
 
     columns_to_drop = [
         ("profile", "date"),
@@ -156,19 +161,16 @@ if __name__ == "__main__":
 
     print("shape of all samples: ", df_proteomics_with_sleep_debt.shape)
     today = date.today()
-    print(today)
     input_version = BOX_PATH["proteomics"].stem
-    print(input_version)
     split_string = input_version.split("_")
     # save the dataset as csv to BOX
     df_count = pd.DataFrame(dict_count)
-    print(df_count)
     # df_count.drop_duplicates(inplace=True)
     # df_count.reset_index(drop=True, inplace=True)
     save_to_csv(
         box,
         df_count,
-        BOX_PATH["csv_proteomics"]
+        BOX_PATH["csv_final"]
         / f"count_{split_string[1]}_{split_string[2]}_{today}_PS.csv",
         index=False,
     )

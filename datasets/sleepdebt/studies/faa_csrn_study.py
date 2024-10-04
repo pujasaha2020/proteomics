@@ -15,9 +15,7 @@ from box.manager import BoxManager
 def get_faa_csrn(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
-    """
-    get the sleep debt for the "FAA CSRN" sample
-    """
+    """get the sleep debt for the "FAA CSRN" sample"""
     # DataFrame with unique subjects and admission times
 
     sub_admission_time = {
@@ -40,7 +38,6 @@ def get_faa_csrn(
         ("ids", "subject")
     ].map(sub_admission_time)
 
-    print("number of subjects in faa csrn", len(df_id_admit_time))
     faa_csrn_data = proteomics_data_new[proteomics_data_new.ids["study"] == "faa_csrn"]
 
     print("data dimension before merging admission time", faa_csrn_data.shape)
@@ -81,7 +78,7 @@ def get_faa_csrn(
         protemics_data1[("profile", "time")]
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
-    # print(protemics_data1[('profile','mins_from_admission')].max())
+
     protemics_data1[("profile", "mins_from_admission")] = protemics_data1[
         ("profile", "mins_from_admission")
     ].astype(int)

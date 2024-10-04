@@ -12,12 +12,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from box.manager import BoxManager
-from datasets.sleepdebt.class_def import Protocol
 from datasets.sleepdebt.figure import (
     plot_debt_vs_time_adenosine,
     plot_debt_vs_time_unified,
 )
 from datasets.sleepdebt.model import adenosine, unified
+from datasets.sleepdebt.protocol import Protocol
 from utils.get import get_box, get_protocols, get_status
 from utils.make import (
     make_parameters_dict,
@@ -46,10 +46,7 @@ def create_debt(
     model_params: dict,
     model: str = "adenosine",
 ) -> plt.Figure:
-    """
-    Get plot for the protocol
-    """
-    print(model)
+    """Get plot for the protocol"""
     fig = plt.figure(figsize=(20, 10))
 
     ax = fig.add_subplot(111)  # 111 means 1 row, 1 column, 1st subplot
@@ -105,10 +102,8 @@ def run_sleepdebt_model(
     model_params: dict,
     model: str = "adenosine",
     definition: str = "def_2",
-) -> None:
-    """
-    Run sleep debt model
-    """
+):
+    """Run sleep debt model for all protocols"""
 
     prot_list = make_protocol_list()
     protocol_objects = make_protocol_object_list(prot_list, definition)
@@ -135,10 +130,10 @@ def run_zeitzer_sample(
     model_params: dict,
     model: str = "adenosine",
     definition: str = "def_2",
-) -> None:
+):
     """
     some of the Zeitzer subject have different sleep wake schedule.
-      So calculating  sleep debt separately
+    So calculating  sleep debt separately
     for those subjects.
     """
 
@@ -217,9 +212,7 @@ if __name__ == "__main__":
     # Validate model type
     valid_models = ["adenosine", "unified"]  # Add all valid model types here
     if args.model not in valid_models:
-        raise ValueError(
-            f"Invalid model type: {args.model}. Valid models are: {', '.join(valid_models)}"
-        )
+        raise ValueError(f"Invalid model type: {args.model}.")
 
     box = get_box()
     data = get_protocols(box)

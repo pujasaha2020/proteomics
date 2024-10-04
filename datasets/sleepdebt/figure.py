@@ -17,14 +17,14 @@ from utils.get import get_blood_collection_time, get_title
 # pylint: disable=R0801
 if TYPE_CHECKING:
     # Import only during type checking to avoid circular imports
-    from datasets.sleepdebt.class_def import Protocol
+    from datasets.sleepdebt.protocol import Protocol
 
 
 # def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
 def plot_debt_vs_time_adenosine(
     pro: Protocol, df_sleep_debt: pd.DataFrame, ax, data
 ) -> plt.Axes:
-    """getting the plot for the sleep debt"""
+    """getting the plot for the sleep debt for adenosine model"""
     ax2 = ax.twinx()  # type:ignore
     ax2.plot(
         df_sleep_debt["time"] / (60.0 * 24),
@@ -103,7 +103,7 @@ def plot_debt_vs_time_adenosine(
 def plot_debt_vs_time_unified(
     pro: Protocol, df_sleep_debt: pd.DataFrame, protocol_data: dict, ax: plt.Axes
 ) -> tuple:
-    """getting the plot for the sleep debt"""
+    """getting the plot for the sleep debt for unified model"""
 
     if pro.definition == "def_1":
         lower_envelope = plot_lower_envelope(df_sleep_debt)

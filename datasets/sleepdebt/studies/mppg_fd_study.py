@@ -17,9 +17,8 @@ from box.manager import BoxManager
 def get_mppg_fd(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
-    """Subject 3453
-    3453, 3536, 3552: multiple experiment, 3552 also participated
-      in mppg control experiment
+    """Subject 3453, 3536, 3552: multiple experiment, 3552 also participated
+    in mppg control experiment
     """
     sub_admission_time = {
         "3453": "7:01",  # 3453HY52---> 7:01, 3453HY73 : 6:31
@@ -46,7 +45,6 @@ def get_mppg_fd(
             ]["subject"].unique(),
         }
     )
-    # print(df_id_admit_time)
     df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
         ("ids", "subject")
     ].map(sub_admission_time)
@@ -54,10 +52,6 @@ def get_mppg_fd(
     df_id_admit_time[("profile", "date")] = df_id_admit_time[("ids", "subject")].map(
         sub_admission_date
     )
-
-    # df_id_admit_time = df_id_admit_time.dropna()
-
-    print("number of subjects in fd", len(df_id_admit_time))
 
     mppg_fd_data = proteomics_data_new.loc[
         proteomics_data_new[("ids", "study")] == "mppg_fd", :
@@ -106,14 +100,7 @@ def get_mppg_fd(
         ),
         ("profile", "adm_time"),
     ] = "6:32"
-    # print(protemics_data1.head())
 
-    print(
-        protemics_data1.loc[
-            protemics_data1[("ids", "subject")] == "3453",
-            [("ids", "experiment"), ("profile", "adm_time")],
-        ]
-    )
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
     )

@@ -15,9 +15,7 @@ from box.manager import BoxManager
 def get_faa_tsd(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
-    """
-    get the sleep debt for the "FAA tsd" sample
-    """
+    """get the sleep debt for the "FAA tsd" sample"""
     # DataFrame with unique subjects and admission times
 
     sub_admission_time = {
@@ -46,7 +44,6 @@ def get_faa_tsd(
         ("ids", "subject")
     ].map(sub_admission_time)
 
-    print("number of subjects in faa tsd", df_id_admit_time)
     faa_tsd_data = proteomics_data_new[proteomics_data_new.ids["study"] == "faa_tsd"]
 
     print("data dimension before merging admission time", faa_tsd_data.shape)
@@ -82,13 +79,8 @@ def get_faa_tsd(
         protemics_data1[("profile", "time")]
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
-    # Get rows with NaN in the specific column
-    nan_rows = protemics_data1[
-        protemics_data1[("profile", "mins_from_admission")].isna()
-    ]
 
     # Display the rows
-    print(nan_rows[("profile", "mins_from_admission")])
     protemics_data1[("profile", "mins_from_admission")] = protemics_data1[
         ("profile", "mins_from_admission")
     ].astype(int)
@@ -105,7 +97,6 @@ def get_faa_tsd(
         ("debt", "status"),
     ]
     sleep_debt_faa_tsd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
-    # print(sleep_debt_faa_tsd)
 
     # Renaming column
     sleep_debt_faa_tsd.columns = pd.MultiIndex.from_tuples(

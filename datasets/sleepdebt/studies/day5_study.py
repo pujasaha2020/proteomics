@@ -36,9 +36,7 @@ from box.manager import BoxManager
 def get_5day(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
-    """
-    get the sleep debt for the "5day" sample
-    """
+    """get the sleep debt for the "5day" sample"""
     sub_admission_time = {
         "4276": "7:04",
         "4199": "5:59",
@@ -60,7 +58,6 @@ def get_5day(
             ]["subject"].unique(),
         }
     )
-    print("number of subjects in 5day", len(df_id_admit_time))
 
     df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
         ("ids", "subject")
@@ -118,7 +115,6 @@ def get_5day(
         ("debt", "status"),
     ]
     sleep_debt_day5.columns = pd.MultiIndex.from_tuples(multi_level_columns)
-    # print(sleep_debt_day5)
 
     # Renaming column
     sleep_debt_day5.columns = pd.MultiIndex.from_tuples(
@@ -127,7 +123,6 @@ def get_5day(
         )
     )
 
-    # print(sleep_debt_day5)
     # Merging data
     day5_sleepdebt = pd.merge(
         left=protemics_data1,

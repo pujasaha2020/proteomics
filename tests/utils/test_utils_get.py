@@ -9,7 +9,7 @@ import yaml
 from pytest_mock import MockFixture
 
 from box.manager import BoxManager
-from datasets.sleepdebt.class_def import Protocol
+from datasets.sleepdebt.protocol import Protocol
 from utils.get import (
     get_aptamers,
     get_box,
@@ -133,9 +133,7 @@ def test_get_sizes(mocker: MockFixture):
 
 # Function to read a YAML file
 def read_yaml(file_path):
-    """
-    This function reads a yaml file and returns the data
-    """
+    """This function reads a yaml file and returns the data"""
     with open(file_path, encoding="utf-8") as file:
         data = yaml.safe_load(file)
     return data
@@ -143,8 +141,7 @@ def read_yaml(file_path):
 
 @pytest.fixture(name="input_yaml_construct_protocol")
 def get_toy_protocol():
-    """
-    This function reads the yaml file and returns the data"""
+    """This function reads the yaml file and returns the data"""
     file_path = "tests/utils/test_protocol.yaml"
     return read_yaml(file_path)
 
@@ -163,9 +160,7 @@ def define_protocol(input_yaml_construct_protocol: dict):
 
 @pytest.fixture(name="expected_output_get_status")
 def output_from_get_status():
-    """
-    This function returns the expected output from get_status
-    """
+    """This function returns the expected output from get_status"""
     return pd.DataFrame(
         {"time": [200, 970, 1552], "status": ["awake", "sleep", "awake"]}
     )

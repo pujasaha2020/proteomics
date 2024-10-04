@@ -19,12 +19,14 @@ def get_mppg_csr(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
     """
-    get the sleep debt for the "mppg_CSR" sample, it includes both sleep time of 5H and 5.6H
+    get the sleep debt for the "mppg_CSR" sample,
+    it includes both sleep time of 5H and 5.6H
     """
     sub_admission_time = {
         "3794": "5:02",  # 5H
         "3776": "5:28",  # 5H
-        "3665": "6:33",  # 5H time. appears in both 5 H and 5.6 H. Will be corrected for 5.6H.
+        "3665": "6:33",  # 5H time. appears in both
+        # 5 H and 5.6 H. Will be corrected for 5.6H.
         "29W4": "8:01",  # 5H
         "3828": "7:20",  # 5H
         "3608": "9:04",  # 5.6H
@@ -39,7 +41,6 @@ def get_mppg_csr(
             ]["subject"].unique(),
         }
     )
-    print("number of subjects in mppg csr", len(df_id_admit_time))
 
     df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
         ("ids", "subject")
@@ -111,9 +112,7 @@ def get_mppg_csr(
 
 
 def apply_debt_5h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataFrame:
-    """
-    This function applies the sleep debt for 5H of sleep time
-    """
+    """This function applies the sleep debt for 5H of sleep time"""
     df_debt = pd.read_csv(file)
     df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
@@ -134,7 +133,8 @@ def apply_debt_5h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
 
     protemics_5h = df[df.ids["subject"].isin(sub_id)]
 
-    # 3665 appears in both 5H and 5.6H, so removing 5.6H experiment id for 3665 info from
+    # 3665 appears in both 5H and 5.6H, so removing 5.6H
+    # experiment id for 3665 info from
     # 5H protocol.
     fil_protemics_data1_5h = protemics_5h[
         ~(
@@ -144,7 +144,6 @@ def apply_debt_5h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
             | (protemics_5h[("ids", "experiment")] == "3665HY_4")
         )
     ]
-    print("shape of 5H dim", fil_protemics_data1_5h.shape)
     # Merging data
     mppg5h_sleepdebt = pd.merge(
         left=fil_protemics_data1_5h,
@@ -159,9 +158,7 @@ def apply_debt_5h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
 
 
 def apply_debt_56h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataFrame:
-    """
-    This function applies the sleep debt for 5.6H of sleep time
-    """
+    """This function applies the sleep debt for 5.6H of sleep time"""
     df_debt = pd.read_csv(file)
     df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
@@ -191,7 +188,6 @@ def apply_debt_56h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.Data
             | (protemics_56h[("ids", "experiment")] == "3665HY82_3")
         )
     ]
-    print("shape of 5.6H dim", fil_protemics_data1_56h.shape)
     # Merging data
     mppg56h_sleepdebt = pd.merge(
         left=fil_protemics_data1_56h,
@@ -200,6 +196,5 @@ def apply_debt_56h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.Data
         how="inner",
     )
 
-    #
     print("data dimension after merging sleep debt 56H", mppg56h_sleepdebt.shape)
     return mppg56h_sleepdebt

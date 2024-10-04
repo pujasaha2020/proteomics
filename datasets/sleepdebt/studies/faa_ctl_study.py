@@ -16,9 +16,7 @@ from box.manager import BoxManager
 def get_faa_ctl(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
-    """
-    get the sleep debt for the "FAA ctrl" sample
-    """
+    """get the sleep debt for the "FAA ctrl" sample"""
     # DataFrame with unique subjects and admission times
 
     sub_admission_time = {
@@ -41,8 +39,6 @@ def get_faa_ctl(
         ("ids", "subject")
     ].map(sub_admission_time)
     # df_id_admit_time = df_id_admit_time.dropna()
-
-    print("number of subjects in faa ctl", len(df_id_admit_time))
 
     faa_ctl_data = proteomics_data_new[proteomics_data_new.ids["study"] == "faa_ctl"]
     print("data dimension before merging admission time", faa_ctl_data.shape)
@@ -80,7 +76,7 @@ def get_faa_ctl(
         protemics_data1[("profile", "time")]
         - protemics_data1[("profile", "admission_date_time")]
     ).dt.total_seconds() / 60 + 15840
-    print(protemics_data1[("profile", "mins_from_admission")].max())
+
     protemics_data1[("profile", "mins_from_admission")] = protemics_data1[
         ("profile", "mins_from_admission")
     ].astype(int)
@@ -97,7 +93,6 @@ def get_faa_ctl(
         ("debt", "status"),
     ]
     sleep_debt_faa_ctl.columns = pd.MultiIndex.from_tuples(multi_level_columns)
-    print(sleep_debt_faa_ctl)
 
     # Renaming column
     sleep_debt_faa_ctl.columns = pd.MultiIndex.from_tuples(

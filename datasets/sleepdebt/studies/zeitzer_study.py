@@ -23,9 +23,7 @@ from utils.save import save_to_csv
 
 
 def get_zeitzer_protocols(proteomics_data_new: pd.DataFrame) -> pd.DataFrame:
-    """
-    extracts the sleep-wake schedule for each subject.
-    """
+    """extracts the sleep-wake schedule for each subject."""
     sub_zeitzer = np.concat(
         [
             proteomics_data_new[proteomics_data_new[("ids", "study")] == "zeitzer_mbc"][
@@ -166,8 +164,6 @@ def get_zeitzer(
     ].copy()
     print("shape before merging admission time", zeitzer_data.shape)
 
-    # print("shape before merging admission time", zeitzer_data.shape)
-
     df_zeitzer = get_zeitzer_protocols(zeitzer_data)
     print("shape df_zeitzer protocol", df_zeitzer.shape)
 
@@ -191,7 +187,6 @@ def get_zeitzer(
     df_zeitzer = df_zeitzer.dropna(subset=[("wake_up_time")])
 
     df_zeitzer.rename(columns={"wake_up_time": "time"}, inplace=True)
-    # print(df_zeitzer.head())
 
     df_id_admit_date_time = pd.DataFrame(
         {
@@ -243,7 +238,6 @@ def get_zeitzer(
     ]
 
     exp_id = df_zeitzer_selected["subject"].unique()
-    print("number of uncommon subjects", len(exp_id))
     df_uncommon = apply_debt_uncommon_routine(protemics_data1, exp_id, box, path)
     df_zeitzer_selected = df_zeitzer[
         (
@@ -253,7 +247,6 @@ def get_zeitzer(
         )
     ]
     exp_id = df_zeitzer_selected["subject"].unique()
-    print("number of common subjects", len(exp_id))
     df_common = apply_debt_common_routine(protemics_data1, exp_id, box, path)
     zeitzer_sleepdebt = pd.concat([df_common, df_uncommon])
     print("shape after merging sleepdebt", zeitzer_sleepdebt.shape)
@@ -288,9 +281,6 @@ def apply_debt_common_routine(
     )
     # filtering subjects who have same sleep-wake schedule
     filtered_df = df[df[("ids", "subject")].isin(ids)]
-    print(
-        "data dimension for common subject before merging sleepdebt", filtered_df.shape
-    )
 
     # Merging data
     zeitzer_sleepdebt = pd.merge(
@@ -313,14 +303,11 @@ def apply_debt_uncommon_routine(
 ) -> pd.DataFrame:
     """
     This function calculates the sleep debt at the time of blood collection for subjects
-    with uncommon sleep-wake schedule."""
+    with uncommon sleep-wake schedule.
+    """
     empty_df = pd.DataFrame()
     # filtering subjects who have same sleep-wake schedule
-    uncommon_df = df[df[("ids", "subject")].isin(ids)]
-    print(
-        "data dimension for uncommon subject before merging sleepdebt",
-        uncommon_df.shape,
-    )
+    # uncommon_df = df[df[("ids", "subject")].isin(ids)]
 
     for key in ids:
         print(key)
@@ -352,7 +339,7 @@ def apply_debt_uncommon_routine(
         # because their sleep-wake schedule is little different although
         # they are in same protocol
         filtered_df = df[df[("ids", "subject")].str.contains(key)]
-        # print("dim of subject specific data", filtered_df.shape)
+
         # Merging data
         zeitzer_sleepdebt = pd.merge(
             left=filtered_df,

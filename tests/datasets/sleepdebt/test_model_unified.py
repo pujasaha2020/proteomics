@@ -10,9 +10,8 @@ import pandas as pd
 import pytest
 import yaml
 
-# from box.manager import BoxManager
-from datasets.sleepdebt.class_def import Protocol
 from datasets.sleepdebt.model.unified import calculate_debt
+from datasets.sleepdebt.protocol import Protocol
 from utils.make import make_sleep_wake_tuple
 
 
@@ -51,8 +50,6 @@ def test_awake_period1(df: pd.DataFrame, param_dict: dict) -> None:
     """
     This function tests the values of dl/dt and ds/dt during awake period
     awake period:0-960
-
-
     """
 
     start = 0  # 0  # 1441
@@ -112,9 +109,6 @@ def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
     """
     This function tests the values of dl/dt and ds/dt during sleep period
     sleep period: 961-1440
-
-
-
     """
 
     start = 961  # 961  # 3601
@@ -122,24 +116,11 @@ def test_sleep_period1(df: pd.DataFrame, param_dict: dict) -> None:
     multiply_l_with_u = df["l_debt"][start:end] * param_dict["U"]
     multiply_s_with_u = df["s_debt"][start:end] * param_dict["U"]
 
-    print("debt from model.py l", multiply_l_with_u[0:20])
-    print("debt from model.py s", multiply_s_with_u[0:20])
-
-    dl_dt_lhs = np.diff(multiply_l_with_u)  # [start:end]
-    # )  # LHS of dy1/dt from the solution
-    ds_dt_lhs = np.diff(multiply_s_with_u)  # [start:end]
-    # )  # LHS of dy2/dt from the solution
-
-    print(dl_dt_lhs[0:10])
-    print(ds_dt_lhs[0:10])
+    dl_dt_lhs = np.diff(multiply_l_with_u)
+    ds_dt_lhs = np.diff(multiply_s_with_u)
 
     dl_dt_rhs = (-multiply_l_with_u - 2 * param_dict["U"]) / param_dict["TAU_LA"]
-    # RHS of dy1/dt
     ds_dt_rhs = -(multiply_s_with_u - multiply_l_with_u) / param_dict["TAU_S"]
-    # RHS of dy2/dt
-
-    print(dl_dt_rhs[0:10])
-    print(ds_dt_rhs[0:10])
 
     if len(dl_dt_lhs) != len(dl_dt_rhs):
         min_len = min(len(dl_dt_lhs), len(dl_dt_rhs))
@@ -173,8 +154,6 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
     """
     This function tests the values of dl/dt and ds/dt during awake period
     awake period:1441-3600
-
-
     """
 
     start = 1441  # 0  # 1441
@@ -182,24 +161,13 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
 
     multiply_l_with_u = df["l_debt"][start:end] * param_dict["U"]
     multiply_s_with_u = df["s_debt"][start:end] * param_dict["U"]
-    print("debt from model.py l", multiply_l_with_u[0:20])
-    print("debt from model.py s", multiply_s_with_u[0:20])
-    dl_dt_lhs = np.diff(multiply_l_with_u)  # [start:end]
-    # )  # LHS of dy1/dt from the solution
-    ds_dt_lhs = np.diff(multiply_s_with_u)  # [start:end]
-    # )  # LHS of dy2/dt from the solution
 
-    print(dl_dt_lhs[0:10])
-    print(ds_dt_lhs[0:10])
+    dl_dt_lhs = np.diff(multiply_l_with_u)
+    ds_dt_lhs = np.diff(multiply_s_with_u)
 
     dl_dt_rhs = (-multiply_l_with_u + param_dict["U"]) / param_dict["TAU_LA"]
 
-    # RHS of dy1/dt
-    ds_dt_rhs = (-multiply_s_with_u + param_dict["U"]) / param_dict[
-        "TAU_W"
-    ]  # RHS of dy2/dt
-    print(dl_dt_rhs[0:10])
-    print(ds_dt_rhs[0:10])
+    ds_dt_rhs = (-multiply_s_with_u + param_dict["U"]) / param_dict["TAU_W"]
 
     if len(dl_dt_lhs) != len(dl_dt_rhs):
         min_len = min(len(dl_dt_lhs), len(dl_dt_rhs))
@@ -211,8 +179,6 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
         ds_dt_lhs = ds_dt_lhs[:min_len]
         ds_dt_rhs = ds_dt_rhs[:min_len]
 
-    # diff_y1 = np.abs(dy1_dt_lhs - dy1_dt_rhs)  # Difference for y1
-    # diff_y2 = np.abs(dy2_dt_lhs - dy2_dt_rhs)  # Difference for y2
     np.testing.assert_allclose(
         dl_dt_lhs,
         dl_dt_rhs,
@@ -226,8 +192,6 @@ def test_awake_period2(df: pd.DataFrame, param_dict: dict) -> None:
         rtol=0.0003,
         err_msg="s(t) values do not match awake(period2)",
     )
-    #
-    # return diff_y1, diff_y2
 
 
 def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
@@ -238,29 +202,16 @@ def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
 
     """
 
-    start = 3601  # 961  # 3601
-    end = 4081  # 1441  # 4081
+    start = 3601
+    end = 4081
     multiply_l_with_u = df["l_debt"][start:end] * param_dict["U"]
     multiply_s_with_u = df["s_debt"][start:end] * param_dict["U"]
 
-    print("debt from model.py l", multiply_l_with_u[0:20])
-    print("debt from model.py s", multiply_s_with_u[0:20])
-
-    dl_dt_lhs = np.diff(multiply_l_with_u)  # [start:end]
-    # )  # LHS of dy1/dt from the solution
-    ds_dt_lhs = np.diff(multiply_s_with_u)  # [start:end]
-    # )  # LHS of dy2/dt from the solution
-
-    print(dl_dt_lhs[0:10])
-    print(ds_dt_lhs[0:10])
+    dl_dt_lhs = np.diff(multiply_l_with_u)
+    ds_dt_lhs = np.diff(multiply_s_with_u)
 
     dl_dt_rhs = (-multiply_l_with_u - 2 * param_dict["U"]) / param_dict["TAU_LA"]
-    # RHS of dy1/dt
     ds_dt_rhs = -(multiply_s_with_u - multiply_l_with_u) / param_dict["TAU_S"]
-    # RHS of dy2/dt
-
-    print(dl_dt_rhs[0:10])
-    print(ds_dt_rhs[0:10])
 
     if len(dl_dt_lhs) != len(dl_dt_rhs):
         min_len = min(len(dl_dt_lhs), len(dl_dt_rhs))
@@ -271,9 +222,6 @@ def test_sleep_period2(df: pd.DataFrame, param_dict: dict) -> None:
         min_len = min(len(ds_dt_lhs), len(ds_dt_rhs))
         ds_dt_lhs = ds_dt_lhs[:min_len]
         ds_dt_rhs = ds_dt_rhs[:min_len]
-
-    # diff_y1 = np.abs(dy1_dt_lhs - dy1_dt_rhs)  # Difference for y1
-    # diff_y2 = np.abs(dy2_dt_lhs - dy2_dt_rhs)  # Difference for y2
 
     np.testing.assert_allclose(
         dl_dt_lhs,
@@ -317,8 +265,6 @@ def df_model(protocol: Protocol) -> pd.DataFrame:
     This function returns the dataframe for testing the model
     """
     debt = calculate_debt(protocol)
-    print(debt.shape)
     debt.drop_duplicates(inplace=True)
     debt.reset_index(inplace=True, drop=True)
-    print(debt.head())
     return debt

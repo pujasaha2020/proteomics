@@ -40,7 +40,6 @@ def get_mppg_ctl(
             ]["subject"].unique(),
         }
     )
-    print("number of subjects in mppg ctl", len(df_id_admit_time))
 
     df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
         ("ids", "subject")
@@ -113,9 +112,7 @@ def get_mppg_ctl(
 
 
 def apply_debt_8h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataFrame:
-    """
-    This function applies the sleep debt for 8H of sleep time
-    """
+    """This function applies the sleep debt for 8H of sleep time"""
     df_debt = pd.read_csv(file)
     df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
@@ -146,7 +143,6 @@ def apply_debt_8h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
         )
     ]
 
-    print("shape of 8H dim", fil_protemics_data1_8h.shape)
     # Merging data
     mppg8h_sleepdebt = pd.merge(
         left=fil_protemics_data1_8h,
@@ -161,8 +157,7 @@ def apply_debt_8h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
 
 
 def apply_debt_10h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataFrame:
-    """
-    This function applies the sleep debt for 10H of sleep time"""
+    """This function applies the sleep debt for 10H of sleep time"""
 
     df_debt = pd.read_csv(file)
     df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
@@ -193,7 +188,6 @@ def apply_debt_10h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.Data
         )
     ]
 
-    print("shape of 10H dim", fil_protemics_data1_10h.shape)
     # Merging data
     mppg10h_sleepdebt = pd.merge(
         left=fil_protemics_data1_10h,

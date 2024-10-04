@@ -7,13 +7,11 @@ import pandas as pd
 from scipy.integrate import solve_ivp
 
 # from box.manager import BoxManager
-from datasets.sleepdebt.class_def import Protocol
+from datasets.sleepdebt.protocol import Protocol
 
 
 def ode_chronic(_, y: list, status: int, model_params: dict) -> list:
-    """
-    Differential equations for Adenosine and R1 receptor sleep debt.
-    """
+    """Differential equations for Adenosine and R1 receptor sleep debt."""
     # k2 = model_params["k1"] * model_params["kd1"]
     gamma = model_params["au_i"] / (
         model_params["au_i"] + model_params["kd1"]
@@ -27,11 +25,6 @@ def ode_chronic(_, y: list, status: int, model_params: dict) -> list:
         raise ValueError(f"Encountered negative discriminant: {discriminant}")
 
     a1b = 0.5 * (term - np.sqrt(discriminant))
-    # Au = y[0] - A1b - params[4]
-    # Ru = y[1] - A1b
-
-    # if(t==0):
-    # print("*gamma*", a1b/y[1])
 
     dy1 = status * (1 / model_params["chi_s"]) * (model_params["mu_s"] - y[0]) + (
         1 - status
@@ -87,9 +80,6 @@ def calculate_debt(protocol: Protocol, model_params: dict) -> pd.DataFrame:
             rtol=1e-6,
             atol=1e-9,
         )
-
-        # sol_R1tot= solve_ivp(func_R1tot, [t0, t0+t_sleep]
-        # , [Atot_i,R1tot_i], method= 'RK45',t_eval=t_range)
 
         t.append(sol_atot.t)
         r1tot.append(sol_atot.y[1])

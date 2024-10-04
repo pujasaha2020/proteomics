@@ -33,13 +33,10 @@ def get_mppg_ctl_csr(
     path_to_box: Path,
     box1: BoxManager,
     dict_count: pd.DataFrame,
-) -> tuple:
-    """
-    get the mppg protocol
-    """
+) -> pd.DataFrame:
+    """get the mppg protocol"""
 
     mppg_ctl_sample = get_mppg_ctl(df_ids_profile, box1, path_to_box)
-    print("shape of mppg_ctl sample: ", mppg_ctl_sample.shape)
 
     id_8h = ["3547", "3776", "3789", "3812"]  # note: 3547 appears in both 8H and 10H
     id_10h = ["3547", "3369", "3436", "3552"]
@@ -77,7 +74,6 @@ def get_mppg_ctl_csr(
     print("=================================================================")
 
     mppg_csr_sample = get_mppg_csr(df_ids_profile, box1, path_to_box)
-    print("shape of mppg_csr sample: ", mppg_csr_sample.shape)
     id_5h = ["29W4", "3665", "3776", "3794", "3828"]
     id_56h = ["3445", "3608", "3665", "3619"]
     protemics = mppg_csr_sample[mppg_csr_sample.ids["subject"].isin(id_5h)]
@@ -127,24 +123,11 @@ def get_fd(
     path_to_box: Path,
     box1: BoxManager,
     dict_count: pd.DataFrame,
-) -> tuple:
-    """
-    get forced desynchrony protocol
-    """
+) -> pd.DataFrame:
+    """get forced desynchrony protocol"""
 
     mppg_fd_sample = get_mppg_fd(df_ids_profile, box1, path_to_box)
-    print("shape of mppg_fd sample: ", mppg_fd_sample.shape)
     sub_samples = get_subjects_samples(mppg_fd_sample)
-    print(
-        "number of subjects and samples in FAA Forced Desynchrony: ",
-        sub_samples[0],
-        sub_samples[1],
-    )
-    print(
-        "blood collected at: ",
-        list(round(get_time_per_subject(mppg_fd_sample), 2)),
-    )
-
     blood_time = round(get_time_per_subject(mppg_fd_sample), 2)
 
     fill_count_dict(dict_count, "mppg_fd", sub_samples, list(blood_time))
@@ -159,13 +142,10 @@ def get_faa(
     path_to_box: Path,
     box1: BoxManager,
     dict_count: pd.DataFrame,
-) -> tuple:
-    """
-    get the faa protocol
-    """
+) -> pd.DataFrame:
+    """get the faa protocol"""
 
     faa_ctl_sample = get_faa_ctl(df_ids_profile, box1, path_to_box)
-    print("shape of faa_ctl sample: ", faa_ctl_sample.shape)
     sub_samples = get_subjects_samples(faa_ctl_sample)
     blood_time = round(get_time_per_subject(faa_ctl_sample), 2)
 
@@ -174,7 +154,6 @@ def get_faa(
     print("===============================================")
 
     faa_tsd_sample = get_faa_tsd(df_ids_profile, box1, path_to_box)
-    print("shape of faa_tsd sample: ", faa_tsd_sample.shape)
     sub_samples = get_subjects_samples(faa_tsd_sample)
 
     sub_samples = get_subjects_samples(faa_tsd_sample)
@@ -185,7 +164,6 @@ def get_faa(
     print("===============================================")
 
     faa_csrn_sample = get_faa_csrn(df_ids_profile, box1, path_to_box)
-    print("shape of faa_csrn sample: ", faa_csrn_sample.shape)
     sub_samples = get_subjects_samples(faa_csrn_sample)
     blood_time = round(get_time_per_subject(faa_csrn_sample), 2)
 
@@ -194,7 +172,6 @@ def get_faa(
     print("===============================================")
 
     faa_csrd_sample = get_faa_csrd(df_ids_profile, box1, path_to_box)
-    print("shape of faa_csrd sample: ", faa_csrd_sample.shape)
     sub_samples = get_subjects_samples(faa_csrd_sample)
     blood_time = round(get_time_per_subject(faa_csrd_sample), 2)
 
@@ -202,15 +179,13 @@ def get_faa(
 
     print("===============================================")
 
-    return (
-        pd.concat(
-            [
-                faa_ctl_sample,
-                faa_tsd_sample,
-                faa_csrn_sample,
-                faa_csrd_sample,
-            ]
-        ),
+    return pd.concat(
+        [
+            faa_ctl_sample,
+            faa_tsd_sample,
+            faa_csrn_sample,
+            faa_csrd_sample,
+        ]
     )
 
 
@@ -219,14 +194,11 @@ def get_mri_day5(
     path_to_box: Path,
     box1: BoxManager,
     dict_count: pd.DataFrame,
-) -> tuple:
-    """
-    get the mri and day5 protocol
-    """
+) -> pd.DataFrame:
+    """get the mri and day5 protocol"""
 
     mri_sample = get_mri(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(mri_sample)
-    print("shape of mri sample: ", mri_sample.shape)
     blood_time = round(get_time_per_subject(mri_sample), 2)
 
     fill_count_dict(dict_count, "mri", sub_samples, list(blood_time))
@@ -235,7 +207,6 @@ def get_mri_day5(
 
     day5_sample = get_5day(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(day5_sample)
-    print("shape of day5 sample: ", day5_sample.shape)
     blood_time = round(get_time_per_subject(day5_sample), 2)
 
     fill_count_dict(dict_count, "5day", sub_samples, list(blood_time))
@@ -251,12 +222,9 @@ def get_dinges_zeitzer(
     box1: BoxManager,
     dict_count: dict,
 ) -> pd.DataFrame:
-    """
-    get the dinges and zeitzer protocol
-    """
+    """get the dinges and zeitzer protocol"""
 
     zeitzer_sample = get_zeitzer(df, box1, path_to_box)
-    print("shape of zeitzer sample: ", zeitzer_sample.shape)
     sub_samples = get_subjects_samples(zeitzer_sample)
     blood_time = round(get_time_per_subject(zeitzer_sample), 2)
 
@@ -265,7 +233,6 @@ def get_dinges_zeitzer(
     print("===============================================")
 
     dinges_sample = get_dinges(df_ids_profile, box1, path_to_box)
-    print("shape of dinges sample: ", dinges_sample.shape)
     sub_samples = get_subjects_samples(dinges_sample)
     blood_time = round(get_time_per_subject(dinges_sample), 2)
 
@@ -275,9 +242,7 @@ def get_dinges_zeitzer(
 
 
 def fill_count_dict(dict_count: dict, name: str, sub_sample: list, blood_time: list):
-    """
-    fill the count dictionary with missing values
-    """
+    """fill the count dictionary with missing values"""
 
     dict_count["study"].append(name)
     dict_count["subject_count"].append(sub_sample[0])

@@ -10,15 +10,11 @@ import pandas as pd
 import pytest
 import yaml
 
-# from box.manager import BoxManager
-from datasets.sleepdebt.class_def import Protocol
 from datasets.sleepdebt.model.adenosine import calculate_debt
+
+# from box.manager import BoxManager
+from datasets.sleepdebt.protocol import Protocol
 from utils.make import make_sleep_wake_tuple
-
-# from pytest_mock import MockerFixture
-
-
-# from pytest_mock import MockerFixture
 
 
 # Function to read a YAML file

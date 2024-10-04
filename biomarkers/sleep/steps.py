@@ -18,7 +18,11 @@ warnings.filterwarnings("ignore", category=sm.tools.sm_exceptions.ConvergenceWar
 
 
 def preprocess_data(
-    df: pd.DataFrame, debts: pd.DataFrame, min_group_size: int, plot: bool
+    df: pd.DataFrame,
+    debts: pd.DataFrame,
+    min_group_size: int,
+    plot: bool,
+    debt_model: str,
 ) -> dict[str, pd.DataFrame]:
     """
     Preprocess the data for the LME model:
@@ -34,9 +38,21 @@ def preprocess_data(
     drop_samples_without_proteins(df)
     log_normalize_proteins(df)
     df = df.droplevel(0, axis=1)
-    df = df.merge(debts[["sample_id", "l", "s"]], on="sample_id", how="left")
+    selected_columns = debts.columns.get_level_values(0).unique()
+    print(selected_columns)
+    if debt_model == "adenosine":
+        selected_columns = selected_columns[selected_columns != "unified"]
+    elif debt_model == "unified":
+        selected_columns = selected_columns[selected_columns != "adenosine"]
+    else:
+        raise ValueError("debt_model should be 'adenosine' or 'unified'")
+    debts_adenosine = debts.loc[:, selected_columns]
+    debts_adenosine = debts_adenosine.droplevel(0, axis=1)
+    print(debts_adenosine.head(5))
+    df = df.merge(
+        debts_adenosine[["sample_id", "acute", "chronic"]], on="sample_id", how="left"
+    )
     df["sleep"] = df.state.map({"sleep": 1.0, "wake": 0.0})
-    df.rename(columns={"s": "acute", "l": "chronic"}, inplace=True)
     df.dropna(subset=["acute", "chronic", "sleep"], how="any", inplace=True)
     if plot:
         plot_sample_per_subject_per_study(df)

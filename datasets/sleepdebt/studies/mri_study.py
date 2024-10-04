@@ -16,9 +16,7 @@ from box.manager import BoxManager
 def get_mri(
     proteomics_data_new: pd.DataFrame, box: BoxManager, path: Path
 ) -> pd.DataFrame:
-    """
-    get the sleep debt for the "mri" sample
-    """
+    """get the sleep debt for the "mri" sample"""
     # DataFrame with unique subjects and admission times
 
     sub_admission_time = {
@@ -40,7 +38,6 @@ def get_mri(
             ]["subject"].unique(),
         }
     )
-    print("number of subjects in mri", len(df_id_admit_time))
 
     df_id_admit_time[("profile", "adm_time")] = df_id_admit_time[
         ("ids", "subject")
@@ -100,7 +97,6 @@ def get_mri(
         ("debt", "status"),
     ]
     sleep_debt_cr3667_cr3783.columns = pd.MultiIndex.from_tuples(multi_level_columns)
-    print(sleep_debt_cr3667_cr3783.head())
 
     # Renaming columns
     sleep_debt_cr3667_cr3783.columns = pd.MultiIndex.from_tuples(

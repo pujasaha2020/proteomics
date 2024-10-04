@@ -26,9 +26,7 @@ BOX_PATH = {
 
 @pytest.fixture(name="input_df")
 def make_input_df() -> pd.DataFrame:
-    """
-    Create a sample input dataframe for testing
-    """
+    """Create a sample input dataframe for testing"""
     data_dict = {
         "subject": [
             "4164",
@@ -79,9 +77,7 @@ def make_input_df() -> pd.DataFrame:
 
 @pytest.fixture(name="expected_output")
 def make_expected_output_df() -> pd.DataFrame:
-    """
-    Create a sample expected output dataframe for testing
-    """
+    """Create a sample expected output dataframe for testing"""
     expected_output_dict = {
         ("ids", "subject"): [
             "4164",
@@ -187,9 +183,7 @@ def make_expected_output_df() -> pd.DataFrame:
 
 @pytest.fixture(name="path_csv")
 def load_csv_path() -> list[str]:
-    """
-    Load the path of the csv file
-    """
+    """Load the path of the csv file"""
     return [
         "tests/datasets/sleepdebt/adenosine/faa_csrd_test.csv",
         "tests/datasets/sleepdebt/unified/faa_csrd_test.csv",
@@ -202,9 +196,7 @@ def test_get_study(
     expected_output: pd.DataFrame,
     path_csv: str,
 ):
-    """
-    test the get_study function
-    """
+    """test the get_study function"""
     box1 = mocker.Mock(spec=BoxManager)
     mock_path1 = Path(path_csv[0])
     mock_path2 = Path(path_csv[1])

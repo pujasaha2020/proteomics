@@ -1,14 +1,10 @@
-"""
-Define Protocol class
-"""
+"""Define Protocol class to represent a protocol"""
 
 
 class Protocol:
-    """
-    Class to represent a protocol
-    """
+    """Class to represent a protocol"""
 
-    def __init__(self, name: str, definition: str) -> None:
+    def __init__(self, name: str, definition: str):
         self.name = name
         self.t_awake_l: list[int] = []
         self.t_sleep_l: list[int] = []
