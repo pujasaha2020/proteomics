@@ -61,7 +61,10 @@ def test_preprocess_data(mocker: MockerFixture, df: pd.DataFrame, debts: pd.Data
         ),
     }
     # Test missing s or l in A, merge on sample_id
-    data = preprocess_data(df.copy(), debts, min_group_size=3, plot=False)
+    data = preprocess_data(
+        df.copy(), debts, min_group_size=3, plot=False, debt_model="adenosine"
+    )
+
     assert expected_data.keys() == data.keys()
     pd.testing.assert_frame_equal(data["P1"], expected_data["P1"])
 
@@ -78,24 +81,31 @@ def test_preprocess_data(mocker: MockerFixture, df: pd.DataFrame, debts: pd.Data
         ),
     }
     # Test missing state and missing protein in B
-    data = preprocess_data(df.copy(), debts, min_group_size=1, plot=False)
+    data = preprocess_data(
+        df.copy(), debts, min_group_size=1, plot=False, debt_model="adenosine"
+    )
     assert expected_data.keys() == data.keys()
     pd.testing.assert_frame_equal(data["P1"], expected_data["P1"])
 
     # Min group size too high
     with pytest.raises(ValueError):
-        preprocess_data(df.copy(), debts, min_group_size=4, plot=False)
+        preprocess_data(
+            df.copy(), debts, min_group_size=4, plot=False, debt_model="adenosine"
+        )
 
     # Mix fluid type within A
     df[("info", "fluid")] = 3 * ["edta"] + 6 * ["heparin"]
     with pytest.raises(ValueError):
-        preprocess_data(df.copy(), debts, min_group_size=1, plot=False)
+        preprocess_data(
+            df.copy(), debts, min_group_size=1, plot=False, debt_model="adenosine"
+        )
 
 
 ##################### LME #######################
 @pytest.fixture(name="data")
 def input_data() -> pd.DataFrame:
-    """Return a dataframe with log_protein, acute, chronic, sleep, and subject columns"""
+    """Return a dataframe with log_protein, acute, chronic,
+    sleep, and subject columns"""
     data = pd.DataFrame(
         {
             "log_protein": [2.0, 2.5, 3.0, 3.5],

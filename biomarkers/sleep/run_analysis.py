@@ -13,7 +13,7 @@ from utils.save import save_to_csv
 
 
 def run_sleep_analysis(
-    path: Path, plot: bool, min_group_size: int, max_pvalue: float
+    path: Path, plot: bool, min_group_size: int, max_pvalue: float, debt_model: str
 ) -> pd.DataFrame:
     """Identify sleep biomarker with linear mixed effect models"""
 
@@ -33,7 +33,13 @@ def run_sleep_analysis(
 
     # Process data
     print("Preprocessing data...")
-    data = preprocess_data(df, debts, min_group_size, plot)
+    data = preprocess_data(
+        df,
+        debts,
+        min_group_size,
+        plot,
+        debt_model,
+    )
     t.append(time.time())
     print(f"Data preprocessed in {t[-1] - t[-2]:.2f} seconds")
 
@@ -92,6 +98,13 @@ if __name__ == "__main__":
         default=0.05,
         help="Maximum p-value to consider a protein significant. (see figures)",
     )
+    parser.add_argument(
+        "--debt_model",
+        type=str,
+        default="adenosine",
+        help="Model to run. (see figures)",
+    )
+
     args = parser.parse_args()
     args.path = Path(args.path)
     run_sleep_analysis(**vars(args))
