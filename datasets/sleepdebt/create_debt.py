@@ -33,9 +33,9 @@ BOX_PATH = {
     ),
     "plots_unified": Path("results/sleepdebt/sleepdebt_curves/unified_model/"),
     "csvs_adenosine": Path(
-        "archives/sleep_debt/sleepdebt_data/ligand_receptor_model/sleepdebt/"
+        "archives/sleepdebt/sleepdebt_data/ligand_receptor_model/sleepdebt/"
     ),
-    "csvs_unified": Path("archives/sleep_debt/sleepdebt_data/unified_model/sleepdebt/"),
+    "csvs_unified": Path("archives/sleepdebt/sleepdebt_data/unified_model/sleepdebt/"),
 }
 
 

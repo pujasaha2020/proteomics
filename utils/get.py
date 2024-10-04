@@ -18,8 +18,8 @@ PATH = {
         "archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/"
         + "data_091224_AS_with_sleep_debt_2024-10-02_PS.csv"
     ),
-    "protocols": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/protocols.yaml"),
-    "parameters": Path("archives/sleep_debt/SleepDebt_Data/yaml_files/parameters.yaml"),
+    "protocols": Path("archives/sleepdebt/sleepdebt_data/yaml_files/protocols.yaml"),
+    "parameters": Path("archives/sleepdebt/sleepdebt_data/yaml_files/parameters.yaml"),
 }
 
 
