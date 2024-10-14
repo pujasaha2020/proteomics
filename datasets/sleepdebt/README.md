@@ -36,7 +36,7 @@ To run unified model:
 python datasets/sleepdebt/create_debt.py --model "adenosine" --definition "def_2"
 ```
 
-Currently we are using "def_2", change it depending on what you need. Three definitions exists.
+Currently we are using "def_2", change it depending on what you need. Three definitions exists "def_1", "def_2" , "def_3"
 
 **What to expect from `sleepdebt_calculation.py' (unified model)**
 

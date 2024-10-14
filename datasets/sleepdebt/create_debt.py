@@ -97,8 +97,8 @@ def create_debt(
 
 
 def run_sleepdebt_model(
-    protocol_data: dict,
     box1: BoxManager,
+    protocol_data: dict,
     model_params: dict,
     model: str = "adenosine",
     definition: str = "def_2",
@@ -209,14 +209,10 @@ if __name__ == "__main__":
         default="def_2",
     )
     args = parser.parse_args()
-    # Validate model type
-    valid_models = ["adenosine", "unified"]  # Add all valid model types here
-    if args.model not in valid_models:
-        raise ValueError(f"Invalid model type: {args.model}.")
 
     box = get_box()
     data = get_protocols(box)
     params = make_parameters_dict(box)
-    run_sleepdebt_model(data, box, params, **vars(args))
+    run_sleepdebt_model(box, data, params, **vars(args))
     # if you want to run the zeitzer sample
     run_zeitzer_sample(box, params, **vars(args))

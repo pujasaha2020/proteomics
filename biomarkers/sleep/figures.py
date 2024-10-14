@@ -57,6 +57,8 @@ def plot_specificity_vs_sensitivity(results: pd.DataFrame, max_pvalue: float) ->
 
 def plot_venn_diagram(proteins: dict):
     """Plot a venn diagram"""
+    print(len(proteins["acute"]))
+    print(len(proteins["chronic"]))
     if not set(proteins.keys()).issubset(COLORS.keys()):
         raise ValueError("Only 'acute', 'chronic' and 'sleep' are supported")
     plt.figure()
