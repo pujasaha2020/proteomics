@@ -14,8 +14,8 @@ import pandas as pd
 from statsmodels.stats.multitest import multipletests  # type: ignore
 from tqdm.contrib.concurrent import process_map
 
+from biomarkers.plazzi.linear_regression import run_lm_sleep
 from box.manager import BoxManager
-from linear_regression import run_lm_sleep
 from utils.get import get_box, get_proteomics
 from utils.process import (
     drop_proteins_with_missing_samples,
@@ -77,13 +77,13 @@ def preprocess_sample(df_proteomics: pd.DataFrame) -> pd.DataFrame:
     """Get the data for the analysis"""
     studies = ["plazzi_nt2", "plazzi_ctl", "plazzi_ih", "plazzi_nt1"]
     df_study = df_proteomics.loc[df_proteomics["ids"]["study"].isin(studies), :]
-    print(df_study.shape)
+    print("shape of study data after study selection", df_study.shape)
     drop_samples_without_proteins(df_study)
-    print(df_study.shape)
+    print("shape after dropping samples without protein", df_study.shape)
     drop_proteins_without_samples(df_study)
-    print(df_study.shape)
+    print("shape after dropping proteins without sample", df_study.shape)
     drop_proteins_with_missing_samples(df_study)
-    print(df_study.shape)
+    print("shape after dropping proteins with any sample missing", df_study.shape)
     log_normalize_proteins(df_study)
     return df_study
 
@@ -139,10 +139,17 @@ def compare_groups(results: pd.DataFrame, test_grp: str) -> pd.DataFrame:
 
 def run_analysis(reference: str):
     """Run the analysis"""
-    print(reference)
+    print("running analysis using reference:", reference)
     box = get_box()
     df_proteomics = get_proteomics(box)
     df_study = preprocess_sample(df_proteomics)
+    print("shape of the final dataset for this study", df_study.shape)
+    print("number of study", df_study[("ids", "study")].nunique())
+    print("number of subjects", df_study[("ids", "subject")].nunique())
+    print(
+        "number of subjects per study",
+        df_study.groupby([("ids", "study")]).nunique()[[("ids", "subject")]],
+    )
 
     # get the protein columns only
     df_protein = df_study["proteins"]
@@ -167,7 +174,7 @@ def run_analysis(reference: str):
         save_to_csv(
             box,
             value,
-            PATH["plazzi_results"] / f"plazzi_results_{key}_{reference}.csv",
+            PATH["plazzi_results"] / f"biomarker_{key}_{reference}.csv",
             index=False,
         )
 
