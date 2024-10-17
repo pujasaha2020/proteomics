@@ -63,6 +63,9 @@ def test_non_parametric(data: pd.DataFrame, reference: str, results: dict) -> di
     """Test the non parametric test, Mann Whitney U"""
     studies = list(data["study"].unique())
     studies.remove(reference)
+    data["log_protein"] = (data["log_protein"] - np.mean(data["log_protein"])) / np.std(
+        data["log_protein"]
+    )
     for study in studies:
         _, p_value = mannwhitneyu(
             data[data["study"] == reference]["log_protein"],
