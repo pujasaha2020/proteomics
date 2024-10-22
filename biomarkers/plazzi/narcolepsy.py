@@ -75,7 +75,7 @@ def prepare_lm_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]:
 
 def preprocess_sample(df_proteomics: pd.DataFrame) -> pd.DataFrame:
     """Get the data for the analysis"""
-    studies = ["plazzi_nt2", "plazzi_ctl", "plazzi_ih", "plazzi_nt1"]
+    studies = ["plazzi_nt2", "plazzi_ctl", "plazzi_ih", "plazzi_nt1", "plazzi_seds"]
     df_study = df_proteomics.loc[df_proteomics["ids"]["study"].isin(studies), :]
     print("shape of study data after study selection", df_study.shape)
     drop_samples_without_proteins(df_study)
@@ -183,7 +183,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Run Plazzi study.")
     # decide which group to use as reference:
-    # "plazzi_nt1", "plazzi_nt2", "plazzi_ih", "plazzi_ctl"
+    # "plazzi_nt1", "plazzi_nt2", "plazzi_ih", "plazzi_sih", "plazzi_ctl"
     parser.add_argument(
         "--reference",
         type=str,

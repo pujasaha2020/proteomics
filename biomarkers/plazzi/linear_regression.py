@@ -22,13 +22,13 @@ def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str) -> dict:
         if col.startswith("study"):
             data_dummies[col] = data_dummies[col].astype(int)
     y = data["log_protein"]
-    y_norm = (y - np.mean(y)) / np.std(y)
+    # y_norm = (y - np.mean(y)) / np.std(y)
     x_matrix = data_dummies[
         [col for col in data_dummies.columns if col.startswith("study")]
     ]
     x_matrix = sm.add_constant(x_matrix)
 
-    model = sm.OLS(y_norm, x_matrix).fit()
+    model = sm.OLS(y, x_matrix).fit()
     normal = check_distribution(model.resid)
 
     results = {
@@ -63,9 +63,7 @@ def test_non_parametric(data: pd.DataFrame, reference: str, results: dict) -> di
     """Test the non parametric test, Mann Whitney U"""
     studies = list(data["study"].unique())
     studies.remove(reference)
-    data["log_protein"] = (data["log_protein"] - np.mean(data["log_protein"])) / np.std(
-        data["log_protein"]
-    )
+
     for study in studies:
         _, p_value = mannwhitneyu(
             data[data["study"] == reference]["log_protein"],
