@@ -2,9 +2,7 @@
 
 import warnings
 
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 import statsmodels.api as sm  # type: ignore
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
@@ -75,15 +73,15 @@ def prepare_pca_data(df: pd.DataFrame, protein: str) -> pd.DataFrame:
     columns_to_drop = df.columns.difference(proteins_columns)
     columns_to_drop = [protein, *columns_to_drop]
 
-    X = df.drop(
+    x_data = df.drop(
         columns_to_drop, axis=1
     ).dropna()  # Features (protein expressions, without the
     # protein of interest), rows with missing values are removed
 
     scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    x_scaled = scaler.fit_transform(x_data)
     pca = PCA(n_components=4)  # We want to reduce to 4 dimensions
-    pcs = pca.fit_transform(X_scaled)
+    pcs = pca.fit_transform(x_scaled)
     pcs_df = pd.DataFrame(
         data=pcs, columns=[f"PC{i}" for i in range(1, 5)], index=X.index
     )
