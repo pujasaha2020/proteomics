@@ -2,8 +2,12 @@
 
 import warnings
 
+import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 import statsmodels.api as sm  # type: ignore
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from statsmodels.stats.multitest import multipletests  # type: ignore
 
 from biomarkers.sleep.figures import (
@@ -46,11 +50,11 @@ def preprocess_data(
         selected_columns = selected_columns[selected_columns != "adenosine"]
     else:
         raise ValueError("debt_model should be 'adenosine' or 'unified'")
-    debts_adenosine = debts.loc[:, selected_columns]
-    debts_adenosine = debts_adenosine.droplevel(0, axis=1)
-    print(debts_adenosine.head(5))
+    debts_model = debts.loc[:, selected_columns]
+    debts_model = debts_model.droplevel(0, axis=1)
+    print(debts_model.head(5))
     df = df.merge(
-        debts_adenosine[["sample_id", "acute", "chronic"]], on="sample_id", how="left"
+        debts_model[["sample_id", "acute", "chronic"]], on="sample_id", how="left"
     )
     df["sleep"] = df.state.map({"sleep": 1.0, "wake": 0.0})
     df.dropna(subset=["acute", "chronic", "sleep"], how="any", inplace=True)
@@ -65,6 +69,28 @@ def preprocess_data(
     return dict(map(lambda p: prepare_lme_data(p, df), proteins))
 
 
+def prepare_pca_data(df: pd.DataFrame, protein: str) -> pd.DataFrame:
+    """Prepare the data for PCA"""
+    proteins_columns = df.filter(like="-").columns
+    columns_to_drop = df.columns.difference(proteins_columns)
+    columns_to_drop = [protein, *columns_to_drop]
+
+    X = df.drop(
+        columns_to_drop, axis=1
+    ).dropna()  # Features (protein expressions, without the
+    # protein of interest), rows with missing values are removed
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    pca = PCA(n_components=4)  # We want to reduce to 4 dimensions
+    pcs = pca.fit_transform(X_scaled)
+    pcs_df = pd.DataFrame(
+        data=pcs, columns=[f"PC{i}" for i in range(1, 5)], index=X.index
+    )
+    df_with_pcs = df.merge(pcs_df, left_index=True, right_index=True, how="left")
+    return df_with_pcs
+
+
 def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]:
     """
     Prepare the data for the LME model
@@ -73,7 +99,20 @@ def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]
     - Rename the protein column
     - Check if the fluid type is consistent
     """
-    relevant_cols = [protein, "acute", "chronic", "sleep", "subject", "fluid"]
+    df = prepare_pca_data(df, protein)
+    pcs = [f"PC{i}" for i in range(1, 5)]
+    relevant_cols = [
+        protein,
+        "acute",
+        "chronic",
+        "sleep",
+        "subject",
+        "fluid",
+        *pcs,
+        "sex",
+        "age",
+        "bmi",
+    ]
     data = df[relevant_cols].dropna(subset=relevant_cols, how="any")
     data.reset_index(drop=True, inplace=True)
     data.rename(columns={protein: "log_protein"}, inplace=True)
@@ -87,7 +126,7 @@ def run_lme_sleep(data: pd.DataFrame) -> dict:
     """Run a linear mixed effect model for a protein"""
     # Fit the model
     model = sm.MixedLM.from_formula(
-        "log_protein ~ 1 + acute + chronic + sleep",
+        "log_protein ~ 1 + acute + chronic + sleep+ PC1 + PC2+ PC3+ PC4+ age+sex+bmi",
         data,
         groups=data["subject"],
         re_formula="1",
