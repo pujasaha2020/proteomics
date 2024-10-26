@@ -7,17 +7,14 @@ from pathlib import Path
 import pandas as pd
 from tqdm.contrib.concurrent import process_map
 
+from biomarkers.pathways import run_pathway_analysis
 from biomarkers.sleep.steps import postprocess_results, preprocess_data, run_lme_sleep
 from utils.get import get_aptamers, get_box, get_debt, get_proteomics
 from utils.save import save_to_csv
 
 
 def run_sleep_analysis(
-    path: Path,
-    plot: bool,
-    min_group_size: int,
-    max_pvalue: float,
-    debt_model: str,
+    path: Path, plot: bool, min_group_size: int, max_pvalue: float, debt_model: str
 ) -> pd.DataFrame:
     """Identify sleep biomarker with linear mixed effect models"""
 
@@ -61,10 +58,23 @@ def run_sleep_analysis(
     t.append(time.time())
     print(f"Results postprocessed in {t[-1] - t[-2]:.2f} seconds")
 
+    # Run the pathway analysis
+    print("Running pathway analysis...")
+    genes = {}
+    for key in ["acute", "chronic", "sleep"]:
+        sig = df[(key, "pvalue_fdr")] < max_pvalue
+        genes[key] = list(results[sig].index.get_level_values("gene"))
+    background = results.index.get_level_values("gene")
+    pathways = run_pathway_analysis(genes, background, max_pvalue)
+    t.append(time.time())
+    print(f"Pathway analysis done in {t[-1] - t[-2]:.2f} seconds")
+
     # Save the results
     if path.suffix:
         print(f"Saving results to {path}...")
         save_to_csv(box, results, path, index=True)
+        pathway_path = path.parent / f"{path.stem}_pathways.csv"
+        save_to_csv(box, pathways, pathway_path)
         t.append(time.time())
         print(f"Results saved in {t[-1] - t[-2]:.2f} seconds")
 
