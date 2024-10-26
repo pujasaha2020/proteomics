@@ -11,6 +11,8 @@ from functools import partial
 from pathlib import Path
 
 import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from statsmodels.stats.multitest import multipletests  # type: ignore
 from tqdm.contrib.concurrent import process_map
 
@@ -64,9 +66,40 @@ def get_protein_names(box) -> pd.DataFrame:
     return df_protein
 
 
-def prepare_lm_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]:
+def prepare_pca_data(df: pd.DataFrame, protein: str, pc_comp: int) -> pd.DataFrame:
+    """Prepare the data for PCA"""
+    proteins_columns = df.filter(like="-").columns
+    columns_to_drop = df.columns.difference(proteins_columns)
+    columns_to_drop = [protein, *columns_to_drop]
+
+    x_data = df.drop(
+        columns_to_drop, axis=1
+    ).dropna()  # Features (protein expressions, without the
+    # protein of interest), rows with missing values are removed
+
+    scaler = StandardScaler()
+    x_scaled = scaler.fit_transform(x_data)
+    pca = PCA(n_components=pc_comp)  # We want to reduce to 4 dimensions
+    pcs = pca.fit_transform(x_scaled)
+    explained_variance = pca.explained_variance_ratio_
+
+    pcs_df = pd.DataFrame(
+        data=pcs, columns=[f"PC{i}" for i in range(1, pc_comp + 1)], index=x_data.index
+    )
+    df_with_pcs = df.merge(pcs_df, left_index=True, right_index=True, how="left")
+    dict_pcs_variance = dict(
+        zip([f"PC{i}" for i in range(1, pc_comp + 1)], explained_variance)
+    )
+    return (dict_pcs_variance, df_with_pcs)
+
+
+def prepare_lm_data(
+    protein: str, df: pd.DataFrame, pc_comp: int
+) -> tuple[str, pd.DataFrame]:
     """Prepare the data for linear regression"""
-    relevant_cols = [protein, "study"]
+    dict_pcs_variance, df = prepare_pca_data(df, protein, pc_comp)
+    pcs = [f"PC{i}" for i in range(1, pc_comp + 1)]
+    relevant_cols = [protein, "study", *pcs]
     data = df[relevant_cols].dropna(subset=relevant_cols, how="any")
     data.reset_index(drop=True, inplace=True)
     data.rename(columns={protein: "log_protein"}, inplace=True)
@@ -132,12 +165,12 @@ def compare_groups(results: pd.DataFrame, test_grp: str) -> pd.DataFrame:
     """Compare the groups"""
     results.sort_values(by=[(test_grp, "pvalue_fdr")], inplace=True, ascending=True)
     results.reset_index(drop=True, inplace=True)
-    results = results[["ids", "target", test_grp]]
-
+    results = results[["ids", "target", "prot", test_grp]]
+    results = results.loc[results[(test_grp, "pvalue_fdr")] < 0.05, :]
     return results
 
 
-def run_analysis(reference: str):
+def run_analysis(reference: str, pc_comp: int) -> None:
     """Run the analysis"""
     print("running analysis using reference:", reference)
     box = get_box()
@@ -157,7 +190,10 @@ def run_analysis(reference: str):
     df_study = df_study.droplevel(0, axis=1)
 
     print(proteins)
-    dict_protein_data = dict(map(lambda p: prepare_lm_data(p, df_study), proteins))
+    dict_protein_data = dict(
+        map(lambda p: prepare_lm_data(p, df_study, pc_comp), proteins)
+    )
+    print("number of proteins", dict(list(dict_protein_data.items())[:3]))
 
     # Prepare a list of tuples with data and reference
     run_lm_sleep_with_ref = partial(run_lm_sleep, reference=reference)
@@ -177,6 +213,11 @@ def run_analysis(reference: str):
             PATH["plazzi_results"] / f"biomarker_{key}_{reference}.csv",
             index=False,
         )
+    # take the significant proteins from all the groups and plot them 
+    selected_proteins = []
+    for proteins in result_by_group.values():
+        
+
 
 
 if __name__ == "__main__":
@@ -190,6 +231,11 @@ if __name__ == "__main__":
         help="group as reference",
         default="plazzi_ctl",
     )
-
+    parser.add_argument(
+        "--pc_comp",
+        type=int,
+        help="number of pca components",
+        default=4,
+    )
     args = parser.parse_args()
     run_analysis(**vars(args))

@@ -22,10 +22,10 @@ def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str) -> dict:
         if col.startswith("study"):
             data_dummies[col] = data_dummies[col].astype(int)
     y = data["log_protein"]
-    # y_norm = (y - np.mean(y)) / np.std(y)
-    x_matrix = data_dummies[
-        [col for col in data_dummies.columns if col.startswith("study")]
-    ]
+    # x_matrix = data_dummies[
+    #    [col for col in data_dummies.columns if col.startswith("study")]
+    # ]
+    x_matrix = data_dummies.loc[:, data_dummies.columns != "log_protein"]
     x_matrix = sm.add_constant(x_matrix)
 
     model = sm.OLS(y, x_matrix).fit()
