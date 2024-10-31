@@ -14,40 +14,29 @@ def make_protocol_list() -> list:
         if i == 8:
             for j in range(1, 10):
                 function_name = f"protocol{i}_{j}"
-                # print(function_name)
                 protocol_list.append(function_name)
         else:
             function_name = f"protocol{i}"
-            # print(function_name)
             protocol_list.append(function_name)
-    # print(protocol_list)
     return protocol_list
 
 
-def make_protocol_object_list(protocol_list: list, definition: str) -> list[Protocol]:
+def make_protocol_object_list(protocol_list: list, defi: int) -> list[Protocol]:
     """
     Create protocol objects
     """
-    definition = "def_2"
-    return [Protocol(name, definition) for name in protocol_list]
+    return [Protocol(name, defi) for name in protocol_list]
 
 
 def make_sleep_wake_tuple(protocol_data: dict, protocol_name: str) -> tuple:
     """construct protocol from yaml file"""
-    print(protocol_name)
     protocol = protocol_data["protocols"][protocol_name]
 
-    # Construct t_awake_l
     t_awake_l = []
     for item in protocol["t_awake_l"]:
-        # print(type(item))
         if "repeat" in item:
-            repeat_value = protocol["t_awake_l"][item][
-                "value"
-            ]  # Ensure value is an integer
-            repeat_count = protocol["t_awake_l"][item][
-                "count"
-            ]  # Ensure count is an integer
+            repeat_value = protocol["t_awake_l"][item]["value"]
+            repeat_count = protocol["t_awake_l"][item]["count"]
             t_awake_l.extend([repeat_value] * repeat_count)
 
         elif "append" in item:
@@ -63,18 +52,12 @@ def make_sleep_wake_tuple(protocol_data: dict, protocol_name: str) -> tuple:
     t_sleep_l = []
     for item in protocol["t_sleep_l"]:
         if "repeat" in item:
-            repeat_value = protocol["t_sleep_l"][item][
-                "value"
-            ]  # Ensure value is an integer
-            repeat_count = protocol["t_sleep_l"][item][
-                "count"
-            ]  # Ensure count is an integer
+            repeat_value = protocol["t_sleep_l"][item]["value"]
+            repeat_count = protocol["t_sleep_l"][item]["count"]
             t_sleep_l.extend([repeat_value] * repeat_count)
         elif "append" in item:
-            append_value = protocol["t_sleep_l"][
-                item
-            ]  # Ensure append value is an integer
-            t_sleep_l.extend(append_value)  # Use append for single values
+            append_value = protocol["t_sleep_l"][item]
+            t_sleep_l.extend(append_value)
         else:
             raise ValueError(f"Invalid key in t_sleep_l: {item}")
 

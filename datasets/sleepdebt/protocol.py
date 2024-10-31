@@ -4,11 +4,11 @@
 class Protocol:
     """Class to represent a protocol"""
 
-    def __init__(self, name: str, definition: str):
+    def __init__(self, name: str, defi: int):
         self.name = name
         self.t_awake_l: list[int] = []
         self.t_sleep_l: list[int] = []
-        self.definition = definition
+        self.definition = defi
 
     def fill(self, t_awake_l, t_sleep_l) -> None:
         """

@@ -42,7 +42,6 @@ def calculate_debt(protocol: Protocol, model_params: dict) -> pd.DataFrame:
     # A_mean = mu_s + 0.302*(mu_w-mu_s)
     r1tot_i = 586.66  # (A_mean/gamma) - (kd1/((1-gamma)*(1-beta))) #586.3
 
-    print("Initial values", atot_i, r1tot_i)
     t0 = 0
     r1tot, atot, t = [], [], []
     for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):

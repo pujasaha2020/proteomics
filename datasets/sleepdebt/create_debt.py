@@ -28,58 +28,126 @@ from utils.make import (
 from utils.save import save_to_csv
 
 BOX_PATH = {
-    "plots_adenosine": Path(
-        "results/sleepdebt/sleepdebt_curves/ligand_receptor_model/"
-    ),
-    "plots_unified": Path("results/sleepdebt/sleepdebt_curves/unified_model/"),
-    "csvs_adenosine": Path(
-        "archives/sleepdebt/sleepdebt_data/ligand_receptor_model/sleepdebt/"
-    ),
-    "csvs_unified": Path("archives/sleepdebt/sleepdebt_data/unified_model/sleepdebt/"),
+    "plots": Path("results/sleepdebt/sleepdebt_curves/"),
+    "csvs": Path("archives/sleepdebt/sleepdebt_data/"),
 }
 
 
-def create_debt(
+def create_debts(
+    box: BoxManager,
     pro: Protocol,
-    protocol_data: dict,
-    box1: BoxManager,
-    model_params: dict,
-    model: str = "adenosine",
-) -> plt.Figure:
-    """Get plot for the protocol"""
-    fig = plt.figure(figsize=(20, 10))
+    protocols: dict,
+    params: dict,
+    scipt_params: dict,
+):
+    """create debts for each protocol ands save the csv file"""
+    model = scipt_params["model"]
+    name = protocols["protocols"][pro.name]["dataset"]
 
-    ax = fig.add_subplot(111)  # 111 means 1 row, 1 column, 1st subplot
-    dataset_name = protocol_data["protocols"][pro.name]["dataset"]
     if model == "adenosine":
-        df_sleep_debt = adenosine.calculate_debt(pro, model_params)
-        path = BOX_PATH["csvs_adenosine"] / f"{dataset_name}_class.csv"
-        axis_title = "Adenosine/Receptor concentration (nM)"
-        ax = plot_debt_vs_time_adenosine(pro, df_sleep_debt, ax, protocol_data)
+        df = adenosine.calculate_debt(pro, params)
+        path = BOX_PATH["csvs"] / f"{name}_{model}.csv"
 
     elif model == "unified":
-        df_sleep_debt = unified.calculate_debt(pro)
-        path = BOX_PATH["csvs_unified"] / f"{dataset_name}_class.csv"
+        df = unified.calculate_debt(pro)
+        df = unified.define_acute_chronic(df, pro.definition)
+        path = BOX_PATH["csvs"] / f"{name}_{model}.csv"
+
+    else:
+        raise ValueError("Invalid model type")
+    df["status"] = df["time"].apply(lambda x: get_status(x, pro.time_sequence()))
+    df = get_time_since_transition(df)
+
+    save_to_csv(
+        box,
+        df,
+        path,
+        index=False,
+    )
+    return df
+
+
+def get_time_since_transition(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    creating "time since sleep -> awake" and "time since awake -> sleep" csv
+    """
+
+    # first get "time since sleep-> awake"
+    transitions = df[(df["status"] == "sleep") & (df["status"].shift(1) == "awake")]
+    transitions.reset_index(drop=True, inplace=True)
+    # Initialize a list to store time differences
+    time_diffs = []
+
+    for _, row in df.iterrows():
+        # Get the current time
+        current_time = row["time"]
+
+        # Find the closest preceding transition time
+        preceding_time = transitions["time"][transitions["time"] <= current_time].max()
+
+        # Calculate the difference if a preceding transition is found
+        if pd.notna(preceding_time):
+            time_diff = current_time - preceding_time
+        else:
+            time_diff = pd.NaT  # Not applicable if no preceding transition
+
+        time_diffs.append(time_diff)
+
+    # Add time differences as a new column in the data DataFrame
+    df["time_since_last_sleep"] = time_diffs
+
+    # first get "time since awake -> sleep"
+    first_row = df.loc[[0], ["time", "status"]]
+    transitions = df[(df["status"] == "awake") & (df["status"].shift(1) == "sleep")]
+    transitions = pd.concat([first_row, transitions]).reset_index(drop=True)
+
+    # Initialize a list to store time differences
+    time_diffs = []
+
+    for _, row in df.iterrows():
+        # Get the current time
+        current_time = row["time"]
+
+        # Find the closest preceding transition time
+        preceding_time = transitions["time"][transitions["time"] <= current_time].max()
+
+        # Calculate the difference if a preceding transition is found
+        if pd.notna(preceding_time):
+            time_diff = current_time - preceding_time
+        else:
+            time_diff = pd.NaT  # Not applicable if no preceding transition
+
+        time_diffs.append(time_diff)
+
+    # Add time differences as a new column in the data DataFrame
+    df["time_since_last_awake"] = time_diffs
+
+    return df
+
+
+def plot_debts(
+    df: pd.DataFrame,
+    pro: Protocol,
+    protocols: dict,
+    script_params: dict,
+) -> plt.Figure:
+    """Get plot for the protocol"""
+
+    model = script_params["model"]
+    fig = plt.figure(figsize=(20, 10))
+
+    ax = fig.add_subplot(111)
+    if model == "adenosine":
+        axis_title = "Adenosine/Receptor concentration (nM)"
+        ax = plot_debt_vs_time_adenosine(pro, df, ax, protocols)
+
+    elif model == "unified":
         axis_title = "Sleep Homeostat values % (impairment \u2192)"
-        ax, df_sleep_debt = plot_debt_vs_time_unified(
-            pro, df_sleep_debt, protocol_data, ax
-        )
+        ax = plot_debt_vs_time_unified(pro, df, protocols, ax)
 
     else:
         raise ValueError("Invalid model type")
 
-    df_sleep_debt["status"] = df_sleep_debt["time"].apply(
-        lambda x: get_status(x, pro.time_sequence())
-    )
-
-    save_to_csv(
-        box1,
-        df_sleep_debt,
-        path,
-        index=False,
-    )
-
-    # Set common x and y labels for the figure
     fig.text(0.5, 0.05, "Time (days)", ha="center", va="center", fontsize=14)
     fig.text(
         0.06,
@@ -96,58 +164,53 @@ def create_debt(
     return fig
 
 
-def run_sleepdebt_model(
-    box1: BoxManager,
-    protocol_data: dict,
-    model_params: dict,
-    model: str = "adenosine",
-    definition: str = "def_2",
+def run_protocols(
+    box: BoxManager,
+    protocols: dict,
+    params: dict,
+    script_params: dict,
 ):
     """Run sleep debt model for all protocols"""
-
+    model = script_params["model"]
+    defi = script_params["defi"]
+    plot = script_params["plot"]
     prot_list = make_protocol_list()
-    protocol_objects = make_protocol_object_list(prot_list, definition)
+    protocol_objects = make_protocol_object_list(prot_list, defi)
     for protocol in protocol_objects:
-        t_ae_sl = make_sleep_wake_tuple(protocol_data, protocol.name)
+        name = protocols["protocols"][protocol.name]["dataset"]
+        print(f"Running sleep debt model for {name}")
+        t_ae_sl = make_sleep_wake_tuple(protocols, protocol.name)
         protocol.fill(t_ae_sl[0], t_ae_sl[1])
-        name = protocol_data["protocols"][protocol.name]["dataset"]
-        plot1 = create_debt(protocol, protocol_data, box1, model_params, model)
+        df = create_debts(box, protocol, protocols, params, script_params)
+        if plot:
+            plot1 = plot_debts(df, protocol, protocols, script_params)
 
-        file = io.BytesIO()
-        plot1.savefig(file)
-        file.seek(0)
-        if model == "adenosine":
-            box1.save_file(file, BOX_PATH["plots_adenosine"] / f"sleep_debt_{name}.png")
-        elif model == "unified":
-            box1.save_file(file, BOX_PATH["plots_unified"] / f"sleep_debt_{name}.png")
-        else:
-            raise ValueError("Invalid model type")
-        plt.close(plot1)
+            file = io.BytesIO()
+            plot1.savefig(file)
+            file.seek(0)
+            box.save_file(file, BOX_PATH["plots"] / f"sleep_debt_{name}_{model}.png")
+
+            plt.close(plot1)
 
 
-def run_zeitzer_sample(
-    box1: BoxManager,
-    model_params: dict,
-    model: str = "adenosine",
-    definition: str = "def_2",
-):
+def run_zeitzer(box: BoxManager, params: dict, model: str, defi: int):
     """
     some of the Zeitzer subject have different sleep wake schedule.
     So calculating  sleep debt separately
     for those subjects.
     """
 
-    def df_zeitzer(sub, t_awake_l, t_sleep_l) -> None:
-        pro = Protocol(f"zeitzer_uncommon_{sub}", definition)
+    def df_zeitzer(sub, t_awake_l, t_sleep_l, model) -> None:
+        pro = Protocol(f"zeitzer_uncommon_{sub}", defi)
         pro.fill(t_awake_l, t_sleep_l)
         pro.time_sequence()
         if model == "adenosine":
-            df_sleep_debt = adenosine.calculate_debt(pro, model_params)
-            path = BOX_PATH["csvs_adenosine"] / f"Zeitzer_Uncommon_{sub}_class.csv"
+            df_sleep_debt = adenosine.calculate_debt(pro, params)
+            path = BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_{model}.csv"
 
         elif model == "unified":
             df_sleep_debt = unified.calculate_debt(pro)
-            path = BOX_PATH["csvs_unified"] / f"Zeitzer_Uncommon_{sub}_class.csv"
+            path = BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_{model}.csv"
 
         else:
             raise ValueError("Invalid model type")
@@ -156,15 +219,13 @@ def run_zeitzer_sample(
             lambda x: get_status(x, pro.time_sequence())
         )
         save_to_csv(
-            box1,
+            box,
             df_sleep_debt,
             path,
             index=False,
         )
 
-    file = box1.get_file(
-        BOX_PATH["csvs_adenosine"] / "zeitzer_uncommon_protocol_from_python.csv"
-    )
+    file = box.get_file(BOX_PATH["csvs"] / "zeitzer_uncommon_protocol.csv")
     df_zeitzer_uncommon = pd.read_csv(file)
     subject = df_zeitzer_uncommon["subject"].unique()
 
@@ -189,7 +250,20 @@ def run_zeitzer_sample(
         t_awake_l = n_rest * [16 * 60] + [hr_awake] + [hr_awake1]
         t_sleep_l = n_rest * [8 * 60] + [hr_sleep] + [480]
 
-        df_zeitzer(sub, t_awake_l, t_sleep_l)
+        df_zeitzer(sub, t_awake_l, t_sleep_l, model)
+
+
+def main(model: str, defi: int, plot: bool, zeitzer: bool):
+    """
+    Run sleep debt model for all protocols
+    """
+    box = get_box()
+    protocols = get_protocols(box)
+    params = make_parameters_dict(box)
+    scipt_params = {"model": model, "defi": defi, "plot": plot, "zeitzer": zeitzer}
+    run_protocols(box, protocols, params, scipt_params)
+    if zeitzer:
+        run_zeitzer(box, params, model, defi)
 
 
 if __name__ == "__main__":
@@ -203,16 +277,24 @@ if __name__ == "__main__":
     # for unified model you need to give the definition of acute and chronic.
     # For adensoine model it does not matter.
     parser.add_argument(
-        "--definition",
-        type=str,
+        "--defi",
+        type=int,
         help="Definition for chronic and acute sleep debt",
-        default="def_2",
+        default=2,
+    )
+
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="if specified it will plot the sleep debt",
+    )
+
+    parser.add_argument(
+        "--zeitzer",
+        action="store_true",
+        help="Run sleep debt model for zeitzer uncommon subjects."
+        + "if not specified it will not run",
     )
     args = parser.parse_args()
 
-    box = get_box()
-    data = get_protocols(box)
-    params = make_parameters_dict(box)
-    run_sleepdebt_model(box, data, params, **vars(args))
-    # if you want to run the zeitzer sample
-    run_zeitzer_sample(box, params, **vars(args))
+    main(**vars(args))

@@ -5,6 +5,8 @@ This scripts calculate the sleep debt from unified model for a given protocol.
 # import pandas as pd
 import numpy as np
 import pandas as pd
+from scipy import interpolate
+from scipy.signal import find_peaks
 
 # from box.manager import BoxManager
 from datasets.sleepdebt.protocol import Protocol
@@ -104,3 +106,43 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
     df_debt["s_debt"] = s  # [item for sublist in s for item in sublist]
 
     return df_debt
+
+
+def define_acute_chronic(df: pd.DataFrame, defi: int) -> pd.DataFrame:
+    """making acute and chronic sleep debt using definition of "l_debt" and "s_debt" """
+    lower_envelope = make_lower_envelope(df)
+    if defi == 1:
+        df["Chronic"] = lower_envelope
+        df["Acute"] = df["l_debt"] - lower_envelope
+
+    elif defi == 2:
+        df["Chronic"] = df["l_debt"]
+        df["Acute"] = df["s_debt"] - df["l_debt"]
+
+    else:
+        raise ValueError("Invalid definition type")
+
+    return df
+
+
+def make_lower_envelope(df_sleep_debt: pd.DataFrame) -> np.ndarray:
+    """getting lower envelope for definition 1"""
+    # peaks, _ = find_peaks(df_sleep_debt["l"])
+    trough_index, _ = find_peaks(-df_sleep_debt["l"])
+
+    time_trough = [0]
+    trough = [0]
+    for i in trough_index:
+        time_trough.append(df_sleep_debt["time"][i])
+        trough.append(df_sleep_debt["l"][i])
+
+    time_trough.append(df_sleep_debt.iloc[len(df_sleep_debt[["time"]]) - 1, 0])
+    trough.append(df_sleep_debt.iloc[len(df_sleep_debt[["time"]]) - 1, 1])
+
+    f = interpolate.interp1d(time_trough, trough)
+
+    xnew = df_sleep_debt[
+        "time"
+    ]  # np.array(df_sleep_debt.iloc[:, 0]) #df_sleep_debt[["time"]]
+    ynew = f(xnew)  # use interpolation function returned by `interp1d`
+    return ynew

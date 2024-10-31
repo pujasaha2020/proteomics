@@ -83,7 +83,7 @@ def prepare_pca_data(df: pd.DataFrame, protein: str) -> pd.DataFrame:
     pca = PCA(n_components=4)  # We want to reduce to 4 dimensions
     pcs = pca.fit_transform(x_scaled)
     pcs_df = pd.DataFrame(
-        data=pcs, columns=[f"PC{i}" for i in range(1, 5)], index=X.index
+        data=pcs, columns=[f"PC{i}" for i in range(1, 5)], index=x_data.index
     )
     df_with_pcs = df.merge(pcs_df, left_index=True, right_index=True, how="left")
     return df_with_pcs
@@ -97,19 +97,16 @@ def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]
     - Rename the protein column
     - Check if the fluid type is consistent
     """
-    df = prepare_pca_data(df, protein)
-    pcs = [f"PC{i}" for i in range(1, 5)]
+    # df = prepare_pca_data(df, protein)
+    # pcs = [f"PC{i}" for i in range(1, 5)]
     relevant_cols = [
         protein,
         "acute",
         "chronic",
         "sleep",
+        "study",
         "subject",
         "fluid",
-        *pcs,
-        "sex",
-        "age",
-        "bmi",
     ]
     data = df[relevant_cols].dropna(subset=relevant_cols, how="any")
     data.reset_index(drop=True, inplace=True)
@@ -117,14 +114,20 @@ def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]
     plasma_check = data.groupby("subject")["fluid"].nunique() == 1
     if not plasma_check.all():
         raise ValueError("A subject has different fluid type")
+    print("before", data.shape)
+    # remove forced dyschrony samples
+    data = data.loc[data["study"] != "mppg_fd"]
+    print("after", data.shape)
+
     return (protein, data)
 
 
 def run_lme_sleep(data: pd.DataFrame) -> dict:
     """Run a linear mixed effect model for a protein"""
+
     # Fit the model
     model = sm.MixedLM.from_formula(
-        "log_protein ~ 1 + acute + chronic + sleep+ PC1 + PC2+ PC3+ PC4+ age+sex+bmi",
+        "log_protein ~ 1 + acute + chronic + sleep",
         data,
         groups=data["subject"],
         re_formula="1",

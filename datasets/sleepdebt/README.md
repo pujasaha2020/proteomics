@@ -17,34 +17,40 @@ Scripts in this folder, calculate sleepdebt at every minute from two different m
 To run adenosine model:
 
 ```shell
-python datasets/sleepdebt/create_debt.py --model "adenosine"
+python datasets/sleepdebt/create_debt.py  --plot --zeitzer
 ```
 
-No need to provide "--definition" for adenosine model.
+use "--plot" if you want to plot the sleep debt curves.
+use "--zeitzer" if you want to run the Zeitzer subjects having different sleep-wake schedule. Th subjects having same schedule will with out this tag.
+
+No need to provide "--defi" and "--model" for adenosine model.
 
 **What to expect from `create_debt.py' (adenosine model)**
 
 - The output of the models are stored in box.
 - All the csv files containing sleep debt at every minute are stored in
-  `archives/sleepdebt/sleepdebt_data/ligand_receptor_model/sleepdebt/`
+  `archives/sleepdebt/sleepdebt_data/`
 - All the plots of sleep debt curves are stored in
-  `results/sleepdebt/sleepdebt_curves/ligand_receptor_model/`
+  `results/sleepdebt/sleepdebt_curves/`
 
 To run unified model:
 
 ```shell
-python datasets/sleepdebt/create_debt.py --model "adenosine" --definition "def_2"
+python datasets/sleepdebt/create_debt.py --model "unified" --definition 2 --plot --zeitzer
 ```
 
-Currently we are using "def_2", change it depending on what you need. Three definitions exists "def_1", "def_2" , "def_3"
+use "--plot" if you want to plot the sleep debt curves.
+use "--zeitzer" if you want to run the Zeitzer subjects having different sleep-wake schudule. Th subjects having same schedule will with out this tag.
+
+"--defi" has two options, 1 or 2 for unified model.
 
 **What to expect from `sleepdebt_calculation.py' (unified model)**
 
 - The output of the models are stored in box.
 - All the csv files containing sleep debt at every minute are stored in
-  `archives/sleepdebt/sleepdebt_data/unified_model/sleepdebt/`
+  `archives/sleepdebt/sleepdebt_data/`
 - All the plots of sleep debt curves are stored in
-  `results/sleepdebt/sleepDebt_curves/unified_model/`
+  `results/sleepdebt/sleepDebt_curves/`
 
 ## Step 2: Prepare sleepdebt dataset for Biomarker and prediction analysis
 
