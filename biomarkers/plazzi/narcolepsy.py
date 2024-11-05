@@ -7,10 +7,14 @@ This study compares the protein expression across four different groups
 """
 
 import argparse
+import io
 from functools import partial
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from statsmodels.stats.multitest import multipletests  # type: ignore
@@ -97,9 +101,12 @@ def prepare_lm_data(
     protein: str, df: pd.DataFrame, pc_comp: int
 ) -> tuple[str, pd.DataFrame]:
     """Prepare the data for linear regression"""
-    dict_pcs_variance, df = prepare_pca_data(df, protein, pc_comp)
-    pcs = [f"PC{i}" for i in range(1, pc_comp + 1)]
-    relevant_cols = [protein, "study", *pcs]
+    # dict_pcs_variance, df = prepare_pca_data(df, protein, pc_comp)
+    # pcs = [f"PC{i}" for i in range(1, pc_comp + 1)]
+    relevant_cols = [
+        protein,
+        "study",
+    ]
     data = df[relevant_cols].dropna(subset=relevant_cols, how="any")
     data.reset_index(drop=True, inplace=True)
     data.rename(columns={protein: "log_protein"}, inplace=True)
@@ -121,9 +128,7 @@ def preprocess_sample(df_proteomics: pd.DataFrame) -> pd.DataFrame:
     return df_study
 
 
-def postprocess_results(
-    box: BoxManager, results: pd.DataFrame, reference: str
-) -> pd.DataFrame:
+def postprocess_results(box: BoxManager, results: pd.DataFrame, reference: str) -> dict:
     """Postprocess the results"""
     results.columns = pd.MultiIndex.from_tuples(results.columns)
     for key in results.columns.levels[0]:
@@ -166,11 +171,61 @@ def compare_groups(results: pd.DataFrame, test_grp: str) -> pd.DataFrame:
     results.sort_values(by=[(test_grp, "pvalue_fdr")], inplace=True, ascending=True)
     results.reset_index(drop=True, inplace=True)
     results = results[["ids", "target", "prot", test_grp]]
-    results = results.loc[results[(test_grp, "pvalue_fdr")] < 0.05, :]
+    # results = results.loc[results[(test_grp, "pvalue_fdr")] < 0.05, :]
     return results
 
 
-def run_analysis(reference: str, pc_comp: int) -> None:
+def plot_significant_proteins(
+    box: BoxManager,
+    result_by_group: dict,
+    dict_protein_data: dict,
+):
+    """make box plot the significant proteins"""
+    df_protein = get_protein_names(box)
+
+    sig_proteins = []
+    for key, value in result_by_group.items():
+        print("significant proteins for", key)
+        seq_id = value.loc[value[(key, "pvalue_fdr")] < 0.05, ("ids", "seq_id")]
+        sig_proteins.extend(seq_id)
+
+    # remove duplicates
+    sig_proteins = list(set(sig_proteins))
+    print("number of significant proteins", len(sig_proteins))
+    # how many plots to make
+    if len(sig_proteins) / 4 == 0:
+        no_canvas = len(sig_proteins) // 4
+    else:
+        no_canvas = len(sig_proteins) // 4 + 1
+
+    for i in range(no_canvas):
+        fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+        axes = np.array(axes)
+        remove_protein = []
+        for j, protein in enumerate(sig_proteins):
+            print(protein)
+            remove_protein.append(protein)
+            data = dict_protein_data[protein]
+            sns.boxplot(x="study", y="log_protein", data=data, ax=axes[j // 2, j % 2])
+
+            axes[j // 2, j % 2].set_title(
+                df_protein.loc[
+                    df_protein["ids"]["seq_id"] == protein, ("target", "TargetName")
+                ].values[0]
+            )
+            if j == 3:
+                plt.tight_layout()
+                file = io.BytesIO()
+                fig.savefig(file)
+                box.save_file(
+                    file, PATH["plazzi_results"] / f"significant_proteins_{i}.png"
+                )
+                file.seek(0)
+                sig_proteins = [x for x in sig_proteins if x not in remove_protein]
+                break
+
+
+def run_analysis(reference: str, plot: bool, pc_comp: int) -> None:
     """Run the analysis"""
     print("running analysis using reference:", reference)
     box = get_box()
@@ -206,18 +261,15 @@ def run_analysis(reference: str, pc_comp: int) -> None:
     )
     results = pd.DataFrame.from_records(results)
     result_by_group = postprocess_results(box, results, reference)
-    for key, value in result_by_group.items():
+    for test_grp, value in result_by_group.items():
         save_to_csv(
             box,
             value,
-            PATH["plazzi_results"] / f"biomarker_{key}_{reference}.csv",
+            PATH["plazzi_results"] / f"biomarker_{test_grp}_{reference}.csv",
             index=False,
         )
-    # take the significant proteins from all the groups and plot them 
-    selected_proteins = []
-    for proteins in result_by_group.values():
-        
-
+    if plot:
+        plot_significant_proteins(box, result_by_group, dict_protein_data)
 
 
 if __name__ == "__main__":
@@ -237,5 +289,11 @@ if __name__ == "__main__":
         help="number of pca components",
         default=4,
     )
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="plot the significant proteins, nothing will be plotted if False",
+    )
+
     args = parser.parse_args()
     run_analysis(**vars(args))
