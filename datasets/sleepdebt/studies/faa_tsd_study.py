@@ -86,7 +86,7 @@ def get_faa_tsd(
     ].astype(int)
 
     # Reading sleep debt data
-    file = box.get_file(path / "faa_tsd_class.csv")
+    file = box.get_file(path / "faa_tsd.csv")
     sleep_debt_faa_tsd = pd.read_csv(file)
     sleep_debt_faa_tsd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
@@ -95,6 +95,8 @@ def get_faa_tsd(
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     sleep_debt_faa_tsd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 

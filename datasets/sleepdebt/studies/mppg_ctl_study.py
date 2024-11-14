@@ -96,9 +96,9 @@ def get_mppg_ctl(
     ].astype(int)
 
     # Reading sleep debt data
-    file_8h = box.get_file(path / "mppg_ctl_8H_class.csv")
+    file_8h = box.get_file(path / "mppg_ctl_8H.csv")
 
-    file_10h = box.get_file(path / "mppg_ctl_10H_class.csv")
+    file_10h = box.get_file(path / "mppg_ctl_10H.csv")
 
     id_8h = ["3547", "3776", "3789", "3812"]  # note: 3547 appears in both 8H and 10H
     id_10h = ["3547", "3369", "3436", "3552"]
@@ -121,6 +121,8 @@ def apply_debt_8h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     df_debt.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
@@ -167,6 +169,8 @@ def apply_debt_10h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.Data
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     df_debt.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 

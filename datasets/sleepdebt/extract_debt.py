@@ -24,11 +24,9 @@ from utils.save import save_to_csv
 
 BOX_PATH = {
     "proteomics": Path("archives/data/proteomics_091224_AS.csv"),
-    "csvs": Path("archives/sleepdebt/sleepdebt_data/ligand_receptor_model/sleepdebt/"),
-    "csvs_unified": Path("archives/sleepdebt/sleepdebt_data/unified_model/sleepdebt/"),
-    "csv_final": Path(
-        "archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/"
-    ),
+    "csvs": Path("archives/sleepdebt/adenosine/"),
+    "csvs_unified": Path("archives/sleepdebt/unified/"),
+    "csv_final": Path("archives/sleepdebt/dataset_with_sleepdebt_at_clocktime/"),
     "yaml_path": Path("archives/sleepdebt/sleepdebt_data/yaml_files/protocols.yaml"),
 }
 
@@ -113,6 +111,8 @@ if __name__ == "__main__":
         ("profile", "adm_time"),
         ("profile", "mins_from_admission"),
         ("profile", "admission_date_time"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     # Drop the specified columns
     df_sleep_debt_unified = df_sleep_debt_unified.drop(columns=columns_to_drop)

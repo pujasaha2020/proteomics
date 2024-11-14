@@ -24,7 +24,7 @@ from utils.save import save_to_csv
 
 def get_zeitzer_protocols(proteomics_data_new: pd.DataFrame) -> pd.DataFrame:
     """extracts the sleep-wake schedule for each subject."""
-    sub_zeitzer = np.concat(
+    sub_zeitzer = np.concatenate(
         [
             proteomics_data_new[proteomics_data_new[("ids", "study")] == "zeitzer_mbc"][
                 ("ids", "subject")
@@ -179,7 +179,7 @@ def get_zeitzer(
     save_to_csv(
         box,
         df_zeitzer_uncommon,
-        path / "zeitzer_uncommon_protocol_from_python.csv",
+        path / "zeitzer_uncommon_protocol.csv",
         index=False,
     )
 
@@ -261,7 +261,7 @@ def apply_debt_common_routine(
     This function calculates the sleep debt at the time of blood collection for subjects
     with common sleep-wake schedule.
     """
-    file = box.get_file(path / "Zeitzer_class.csv")
+    file = box.get_file(path / "Zeitzer.csv")
     sleep_debt_zeitzer = pd.read_csv(file)
     sleep_debt_zeitzer.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
@@ -270,6 +270,8 @@ def apply_debt_common_routine(
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     sleep_debt_zeitzer.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
@@ -311,11 +313,8 @@ def apply_debt_uncommon_routine(
 
     for key in ids:
         print(key)
-        file = box.get_file(path / f"Zeitzer_Uncommon_{key}_class.csv")
+        file = box.get_file(path / f"Zeitzer_Uncommon_{key}.csv")
         sleep_debt_zeitzer = pd.read_csv(file)
-        sleep_debt_zeitzer.drop(
-            columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
-        )
         sleep_debt_zeitzer.drop(
             columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
         )
@@ -325,6 +324,8 @@ def apply_debt_uncommon_routine(
             ("debt", "Chronic"),
             ("debt", "Acute"),
             ("debt", "status"),
+            ("transitions", "time_since_last_sleep"),
+            ("transitions", "time_since_last_awake"),
         ]
         sleep_debt_zeitzer.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 

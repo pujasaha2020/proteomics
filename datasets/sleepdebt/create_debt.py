@@ -28,8 +28,9 @@ from utils.make import (
 from utils.save import save_to_csv
 
 BOX_PATH = {
-    "plots": Path("results/sleepdebt/sleepdebt_curves/"),
-    "csvs": Path("archives/sleepdebt/sleepdebt_data/"),
+    "plots": Path("results/sleepdebt/curves/"),
+    "csvs_adenosine": Path("archives/sleepdebt/adenosine/"),
+    "csvs_unified": Path("archives/sleepdebt/unified/"),
 }
 
 
@@ -38,20 +39,20 @@ def create_debts(
     pro: Protocol,
     protocols: dict,
     params: dict,
-    scipt_params: dict,
+    script_params: dict,
 ):
     """create debts for each protocol ands save the csv file"""
-    model = scipt_params["model"]
+    model = script_params["model"]
     name = protocols["protocols"][pro.name]["dataset"]
 
     if model == "adenosine":
         df = adenosine.calculate_debt(pro, params)
-        path = BOX_PATH["csvs"] / f"{name}_{model}.csv"
+        path = BOX_PATH["csvs_adenosine"] / f"{name}.csv"
 
     elif model == "unified":
         df = unified.calculate_debt(pro)
         df = unified.define_acute_chronic(df, pro.definition)
-        path = BOX_PATH["csvs"] / f"{name}_{model}.csv"
+        path = BOX_PATH["csvs_unified"] / f"{name}.csv"
 
     else:
         raise ValueError("Invalid model type")
@@ -72,7 +73,7 @@ def get_time_since_transition(df: pd.DataFrame) -> pd.DataFrame:
     creating "time since sleep -> awake" and "time since awake -> sleep" csv
     """
 
-    # first get "time since sleep-> awake"
+    # first get "time since awake -> sleep"
     transitions = df[(df["status"] == "sleep") & (df["status"].shift(1) == "awake")]
     transitions.reset_index(drop=True, inplace=True)
     # Initialize a list to store time differences
@@ -96,7 +97,7 @@ def get_time_since_transition(df: pd.DataFrame) -> pd.DataFrame:
     # Add time differences as a new column in the data DataFrame
     df["time_since_last_sleep"] = time_diffs
 
-    # first get "time since awake -> sleep"
+    # first get "time since  sleep -> awake"
     first_row = df.loc[[0], ["time", "status"]]
     transitions = df[(df["status"] == "awake") & (df["status"].shift(1) == "sleep")]
     transitions = pd.concat([first_row, transitions]).reset_index(drop=True)
@@ -205,27 +206,27 @@ def run_zeitzer(box: BoxManager, params: dict, model: str, defi: int):
         pro.fill(t_awake_l, t_sleep_l)
         pro.time_sequence()
         if model == "adenosine":
-            df_sleep_debt = adenosine.calculate_debt(pro, params)
-            path = BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_{model}.csv"
+            df = adenosine.calculate_debt(pro, params)
+            path = BOX_PATH["csvs_adenosine"] / f"Zeitzer_Uncommon_{sub}.csv"
 
         elif model == "unified":
-            df_sleep_debt = unified.calculate_debt(pro)
-            path = BOX_PATH["csvs"] / f"Zeitzer_Uncommon_{sub}_{model}.csv"
+            df = unified.calculate_debt(pro)
+            path = BOX_PATH["csvs_unified"] / f"Zeitzer_Uncommon_{sub}.csv"
 
         else:
             raise ValueError("Invalid model type")
 
-        df_sleep_debt["status"] = df_sleep_debt["time"].apply(
-            lambda x: get_status(x, pro.time_sequence())
-        )
+        df["status"] = df["time"].apply(lambda x: get_status(x, pro.time_sequence()))
+        df = get_time_since_transition(df)
+
         save_to_csv(
             box,
-            df_sleep_debt,
+            df,
             path,
             index=False,
         )
 
-    file = box.get_file(BOX_PATH["csvs"] / "zeitzer_uncommon_protocol.csv")
+    file = box.get_file(BOX_PATH["csvs_adenosine"] / "zeitzer_uncommon_protocol.csv")
     df_zeitzer_uncommon = pd.read_csv(file)
     subject = df_zeitzer_uncommon["subject"].unique()
 
@@ -260,8 +261,9 @@ def main(model: str, defi: int, plot: bool, zeitzer: bool):
     box = get_box()
     protocols = get_protocols(box)
     params = make_parameters_dict(box)
-    scipt_params = {"model": model, "defi": defi, "plot": plot, "zeitzer": zeitzer}
-    run_protocols(box, protocols, params, scipt_params)
+
+    script_params = {"model": model, "defi": defi, "plot": plot, "zeitzer": zeitzer}
+    run_protocols(box, protocols, params, script_params)
     if zeitzer:
         run_zeitzer(box, params, model, defi)
 

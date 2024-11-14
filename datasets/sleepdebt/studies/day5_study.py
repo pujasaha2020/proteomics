@@ -103,7 +103,7 @@ def get_5day(
     ].astype(int)
 
     # Reading sleep debt data
-    file = box.get_file(path / "5day_class.csv")
+    file = box.get_file(path / "5day.csv")
     sleep_debt_day5 = pd.read_csv(file)
     # for unified model only.
     sleep_debt_day5.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
@@ -113,6 +113,8 @@ def get_5day(
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     sleep_debt_day5.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 

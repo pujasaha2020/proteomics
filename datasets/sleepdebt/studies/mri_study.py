@@ -84,7 +84,7 @@ def get_mri(
     ].astype(int)
 
     # Reading sleep debt data
-    file = box.get_file(path / "mri_class.csv")
+    file = box.get_file(path / "mri.csv")
     sleep_debt_cr3667_cr3783 = pd.read_csv(file)
     sleep_debt_cr3667_cr3783.drop(
         columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
@@ -95,6 +95,8 @@ def get_mri(
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     sleep_debt_cr3667_cr3783.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 

@@ -114,10 +114,10 @@ def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]
     plasma_check = data.groupby("subject")["fluid"].nunique() == 1
     if not plasma_check.all():
         raise ValueError("A subject has different fluid type")
-    print("before", data.shape)
+    # print("before", data.shape)
     # remove forced dyschrony samples
     data = data.loc[data["study"] != "mppg_fd"]
-    print("after", data.shape)
+    # print("after", data.shape)
 
     return (protein, data)
 

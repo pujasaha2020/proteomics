@@ -157,7 +157,7 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
 
     for key in exp_id:
         print(key)
-        file = box.get_file(path / f"FD_{key}_class.csv")
+        file = box.get_file(path / f"FD_{key}.csv")
         sleep_debt_fd = pd.read_csv(file)
         sleep_debt_fd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
@@ -166,6 +166,8 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
             ("debt", "Chronic"),
             ("debt", "Acute"),
             ("debt", "status"),
+            ("transitions", "time_since_last_sleep"),
+            ("transitions", "time_since_last_awake"),
         ]
         sleep_debt_fd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 

@@ -90,11 +90,11 @@ if __name__ == "__main__":
     # Parse the arguments
     parser = argparse.ArgumentParser(description="Run sleep biomarker analysis.")
     parser.add_argument(
-        "--path",
+        "--path", #proteomics/results/sleepdebt/sleepdebt_biomarker
         type=str,
         default="",
         help="Path where results are saved. If not specified, nothing is saved.",
-    )
+    ) 
     parser.add_argument(
         "--plot",
         action="store_true",

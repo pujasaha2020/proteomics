@@ -80,7 +80,7 @@ def get_faa_csrd(
         ("profile", "mins_from_admission")
     ].astype(int)
     # Reading sleep debt data
-    file = box.get_file(path / "faa_csrd_class.csv")
+    file = box.get_file(path / "faa_csrd.csv")
     sleep_debt_faa_csrd = pd.read_csv(file)
     sleep_debt_faa_csrd.drop(
         columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
@@ -90,6 +90,8 @@ def get_faa_csrd(
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     sleep_debt_faa_csrd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 

@@ -128,13 +128,13 @@ def define_acute_chronic(df: pd.DataFrame, defi: int) -> pd.DataFrame:
 def make_lower_envelope(df_sleep_debt: pd.DataFrame) -> np.ndarray:
     """getting lower envelope for definition 1"""
     # peaks, _ = find_peaks(df_sleep_debt["l"])
-    trough_index, _ = find_peaks(-df_sleep_debt["l"])
+    trough_index, _ = find_peaks(-df_sleep_debt["l_debt"])
 
     time_trough = [0]
     trough = [0]
     for i in trough_index:
         time_trough.append(df_sleep_debt["time"][i])
-        trough.append(df_sleep_debt["l"][i])
+        trough.append(df_sleep_debt["l_debt"][i])
 
     time_trough.append(df_sleep_debt.iloc[len(df_sleep_debt[["time"]]) - 1, 0])
     trough.append(df_sleep_debt.iloc[len(df_sleep_debt[["time"]]) - 1, 1])

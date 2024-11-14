@@ -97,9 +97,9 @@ def get_mppg_csr(
     ].astype(int)
 
     # Reading sleep debt data
-    file_5h = box.get_file(path / "mppg_tsd_5H_class.csv")
+    file_5h = box.get_file(path / "mppg_tsd_5H.csv")
 
-    file_56h = box.get_file(path / "mppg_tsd_5.6H_class.csv")
+    file_56h = box.get_file(path / "mppg_tsd_5.6H.csv")
     id_5h = ["29W4", "3665", "3776", "3794", "3828"]
     id_56h = ["3445", "3608", "3665", "3619"]
 
@@ -121,6 +121,8 @@ def apply_debt_5h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataF
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     df_debt.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
@@ -167,6 +169,8 @@ def apply_debt_56h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.Data
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
+        ("transitions", "time_since_last_sleep"),
+        ("transitions", "time_since_last_awake"),
     ]
     df_debt.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
