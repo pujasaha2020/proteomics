@@ -21,7 +21,7 @@ def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str) -> dict:
     for col in data_dummies.columns:
         if col.startswith("study"):
             data_dummies[col] = data_dummies[col].astype(int)
-    y = data["log_protein"]
+    y = data_dummies["log_protein"]
     # x_matrix = data_dummies[
     #    [col for col in data_dummies.columns if col.startswith("study")]
     # ]
@@ -34,18 +34,19 @@ def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str) -> dict:
     results = {
         ("ids", "seq_id"): protein,
     }
-    if normal:
-        keys = ["const"] + [
-            col for col in data_dummies.columns if col.startswith("study")
-        ]
-        for key in keys:
 
-            results[(key, "param")] = model.params[key]
-            results[(key, "pvalue")] = model.pvalues[key]
-            results[(key, "normal")] = str(normal)
-    else:
-        results = test_non_parametric(data, reference, results)
+    keys = (
+        ["const"]
+        + [col for col in data_dummies.columns if col.startswith("study")]
+        + ["Age", "Gender", "BMI"]
+    )
+    for key in keys:
 
+        results[(key, "param")] = model.params[key]
+        results[(key, "pvalue")] = model.pvalues[key]
+
+    results[("dist", "normal")] = str(normal)
+    # results = test_non_parametric(data, reference, results)
     return results
 
 
@@ -71,5 +72,4 @@ def test_non_parametric(data: pd.DataFrame, reference: str, results: dict) -> di
         )
         results[(f"study_{study}", "param")] = "NA"
         results[(f"study_{study}", "pvalue")] = p_value
-        results[(f"study_{study}", "normal")] = str(False)
     return results

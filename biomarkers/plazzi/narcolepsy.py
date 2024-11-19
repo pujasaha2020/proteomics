@@ -20,9 +20,10 @@ from sklearn.preprocessing import StandardScaler
 from statsmodels.stats.multitest import multipletests  # type: ignore
 from tqdm.contrib.concurrent import process_map
 
+from biomarkers.plazzi.figures import plot_box, plot_count, plot_density
 from biomarkers.plazzi.linear_regression import run_lm_sleep
 from box.manager import BoxManager
-from utils.get import get_box, get_proteomics
+from utils.get import get_box
 from utils.process import (
     drop_proteins_with_missing_samples,
     drop_proteins_without_samples,
@@ -106,6 +107,9 @@ def prepare_lm_data(
     relevant_cols = [
         protein,
         "study",
+        "Age",
+        "Gender",
+        "BMI",
     ]
     data = df[relevant_cols].dropna(subset=relevant_cols, how="any")
     data.reset_index(drop=True, inplace=True)
@@ -113,7 +117,9 @@ def prepare_lm_data(
     return (protein, data)
 
 
-def preprocess_sample(df_proteomics: pd.DataFrame) -> pd.DataFrame:
+def preprocess_sample(
+    df_proteomics: pd.DataFrame, box: BoxManager, plot: bool
+) -> pd.DataFrame:
     """Get the data for the analysis"""
     studies = ["plazzi_nt2", "plazzi_ctl", "plazzi_ih", "plazzi_nt1", "plazzi_seds"]
     df_study = df_proteomics.loc[df_proteomics["ids"]["study"].isin(studies), :]
@@ -125,6 +131,24 @@ def preprocess_sample(df_proteomics: pd.DataFrame) -> pd.DataFrame:
     drop_proteins_with_missing_samples(df_study)
     print("shape after dropping proteins with any sample missing", df_study.shape)
     log_normalize_proteins(df_study)
+    if plot:
+        # plot the variables in different groups
+        density = plot_density(["Age", "BMI"], df_study)
+        file = io.BytesIO()
+        density.savefig(file)
+        file.seek(0)
+        box.save_file(file, PATH["plazzi_results"] / "variables_density.png")
+        boxplot = plot_box(["Age", "BMI"], df_study)
+        file = io.BytesIO()
+        boxplot.savefig(file)
+        file.seek(0)
+        box.save_file(file, PATH["plazzi_results"] / "variables_box.png")
+        countplot = plot_count("Gender", df_study)
+        file = io.BytesIO()
+        countplot.savefig(file)
+        file.seek(0)
+        box.save_file(file, PATH["plazzi_results"] / "variables_count.png")
+
     return df_study
 
 
@@ -170,7 +194,7 @@ def compare_groups(results: pd.DataFrame, test_grp: str) -> pd.DataFrame:
     """Compare the groups"""
     results.sort_values(by=[(test_grp, "pvalue_fdr")], inplace=True, ascending=True)
     results.reset_index(drop=True, inplace=True)
-    results = results[["ids", "target", "prot", test_grp]]
+    results = results[["ids", "target", "prot", test_grp, "dist"]]
     # results = results.loc[results[(test_grp, "pvalue_fdr")] < 0.05, :]
     return results
 
@@ -185,9 +209,9 @@ def plot_significant_proteins(
 
     sig_proteins = []
     for key, value in result_by_group.items():
-        print("significant proteins for", key)
         seq_id = value.loc[value[(key, "pvalue_fdr")] < 0.05, ("ids", "seq_id")]
         sig_proteins.extend(seq_id)
+        print(f"No of significant proteins for {key}  is {len(seq_id)}")
 
     # remove duplicates
     sig_proteins = list(set(sig_proteins))
@@ -225,12 +249,27 @@ def plot_significant_proteins(
                 break
 
 
-def run_analysis(reference: str, plot: bool, pc_comp: int) -> None:
+def run_analysis(
+    reference: str,
+    plot: bool,
+    pc_comp: int,
+) -> None:
     """Run the analysis"""
     print("running analysis using reference:", reference)
     box = get_box()
-    df_proteomics = get_proteomics(box)
-    df_study = preprocess_sample(df_proteomics)
+    dtype = {
+        ("ids", "study"): str,
+        ("ids", "subject"): str,
+        ("ids", "experiment"): str,
+        ("ids", "sample_id"): str,
+    }
+    df_proteomics = pd.read_csv(
+        "/Users/pujasaha/Desktop/Narcolepsy/merged_PSNov14th.csv",
+        header=[0, 1],
+        dtype=dtype,
+        low_memory=False,
+    )
+    df_study = preprocess_sample(df_proteomics, box, plot)
     print("shape of the final dataset for this study", df_study.shape)
     print("number of study", df_study[("ids", "study")].nunique())
     print("number of subjects", df_study[("ids", "subject")].nunique())
@@ -243,6 +282,28 @@ def run_analysis(reference: str, plot: bool, pc_comp: int) -> None:
     df_protein = df_study["proteins"]
     proteins = df_protein.columns
     df_study = df_study.droplevel(0, axis=1)
+
+    # impute "Age, "Gender" and "BMI" with mean of the group
+    df_study["Age"] = df_study.groupby("study")["Age"].transform(
+        lambda x: x.fillna(x.mean())
+    )
+    gender_dict = {
+        "19678": "M",
+        "19681": "M",
+        "19667": "M",
+        "19708": "M",
+        "20133": "M",
+        "DbID11461": "M",
+        "21-405": "F",
+        "18665": "F",
+    }
+    df_study["Gender"] = df_study["sample_id"].map(gender_dict)
+
+    df_study["BMI"] = df_study.groupby("study")["BMI"].transform(
+        lambda x: x.fillna(x.mean())
+    )
+
+    df_study["Gender"] = df_study["Gender"].replace({"M": 1, "F": 0})
 
     print(proteins)
     dict_protein_data = dict(
@@ -284,15 +345,15 @@ if __name__ == "__main__":
         default="plazzi_ctl",
     )
     parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="plot the significant proteins, nothing will be plotted if False",
+    )
+    parser.add_argument(
         "--pc_comp",
         type=int,
         help="number of pca components",
         default=4,
-    )
-    parser.add_argument(
-        "--plot",
-        action="store_true",
-        help="plot the significant proteins, nothing will be plotted if False",
     )
 
     args = parser.parse_args()
