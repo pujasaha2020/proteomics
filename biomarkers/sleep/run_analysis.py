@@ -13,6 +13,91 @@ from utils.get import get_aptamers, get_box, get_debt, get_proteomics
 from utils.save import save_to_csv
 
 
+def process_results(result: pd.DataFrame) -> pd.DataFrame:
+    """Process the results of the LME models"""
+
+    first_3cols = result.columns.get_level_values(0).str.contains("Unnamed")
+    df_not_first_3cols = result.loc[:, ~first_3cols]
+    df_not_first_3cols = df_not_first_3cols.drop(df_not_first_3cols.index[0])
+    df_not_first_3cols.reset_index(drop=True, inplace=True)
+    df_first3 = result.loc[:, first_3cols]
+    df_first3.columns = df_first3.iloc[0]
+    df_first3 = df_first3.drop(df_first3.index[0])
+    df_first3 = df_first3.reset_index(drop=True)
+    multi_level_columns = [
+        ("ids", "seq_id"),
+        ("ids", "protein"),
+        ("ids", "gene"),
+    ]
+    df_first3.columns = pd.MultiIndex.from_tuples(multi_level_columns)
+    result = pd.concat([df_first3, df_not_first_3cols], axis=1)
+
+    return result
+
+
+def rerun_sleep_analysis(
+    path: Path, plot: bool, min_group_size: int, max_pvalue: float, debt_model: str
+):
+    """Rerun the mixed model analysis with significant proteins from the first run"""
+
+    box = get_box()
+    file = box.get_file(path)
+    result = pd.read_csv(file, header=[0, 1], low_memory=False)
+    result = process_results(result)
+
+    sig_proteins = result.loc[
+        (result["acute"]["pvalue_fdr"] < 0.05 or result["chronic"]["param"] > 0),
+        :,
+    ]
+    proteins_up = sig_proteins.loc[
+        (sig_proteins["acute"]["param"] > 0 or sig_proteins["chronic"]["param"] > 0),
+        ("ids", "seq_id"),
+    ]
+    proteins_down = sig_proteins.loc[
+        (sig_proteins["acute"]["param"] < 0 or sig_proteins["chronic"]["param"] < 0),
+        ("ids", "seq_id"),
+    ]
+    df = get_proteomics(box)
+    selected_columns = pd.IndexSlice["proteins", proteins_up]
+
+    df_up = df.loc[:, selected_columns]
+    selected_columns = pd.IndexSlice["proteins", proteins_down]
+    df_down = df.loc[:, selected_columns]
+
+    debts = get_debt(box)
+    aptamers = get_aptamers(box)
+    t.append(time.time())
+    print(f"Data loaded in {t[-1] - t[-2]:.2f} seconds")
+
+    # Process data
+    print("Preprocessing  up regulated protein data...")
+    data = preprocess_data(
+        df_up,
+        debts,
+        min_group_size,
+        plot,
+        debt_model,
+    )
+    t.append(time.time())
+    print(f"Data preprocessed in {t[-1] - t[-2]:.2f} seconds")
+
+    # Run the LME models
+    print("Running LME models...")
+    results = process_map(run_lme_sleep, data.values(), chunksize=10)
+    results = pd.DataFrame.from_records(results, index=data.keys())
+    results.columns = pd.MultiIndex.from_tuples(results.columns)
+    t.append(time.time())
+    print(f"LME models run in {t[-1] - t[-2]:.2f} seconds")
+
+    # Postprocess the results
+    print("Postprocessing results...")
+    results = postprocess_results(results, aptamers, max_pvalue, plot)
+    t.append(time.time())
+    print(f"Results postprocessed in {t[-1] - t[-2]:.2f} seconds")
+
+    return df
+
+
 def run_sleep_analysis(
     path: Path, plot: bool, min_group_size: int, max_pvalue: float, debt_model: str
 ) -> pd.DataFrame:
@@ -78,6 +163,9 @@ def run_sleep_analysis(
         t.append(time.time())
         print(f"Results saved in {t[-1] - t[-2]:.2f} seconds")
 
+    # rerun the mixed effect model with the significant proteins in "Acute" and "Chronic" groups
+    results = rerun_sleep_analysis(path, df, min_group_size, max_pvalue)
+
     t.append(time.time())
     print(80 * "=")
     print(f"Sleep analysis done in {t[-1] - t[0]:.2f} seconds")
@@ -90,11 +178,11 @@ if __name__ == "__main__":
     # Parse the arguments
     parser = argparse.ArgumentParser(description="Run sleep biomarker analysis.")
     parser.add_argument(
-        "--path", #proteomics/results/sleepdebt/sleepdebt_biomarker
+        "--path",  # proteomics/results/sleepdebt/sleepdebt_biomarker
         type=str,
         default="",
         help="Path where results are saved. If not specified, nothing is saved.",
-    ) 
+    )
     parser.add_argument(
         "--plot",
         action="store_true",
