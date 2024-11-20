@@ -8,16 +8,31 @@ import statsmodels.api as sm
 from scipy.stats import mannwhitneyu, shapiro
 
 
-def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str) -> dict:
+def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str, merge: bool) -> dict:
     """Run a linear regression for a protein"""
 
     # place the group you want to make reference in the first position
     studies = list(data["study"].unique())
     studies.remove(reference)
     studies.insert(0, reference)
-    data["study"] = pd.Categorical(data["study"], categories=studies, ordered=False)
+    if merge:
+        # Groups to merge
+        groups_to_merge = studies[1:]
+        new_group_name = "Merged"
 
-    data_dummies = pd.get_dummies(data, columns=["study"], drop_first=True)
+        # Merge groups
+        data["study"] = data["study"].apply(
+            lambda x: new_group_name if x in groups_to_merge else x
+        )
+        data["study"] = pd.Categorical(
+            data["study"], categories=[reference, "Merged"], ordered=False
+        )
+
+        data_dummies = pd.get_dummies(data, columns=["study"], drop_first=True)
+
+    else:
+        data["study"] = pd.Categorical(data["study"], categories=studies, ordered=False)
+        data_dummies = pd.get_dummies(data, columns=["study"], drop_first=True)
     for col in data_dummies.columns:
         if col.startswith("study"):
             data_dummies[col] = data_dummies[col].astype(int)

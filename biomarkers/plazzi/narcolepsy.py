@@ -194,7 +194,9 @@ def compare_groups(results: pd.DataFrame, test_grp: str) -> pd.DataFrame:
     """Compare the groups"""
     results.sort_values(by=[(test_grp, "pvalue_fdr")], inplace=True, ascending=True)
     results.reset_index(drop=True, inplace=True)
-    results = results[["ids", "target", "prot", test_grp, "dist"]]
+    results = results[
+        ["ids", "target", "prot", test_grp, "dist", "Age", "Gender", "BMI"]
+    ]
     # results = results.loc[results[(test_grp, "pvalue_fdr")] < 0.05, :]
     return results
 
@@ -253,6 +255,7 @@ def run_analysis(
     reference: str,
     plot: bool,
     pc_comp: int,
+    merge: bool,
 ) -> None:
     """Run the analysis"""
     print("running analysis using reference:", reference)
@@ -312,7 +315,7 @@ def run_analysis(
     print("number of proteins", dict(list(dict_protein_data.items())[:3]))
 
     # Prepare a list of tuples with data and reference
-    run_lm_sleep_with_ref = partial(run_lm_sleep, reference=reference)
+    run_lm_sleep_with_ref = partial(run_lm_sleep, reference=reference, merge=merge)
 
     results = process_map(
         run_lm_sleep_with_ref,
@@ -354,6 +357,11 @@ if __name__ == "__main__":
         type=int,
         help="number of pca components",
         default=4,
+    )
+    parser.add_argument(
+        "--merge",
+        action="store_true",
+        help="merge all groups except reference.",
     )
 
     args = parser.parse_args()

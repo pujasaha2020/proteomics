@@ -13,7 +13,11 @@ from utils.save import save_to_csv
 
 
 def run_sleep_analysis(
-    path: Path, plot: bool, min_group_size: int, max_pvalue: float, debt_model: str
+    path: Path,
+    plot: bool,
+    min_group_size: int,
+    max_pvalue: float,
+    debt_model: str,
 ) -> pd.DataFrame:
     """Identify sleep biomarker with linear mixed effect models"""
 
