@@ -21,7 +21,6 @@ warnings.filterwarnings("ignore", category=sm.tools.sm_exceptions.ConvergenceWar
 
 def preprocess_data(
     df: pd.DataFrame,
-    debts: pd.DataFrame,
     min_group_size: int,
     plot: bool,
     debt_model: str,
@@ -40,22 +39,7 @@ def preprocess_data(
     drop_samples_without_proteins(df)
     log_normalize_proteins(df)
     df = df.droplevel(0, axis=1)
-    selected_columns = debts.columns.get_level_values(0).unique()
-    print(selected_columns)
-    if debt_model == "adenosine":
-        selected_columns = selected_columns[selected_columns != "unified"]
-    elif debt_model == "unified":
-        selected_columns = selected_columns[selected_columns != "adenosine"]
-    else:
-        raise ValueError("debt_model should be 'adenosine' or 'unified'")
-    debts_model = debts.loc[:, selected_columns]
-    debts_model = debts_model.droplevel(0, axis=1)
-    print(debts_model.head(5))
-    df = df.merge(
-        debts_model[["sample_id", "acute", "chronic"]], on="sample_id", how="left"
-    )
     df["sleep"] = df.state.map({"sleep": 1.0, "wake": 0.0})
-    df.dropna(subset=["acute", "chronic", "sleep"], how="any", inplace=True)
     if plot:
         plot_sample_per_subject_per_study(df)
     non_significant = df.groupby("subject").size() < min_group_size
@@ -64,32 +48,12 @@ def preprocess_data(
     df.drop(df.loc[df["subject"].map(non_significant)].index, inplace=True)
     df.dropna(axis=1, how="all", inplace=True)
     proteins = list(set(proteins).intersection(df.columns))
-    return dict(map(lambda p: prepare_lme_data(p, df), proteins))
+    return dict(map(lambda p: prepare_lme_data(p, df, debt_model), proteins[0:100]))
 
 
-def prepare_pca_data(df: pd.DataFrame, protein: str) -> pd.DataFrame:
-    """Prepare the data for PCA"""
-    proteins_columns = df.filter(like="-").columns
-    columns_to_drop = df.columns.difference(proteins_columns)
-    columns_to_drop = [protein, *columns_to_drop]
-
-    x_data = df.drop(
-        columns_to_drop, axis=1
-    ).dropna()  # Features (protein expressions, without the
-    # protein of interest), rows with missing values are removed
-
-    scaler = StandardScaler()
-    x_scaled = scaler.fit_transform(x_data)
-    pca = PCA(n_components=4)  # We want to reduce to 4 dimensions
-    pcs = pca.fit_transform(x_scaled)
-    pcs_df = pd.DataFrame(
-        data=pcs, columns=[f"PC{i}" for i in range(1, 5)], index=x_data.index
-    )
-    df_with_pcs = df.merge(pcs_df, left_index=True, right_index=True, how="left")
-    return df_with_pcs
-
-
-def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]:
+def prepare_lme_data(
+    protein: str, df: pd.DataFrame, debt_model: str
+) -> tuple[str, pd.DataFrame]:
     """
     Prepare the data for the LME model
     - Drop missing values
@@ -97,20 +61,37 @@ def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]
     - Rename the protein column
     - Check if the fluid type is consistent
     """
-    # df = prepare_pca_data(df, protein)
-    # pcs = [f"PC{i}" for i in range(1, 5)]
-    relevant_cols = [
-        protein,
-        "acute",
-        "chronic",
-        "sleep",
-        "study",
-        "subject",
-        "fluid",
-    ]
+
+    if debt_model == "adenosine":
+        relevant_cols = [
+            protein,
+            "acute_adenosine",
+            "chronic_adenosine",
+            "sleep",
+            "study",
+            "subject",
+            "fluid",
+        ]
+    else:
+        relevant_cols = [
+            protein,
+            "acute_unified",
+            "chronic_unified",
+            "sleep",
+            "study",
+            "subject",
+            "fluid",
+        ]
     data = df[relevant_cols].dropna(subset=relevant_cols, how="any")
     data.reset_index(drop=True, inplace=True)
-    data.rename(columns={protein: "log_protein"}, inplace=True)
+    data.rename(
+        columns={
+            protein: "log_protein",
+            f"acute_{debt_model}": "acute",
+            f"chronic_{debt_model}": "chronic",
+        },
+        inplace=True,
+    )
     plasma_check = data.groupby("subject")["fluid"].nunique() == 1
     if not plasma_check.all():
         raise ValueError("A subject has different fluid type")

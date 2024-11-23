@@ -12,10 +12,10 @@ from utils.process import preprocess_proteomics
 
 # Default paths
 PATH = {
-    "proteomics": Path("archives/data/proteomics_091224_AS.csv"),
+    "proteomics": Path("archives/data/proteomics_101724_AS.csv"),
     "aptamers": Path("archives/data/aptamers.csv"),
     "debt": Path(
-        "archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/"
+        "archives/sleepdebt/dataset_with_sleepdebt_at_clocktime/"
         + "data_091224_AS_with_sleep_debt_2024-10-04_PS.csv"
     ),
     "protocols": Path("archives/sleepdebt/sleepdebt_data/yaml_files/protocols.yaml"),
