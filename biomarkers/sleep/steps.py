@@ -2,10 +2,9 @@
 
 import warnings
 
+import numpy as np
 import pandas as pd
 import statsmodels.api as sm  # type: ignore
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 from statsmodels.stats.multitest import multipletests  # type: ignore
 
 from biomarkers.sleep.figures import (
@@ -23,7 +22,6 @@ def preprocess_data(
     df: pd.DataFrame,
     min_group_size: int,
     plot: bool,
-    debt_model: str,
 ) -> dict[str, pd.DataFrame]:
     """
     Preprocess the data for the LME model:
@@ -40,6 +38,8 @@ def preprocess_data(
     log_normalize_proteins(df)
     df = df.droplevel(0, axis=1)
     df["sleep"] = df.state.map({"sleep": 1.0, "wake": 0.0})
+    df.dropna(subset=["acute", "chronic", "sleep"], how="any", inplace=True)
+
     if plot:
         plot_sample_per_subject_per_study(df)
     non_significant = df.groupby("subject").size() < min_group_size
@@ -48,12 +48,10 @@ def preprocess_data(
     df.drop(df.loc[df["subject"].map(non_significant)].index, inplace=True)
     df.dropna(axis=1, how="all", inplace=True)
     proteins = list(set(proteins).intersection(df.columns))
-    return dict(map(lambda p: prepare_lme_data(p, df, debt_model), proteins[0:100]))
+    return dict(map(lambda p: prepare_lme_data(p, df), proteins))
 
 
-def prepare_lme_data(
-    protein: str, df: pd.DataFrame, debt_model: str
-) -> tuple[str, pd.DataFrame]:
+def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]:
     """
     Prepare the data for the LME model
     - Drop missing values
@@ -62,44 +60,24 @@ def prepare_lme_data(
     - Check if the fluid type is consistent
     """
 
-    if debt_model == "adenosine":
-        relevant_cols = [
-            protein,
-            "acute_adenosine",
-            "chronic_adenosine",
-            "sleep",
-            "study",
-            "subject",
-            "fluid",
-        ]
-    else:
-        relevant_cols = [
-            protein,
-            "acute_unified",
-            "chronic_unified",
-            "sleep",
-            "study",
-            "subject",
-            "fluid",
-        ]
+    relevant_cols = [
+        protein,
+        "acute",
+        "chronic",
+        "sleep",
+        "study",
+        "subject",
+        "fluid",
+    ]
     data = df[relevant_cols].dropna(subset=relevant_cols, how="any")
     data.reset_index(drop=True, inplace=True)
-    data.rename(
-        columns={
-            protein: "log_protein",
-            f"acute_{debt_model}": "acute",
-            f"chronic_{debt_model}": "chronic",
-        },
-        inplace=True,
-    )
+    data.rename(columns={protein: "log_protein"}, inplace=True)
     plasma_check = data.groupby("subject")["fluid"].nunique() == 1
     if not plasma_check.all():
         raise ValueError("A subject has different fluid type")
-    # print("before", data.shape)
     # remove forced dyschrony samples
     data = data.loc[data["study"] != "mppg_fd"]
     # print("after", data.shape)
-
     return (protein, data)
 
 
@@ -125,6 +103,7 @@ def run_lme_sleep(data: pd.DataFrame) -> dict:
         results[(key, "pvalue")] = model.pvalues[key]
         results[(key, "[0.025")] = model.conf_int().loc[key, 0]
         results[(key, "0.975]")] = model.conf_int().loc[key, 1]
+
     return results
 
 

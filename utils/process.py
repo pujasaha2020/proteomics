@@ -6,8 +6,26 @@ import pandas as pd
 
 def preprocess_proteomics(df: pd.DataFrame, steps: list[dict]):
     """Preprocess proteomics data."""
+    print("Preprocessing proteomics data")
+    print(steps)
     for step in steps:
         step["fun"](df, **step["args"])
+
+
+def pick_debt(df: pd.DataFrame, model: str):
+    """Preprocess sleep debt data."""
+    print("Preprocessing sleep debt data")
+    debt = [
+        col
+        for col in df.columns
+        if ((col[0] == "sleep_debts") and (model not in col[1]))
+    ]
+    df.drop(columns=debt, inplace=True)
+    df.rename(
+        columns={f"acute_{model}": "acute", f"chronic_{model}": "chronic"},
+        level=1,
+        inplace=True,
+    )
 
 
 def drop_samples_without_proteins(df: pd.DataFrame):

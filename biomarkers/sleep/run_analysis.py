@@ -10,6 +10,7 @@ from tqdm.contrib.concurrent import process_map
 from biomarkers.pathways import run_pathway_analysis
 from biomarkers.sleep.steps import postprocess_results, preprocess_data, run_lme_sleep
 from utils.get import get_aptamers, get_box, get_proteomics
+from utils.process import pick_debt
 from utils.save import save_to_csv
 
 
@@ -26,19 +27,22 @@ def run_sleep_analysis(
     print("Getting data...")
     t = [time.time()]
     box = get_box()
-    df = get_proteomics(box)
+    df = get_proteomics(
+        box,
+        preprocessing=[
+            {
+                "fun": pick_debt,
+                "args": {"model": debt_model},
+            }
+        ],
+    )
     aptamers = get_aptamers(box)
     t.append(time.time())
     print(f"Data loaded in {t[-1] - t[-2]:.2f} seconds")
 
     # Process data
     print("Preprocessing data...")
-    data = preprocess_data(
-        df,
-        min_group_size,
-        plot,
-        debt_model,
-    )
+    data = preprocess_data(df, min_group_size, plot)
     t.append(time.time())
     print(f"Data preprocessed in {t[-1] - t[-2]:.2f} seconds")
 
@@ -61,6 +65,8 @@ def run_sleep_analysis(
     genes = {}
     for key in ["acute", "chronic", "sleep"]:
         sig = df[(key, "pvalue_fdr")] < max_pvalue
+        # up = sig[(key, "beta")] > 0
+        # down = sig[(key, "beta")] < 0
         genes[key] = list(results[sig].index.get_level_values("gene"))
     background = results.index.get_level_values("gene")
     pathways = run_pathway_analysis(genes, background, max_pvalue)

@@ -18,6 +18,9 @@ def run_pathway_analysis(
         significance_threshold_method="fdr",
         user_threshold=max_pvalue,
         background=background,
-        sources=["GO:BP", "REAC", "KEGG"],
+        sources=["GO:BP", "GO:MF", "GO:CC"],  # "REAC", "KEGG"],
+        # use only GO:BP,
+        # GO:CC , GO:MF : molecular function with up and down regulated,
+        # plot for all pathways up and down regulated
     )
     return enrichment_results

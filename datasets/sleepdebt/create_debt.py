@@ -73,7 +73,7 @@ def get_time_since_transition(df: pd.DataFrame) -> pd.DataFrame:
     creating "time since sleep -> awake" and "time since awake -> sleep" csv
     """
 
-    # first get "time since awake -> sleep"
+    # first get "time since sleep -> awake"
     transitions = df[(df["status"] == "sleep") & (df["status"].shift(1) == "awake")]
     transitions.reset_index(drop=True, inplace=True)
     # Initialize a list to store time differences
@@ -97,7 +97,7 @@ def get_time_since_transition(df: pd.DataFrame) -> pd.DataFrame:
     # Add time differences as a new column in the data DataFrame
     df["time_since_last_sleep"] = time_diffs
 
-    # first get "time since  sleep -> awake"
+    # first get "time since  awake -> sleep"
     first_row = df.loc[[0], ["time", "status"]]
     transitions = df[(df["status"] == "awake") & (df["status"].shift(1) == "sleep")]
     transitions = pd.concat([first_row, transitions]).reset_index(drop=True)
