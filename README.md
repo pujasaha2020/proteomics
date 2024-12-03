@@ -11,7 +11,7 @@ This repository documents the project and saves scripts for data construction an
 Clone the repository:
 
 ```shell
-git clone https://github.com/AdrienSpecht/proteomics
+git clone https://github.com/pujasaha2020/proteomics
 ```
 
 Run setup.sh:
