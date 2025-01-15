@@ -242,7 +242,9 @@ def get_dinges_zeitzer(
 
 
 def fill_count_dict(dict_count: dict, name: str, sub_sample: list, blood_time: list):
-    """fill the count dictionary with study, subject count, sample count and blood collection time"""
+    """fill the count dictionary with study, subject count,
+    sample count and blood collection time
+    """
 
     dict_count["study"].append(name)
     dict_count["subject_count"].append(sub_sample[0])

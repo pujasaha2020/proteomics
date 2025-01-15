@@ -9,7 +9,6 @@ This fact is taken care of while merging the sleep debt data with the proteomics
 
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from box.manager import BoxManager

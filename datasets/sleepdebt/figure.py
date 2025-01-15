@@ -145,7 +145,7 @@ def plot_debt_vs_time_unified(
         linestyle="--",
     )
     ax.grid()
-    ax.set_xlabel("Time (days)", fontsize=12)
+
     ax.set_ylabel("Sleep Homeostat values % (impairment \u2192)", fontsize=10)
 
     substrs = {"5H", "56H", "8H", "10H", "FD"}

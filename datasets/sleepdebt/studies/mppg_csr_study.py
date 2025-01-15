@@ -7,7 +7,6 @@ This fact is taken care of while merging the sleep debt data with the proteomics
 
 # pylint: disable=R0801
 
-import io
 from pathlib import Path
 
 import pandas as pd

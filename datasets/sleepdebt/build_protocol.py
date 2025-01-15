@@ -395,5 +395,5 @@ if __name__ == "__main__":
     save_to_yaml(
         box,
         existing_protocols,
-        Path("archives/sleepdebt/yaml_files/updated_protocol.yaml"),
+        Path("archives/sleepdebt/yaml_files/updated_protocols.yaml"),
     )

@@ -52,7 +52,7 @@ def create_debts(
     elif model == "unified":
         df = unified.calculate_debt(pro)
         df = unified.define_acute_chronic(df, pro.definition)
-        path = BOX_PATH["csvs_unified"] / f"{name}.csv"
+        path = BOX_PATH["csvs_unified"] / f"{name}_{script_params["defi"]}.csv"
 
     else:
         raise ValueError("Invalid model type")
@@ -118,17 +118,15 @@ def plot_debts(
 
     if model == "adenosine":
         ax, ax2 = plot_debt_vs_time_adenosine(pro, df, ax, protocols)
-
+        return ax, ax2
     elif model == "unified":
-        ax, ax2 = plot_debt_vs_time_unified(pro, df, protocols, ax)
-
+        ax = plot_debt_vs_time_unified(pro, df, protocols, ax)
+        return ax
     else:
         raise ValueError("Invalid model type")
 
     # ax.set_xlabel("Time (days)", fontsize=16)
     # ax.set_ylabel(axis_title, fontsize=14)
-
-    return ax, ax2
 
 
 def run_protocols(
@@ -150,32 +148,32 @@ def run_protocols(
         "faa_csrn",
         "faa_csrd",
         "zeitzer",
-        "mppg_ctl_10H_3547HY",
-        "mppg_ctl_10H_3436HY",
-        "mppg_ctl_10H_3369HY42",
-        "mppg_ctl_10H_3552HY",
-        "mppg_ctl_8H_3776HY",
-        "mppg_ctl_8H_3789HY",
-        "mppg_ctl_8H_3547HY82",
-        "mppg_ctl_8H_3812HY83",
-        "mppg_csr_5H_3794HY",
-        "mppg_csr_5H_3776HY82",
-        "mppg_csr_5H_3665HY82",
-        "mppg_csr_5H_29W4HY83",
-        "mppg_csr_5H_3828HY",
-        "mppg_csr_56H_3608HY",
-        "mppg_csr_56H_3445HY",
-        "mppg_csr_56H_3665HY",
-        "mppg_csr_56H_3619HY",
-        "mppg_fd_3453HY73",
-        "mppg_fd_2056HY75",
-        "mppg_fd_3552HY62",
-        "mppg_fd_26P2HY83",
-        "mppg_fd_3453HY52",
-        "mppg_fd_3536HY83",
-        "mppg_fd_3536HY52",
-        "mppg_fd_3552HY73",
-        "mppg_fd_3557HY61",
+        #     "mppg_ctl_10H_3547HY",
+        #     "mppg_ctl_10H_3436HY",
+        #     "mppg_ctl_10H_3369HY42",
+        #     "mppg_ctl_10H_3552HY",
+        #     "mppg_ctl_8H_3776HY",
+        #     "mppg_ctl_8H_3789HY",
+        #     "mppg_ctl_8H_3547HY82",
+        #     "mppg_ctl_8H_3812HY83",
+        #     "mppg_csr_5H_3794HY",
+        #     "mppg_csr_5H_3776HY82",
+        #     "mppg_csr_5H_3665HY82",
+        #     "mppg_csr_5H_29W4HY83",
+        #     "mppg_csr_5H_3828HY",
+        #     "mppg_csr_56H_3608HY",
+        #     "mppg_csr_56H_3445HY",
+        #     "mppg_csr_56H_3665HY",
+        #     "mppg_csr_56H_3619HY",
+        #     "mppg_fd_3453HY73",
+        #     "mppg_fd_2056HY75",
+        #     "mppg_fd_3552HY62",
+        #     "mppg_fd_26P2HY83",
+        #     "mppg_fd_3453HY52",
+        #     "mppg_fd_3536HY83",
+        #     "mppg_fd_3536HY52",
+        #     "mppg_fd_3552HY73",
+        #     "mppg_fd_3557HY61",
     ]
 
     prot_list = make_protocol_list(protocols_for_debt)
@@ -212,12 +210,12 @@ def plot_selected_protocols(
         "faa_tsd",
         "faa_csrn",
         "faa_csrd",
-        "mppg_ctl_10H_3547HY",
-        "mppg_ctl_8H_3776HY",
-        "mppg_csr_5H_3794HY",
-        "mppg_csr_56H_3608HY",
-        "mppg_fd_3453HY73",
-        "mppg_fd_2056HY75",
+        # "mppg_ctl_10H_3547HY",
+        # "mppg_ctl_8H_3776HY",
+        # "mppg_csr_5H_3794HY",
+        # "mppg_csr_56H_3608HY",
+        # "mppg_fd_3453HY73",
+        # "mppg_fd_2056HY75",
     ]
 
     # protocol_lists = make_protocol_list(protocols_to_plot)
@@ -238,30 +236,46 @@ def plot_selected_protocols(
             t_ae_sl = make_sleep_wake_tuple(protocols, protocol.name)
             protocol.fill(t_ae_sl[0], t_ae_sl[1])
             protocol.time_sequence()
-
-            ax, ax2 = plot_debts(
-                df_protocols[protocol.name],
-                protocol,
-                protocols,
-                script_params,
-                axes[idx, 0],
-            )
-            ax.set_ylim(
-                [
-                    global_min_max["chronic_min"],
-                    global_min_max["chronic_max"],
-                ]
-            )
-            ax.set_yticks([])
-            ax.set_yticklabels([])
-            ax2.set_ylim(
-                [
-                    global_min_max["acute_min"] - 50,
-                    global_min_max["acute_max"] + 50,
-                ]
-            )
-            ax2.set_yticks([])
-            ax2.set_yticklabels([])
+            if script_params["model"] == "adenosine":
+                ax, ax2 = plot_debts(
+                    df_protocols[protocol.name],
+                    protocol,
+                    protocols,
+                    script_params,
+                    axes[idx, 0],
+                )
+                ax.set_ylim(
+                    [
+                        global_min_max["chronic_min"],
+                        global_min_max["chronic_max"],
+                    ]
+                )
+                ax.set_yticks([])
+                ax.set_yticklabels([])
+                ax2.set_ylim(
+                    [
+                        global_min_max["acute_min"] - 50,
+                        global_min_max["acute_max"] + 50,
+                    ]
+                )
+                ax2.set_yticks([])
+                ax2.set_yticklabels([])
+            else:
+                ax = plot_debts(
+                    df_protocols[protocol.name],
+                    protocol,
+                    protocols,
+                    script_params,
+                    axes[idx, 0],
+                )
+                ax.set_ylim(
+                    [
+                        global_min_max["acute_min"] - 50,
+                        global_min_max["acute_max"] + 50,
+                    ]
+                )
+                ax.set_yticks([])
+                ax.set_yticklabels([])
             ax.set_title(protocols["protocols"][protocol.name]["title"], fontsize=14)
 
         ax.set_xlabel("Time (days)", fontsize=16)
@@ -274,11 +288,17 @@ def plot_selected_protocols(
             (l for h, l in handles_labels), []
         )
         """
-        handles, labels = sum(
-            (ax.get_legend_handles_labels() for ax in [axes[0, 0], ax2]), start=([], [])
-        )
+        if script_params["model"] == "adenosine":
+            handles, labels = sum(
+                (ax.get_legend_handles_labels() for ax in [axes[0, 0], ax2]),
+                start=([], []),
+            )
 
-        fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=14)
+            fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=14)
+
+        else:
+            handles, labels = ax.get_legend_handles_labels()
+            fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=14)
         file = io.BytesIO()
         fig.savefig(file)
         file.seek(0)
