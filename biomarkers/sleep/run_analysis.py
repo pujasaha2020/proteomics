@@ -48,23 +48,49 @@ def run_sleep_analysis(
 
     # Run the LME models
     print("Running LME models...")
-    results = process_map(run_lme_sleep, data.values(), chunksize=10)
-    results = pd.DataFrame.from_records(results, index=data.keys())
-    results.columns = pd.MultiIndex.from_tuples(results.columns)
-    t.append(time.time())
-    print(f"LME models run in {t[-1] - t[-2]:.2f} seconds")
+    results = {}
+    for key, value in data.items():
+        print(f"Running LME model for {key}...")
+        results[key] = run_lme_sleep(value)
+    results_df = pd.DataFrame.from_dict(results, orient="index")
+    multilevel_columns = [
+        ("infos", "#samples"),
+        ("infos", "#subjects"),
+        ("infos", "converge"),
+        ("infos", "singularity"),
+        ("infos", "group_var"),
+        ("acute", "param"),
+        ("acute", "pvalue"),
+        ("acute", "[0.025"),
+        ("acute", "0.975]"),
+        ("chronic", "param"),
+        ("chronic", "pvalue"),
+        ("chronic", "[0.025"),
+        ("chronic", "0.975]"),
+        ("sleep", "param"),
+        ("sleep", "pvalue"),
+        ("sleep", "[0.025"),
+        ("sleep", "0.975]"),
+    ]
+    # results = process_map(run_lme_sleep, data.values(), chunksize=10)
+    # results = pd.DataFrame.from_records(results, index=data.keys())
+    results_df.columns = pd.MultiIndex.from_tuples(multilevel_columns)
+    save_to_csv(box, results_df, path, index=True)
+    # t.append(time.time())
+    # print(f"LME models run in {t[-1] - t[-2]:.2f} seconds")
 
     # Postprocess the results
     print("Postprocessing results...")
-    results = postprocess_results(results, aptamers, max_pvalue, plot)
+    results = postprocess_results(results_df, aptamers, max_pvalue, plot)
     t.append(time.time())
     print(f"Results postprocessed in {t[-1] - t[-2]:.2f} seconds")
 
     # Run the pathway analysis
+    """
     print("Running pathway analysis...")
     genes = {}
     for key in ["acute", "chronic", "sleep"]:
-        sig = df[(key, "pvalue_fdr")] < max_pvalue
+        sig = results[(key, "pvalue_fdr")] < max_pvalue
         # up = sig[(key, "beta")] > 0
         # down = sig[(key, "beta")] < 0
         genes[key] = list(results[sig].index.get_level_values("gene"))
@@ -72,13 +98,13 @@ def run_sleep_analysis(
     pathways = run_pathway_analysis(genes, background, max_pvalue)
     t.append(time.time())
     print(f"Pathway analysis done in {t[-1] - t[-2]:.2f} seconds")
-
+    """
     # Save the results
     if path.suffix:
         print(f"Saving results to {path}...")
         save_to_csv(box, results, path, index=True)
-        pathway_path = path.parent / f"{path.stem}_pathways.csv"
-        save_to_csv(box, pathways, pathway_path)
+        # pathway_path = path.parent / f"{path.stem}_pathways.csv"
+        # save_to_csv(box, pathways, pathway_path)
         t.append(time.time())
         print(f"Results saved in {t[-1] - t[-2]:.2f} seconds")
 

@@ -24,6 +24,6 @@ def save_to_yaml(box: "BoxManager", data: dict, path: Path, **kwargs):
     if path.suffix not in [".yaml", ".yml"]:
         raise ValueError(f"{path} is not a YAML file.")
     file = io.StringIO()
-    yaml.dump(data, file, **kwargs)
+    yaml.dump(data, file, **kwargs, default_flow_style=False, sort_keys=False)
     file.seek(0)
     box.save_file(file, path)

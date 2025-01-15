@@ -23,7 +23,7 @@ from utils.get import get_box, get_ids_profile_drop_missing_proteins, get_proteo
 from utils.save import save_to_csv
 
 BOX_PATH = {
-    "proteomics": Path("archives/data/proteomics_091224_AS.csv"),
+    "proteomics": Path("archives/data/proteomics_121124_AS.csv"),
     "csvs": Path("archives/sleepdebt/adenosine/"),
     "csvs_unified": Path("archives/sleepdebt/unified/"),
     "csv_final": Path("archives/sleepdebt/dataset_with_sleepdebt_at_clocktime/"),
@@ -43,8 +43,10 @@ if __name__ == "__main__":
         "blood_time": [],
     }
 
-    df_ids_prof_no_proteins = get_ids_profile_drop_missing_proteins(box)
-    df = get_proteomics(box)
+    df_ids_prof_no_proteins = get_ids_profile_drop_missing_proteins(
+        box, BOX_PATH["proteomics"]
+    )
+    df = get_proteomics(box, BOX_PATH["proteomics"])
 
     # adenosine model
 
@@ -74,6 +76,7 @@ if __name__ == "__main__":
         ("profile", "mins_from_admission"),
         ("profile", "admission_date_time"),
     ]
+
     # Drop the specified columns
     df_sleep_debt_adenosine = df_sleep_debt_adenosine.drop(columns=columns_to_drop)
 
@@ -111,8 +114,8 @@ if __name__ == "__main__":
         ("profile", "adm_time"),
         ("profile", "mins_from_admission"),
         ("profile", "admission_date_time"),
-        ("transitions", "time_since_last_sleep"),
-        ("transitions", "time_since_last_awake"),
+        ("transitions", "waking_up"),
+        ("transitions", "falling_asleep"),
     ]
     # Drop the specified columns
     df_sleep_debt_unified = df_sleep_debt_unified.drop(columns=columns_to_drop)
@@ -121,6 +124,7 @@ if __name__ == "__main__":
         columns={"Acute": "acute", "Chronic": "chronic"}, level=1, inplace=True
     )
     print("shape of all samples in unified model: ", df_sleep_debt_unified.shape)
+    print(df_sleep_debt_unified.columns)
 
     # Extract level 0 and level 1 column names from both DataFrames
     columns_level_0_adenosine = df_sleep_debt_adenosine.columns.get_level_values(0)
@@ -159,7 +163,7 @@ if __name__ == "__main__":
         how="inner",
     )
 
-    print("shape of all samples: ", df_proteomics_with_sleep_debt.shape)
+    # print("shape of all samples: ", df_proteomics_with_sleep_debt.shape)
     today = date.today()
     input_version = BOX_PATH["proteomics"].stem
     split_string = input_version.split("_")

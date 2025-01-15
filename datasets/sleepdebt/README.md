@@ -36,7 +36,7 @@ No need to provide "--defi" and "--model" for adenosine model.
 To run unified model:
 
 ```shell
-python datasets/sleepdebt/create_debt.py --model "unified" --definition 2 --plot --zeitzer
+python datasets/sleepdebt/create_debt.py --model "unified" --defi  2 --plot --zeitzer
 ```
 
 use "--plot" if you want to plot the sleep debt curves.
@@ -84,3 +84,11 @@ Then update that in box `protocol.yaml`-->`title` line.
 To understand how the sleepdebt at specific time is extracted for each protocol, please read the documentation in `day5_study.py`. Pretty much same format is followed for other studies.
 
 For question, comments and bug please contact Puja Saha @ puja2023@stanford.edu .
+
+## Need to updated protocol or define new protocol??
+
+if you need to update your protocol yaml files, you can use this scripts:
+
+`archives/sleepdebt/sleepdebt_data/build_protocol.py`
+
+detail can be found inside the script. You can add new functions here to generate new protocol or sleep/wake schedule.

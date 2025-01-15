@@ -23,15 +23,15 @@ def get_mppg_csr(
     it includes both sleep time of 5H and 5.6H
     """
     sub_admission_time = {
-        "3794": "5:02",  # 5H
+        "3794": "6:02",  # "5:02",  # 5H
         "3776": "5:28",  # 5H
-        "3665": "6:33",  # 5H time. appears in both
+        "3665": "7:33",  # "6:33",  # 5H time. appears in both
         # 5 H and 5.6 H. Will be corrected for 5.6H.
-        "29W4": "8:01",  # 5H
-        "3828": "7:20",  # 5H
-        "3608": "9:04",  # 5.6H
+        "29W4": "9:01",  # "8:01",  # 5H
+        "3828": "8:20",  # "7:20",  # 5H
+        "3608": "9:04",  # "9:04",  # 5.6H
         "3619": "9:01",  # 5.6H
-        "3445": "6:10",  # 5.6H
+        "3445": "6:10",  # "6:10",  # 5.6H
     }
 
     df_id_admit_time = pd.DataFrame(
@@ -54,7 +54,7 @@ def get_mppg_csr(
     )
     print("data dimension after merging admission time", protemics_data1.shape)
 
-    # correcting the admission "time" for 3547 8 TIB subject
+    # correcting the admission "time" for 3665 5.6H TIB subject
     protemics_data1.loc[
         (protemics_data1[("ids", "experiment")] == "3665HY_1")
         | (protemics_data1[("ids", "experiment")] == "3665HY_2"),
@@ -62,7 +62,7 @@ def get_mppg_csr(
     ] = "7:02"
 
     # Adding date and admission_date_time columns
-    protemics_data1[("profile", "date")] = "2022-01-01"
+    protemics_data1[("profile", "date")] = "2021-12-28"  # "2022-01-01"
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
     )
@@ -96,109 +96,59 @@ def get_mppg_csr(
         ("profile", "mins_from_admission")
     ].astype(int)
 
-    # Reading sleep debt data
-    file_5h = box.get_file(path / "mppg_tsd_5H.csv")
+    exp_id_5h = ["3794HY", "3776HY82", "3665HY82", "29W4HY83", "3828HY"]
+    exp_id_56h = ["3608HY", "3445HY", "3665HY", "3619HY"]
 
-    file_56h = box.get_file(path / "mppg_tsd_5.6H.csv")
-    id_5h = ["29W4", "3665", "3776", "3794", "3828"]
-    id_56h = ["3445", "3608", "3665", "3619"]
-
-    df_5h = apply_debt_5h(file_5h, protemics_data1, id_5h)
-    df_56h = apply_debt_56h(file_56h, protemics_data1, id_56h)
-
-    mppg_csr_sleepdebt = pd.concat([df_5h, df_56h])
-    print("total shape after merging sleepdebt ", mppg_csr_sleepdebt.shape)
-    return mppg_csr_sleepdebt
+    debt_5h = merge_debt(protemics_data1, box, path, exp_id_5h, protocol="5H")
+    debt_56h = merge_debt(protemics_data1, box, path, exp_id_56h, protocol="56H")
+    mppg_ctl_sleepdebt = pd.concat([debt_5h, debt_56h])
+    print("data dimension after merging sleep debt ", mppg_ctl_sleepdebt.shape)
+    return mppg_ctl_sleepdebt
 
 
-def apply_debt_5h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataFrame:
-    """This function applies the sleep debt for 5H of sleep time"""
-    df_debt = pd.read_csv(file)
-    df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
+def merge_debt(
+    df: pd.DataFrame, box: BoxManager, path: Path, ids: list, protocol: str
+) -> pd.DataFrame:
+    """This function merges the sleep debt data with the proteomics data
+    for the given protocol"""
+    empty_df = pd.DataFrame()
 
-    multi_level_columns = [
-        ("profile", "time"),
-        ("debt", "Chronic"),
-        ("debt", "Acute"),
-        ("debt", "status"),
-        ("transitions", "time_since_last_sleep"),
-        ("transitions", "time_since_last_awake"),
-    ]
-    df_debt.columns = pd.MultiIndex.from_tuples(multi_level_columns)
+    for key in ids:
+        print(key)
+        file = box.get_file(path / f"mppg_csr_{protocol}_{key}.csv")
+        sleep_debt_fd = pd.read_csv(file)
+        sleep_debt_fd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
-    # Renaming column
-    df_debt.columns = pd.MultiIndex.from_tuples(
-        df_debt.set_axis(df_debt.columns.values, axis=1).rename(
-            columns={("profile", "time"): ("profile", "mins_from_admission")}
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
+        sleep_debt_fd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
+
+        # Renaming column
+        sleep_debt_fd.columns = pd.MultiIndex.from_tuples(
+            sleep_debt_fd.set_axis(sleep_debt_fd.columns.values, axis=1).rename(
+                columns={("profile", "time"): ("profile", "mins_from_admission")}
+            )
         )
-    )
+        # filtering the subject specific data for before merging, as sleepdebt
+        #  are different for different subject
+        # because their sleep-wake schedule is little different although
+        # they are in same protocol
+        filtered_df = df[df[("ids", "experiment")].str.split("_").str[0] == key]
 
-    protemics_5h = df[df.ids["subject"].isin(sub_id)]
-
-    # 3665 appears in both 5H and 5.6H, so removing 5.6H
-    # experiment id for 3665 info from
-    # 5H protocol.
-    fil_protemics_data1_5h = protemics_5h[
-        ~(
-            (protemics_5h[("ids", "experiment")] == "3665HY_1")
-            | (protemics_5h[("ids", "experiment")] == "3665HY_2")
-            | (protemics_5h[("ids", "experiment")] == "3665HY_3")
-            | (protemics_5h[("ids", "experiment")] == "3665HY_4")
+        # Merging data
+        fd_sleepdebt = pd.merge(
+            left=filtered_df,
+            right=sleep_debt_fd,
+            on=[("profile", "mins_from_admission")],
+            # right_on=[('profile','time')],
+            how="inner",
         )
-    ]
-    # Merging data
-    mppg5h_sleepdebt = pd.merge(
-        left=fil_protemics_data1_5h,
-        right=df_debt,
-        on=[("profile", "mins_from_admission")],
-        how="inner",
-    )
+        empty_df = pd.concat([empty_df, fd_sleepdebt])
 
-    #
-    print("data dimension after merging sleep debt 5H", mppg5h_sleepdebt.shape)
-    return mppg5h_sleepdebt
-
-
-def apply_debt_56h(file: io.StringIO, df: pd.DataFrame, sub_id: list) -> pd.DataFrame:
-    """This function applies the sleep debt for 5.6H of sleep time"""
-    df_debt = pd.read_csv(file)
-    df_debt.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
-
-    multi_level_columns = [
-        ("profile", "time"),
-        ("debt", "Chronic"),
-        ("debt", "Acute"),
-        ("debt", "status"),
-        ("transitions", "time_since_last_sleep"),
-        ("transitions", "time_since_last_awake"),
-    ]
-    df_debt.columns = pd.MultiIndex.from_tuples(multi_level_columns)
-
-    # Renaming column
-    df_debt.columns = pd.MultiIndex.from_tuples(
-        df_debt.set_axis(df_debt.columns.values, axis=1).rename(
-            columns={("profile", "time"): ("profile", "mins_from_admission")}
-        )
-    )
-
-    protemics_56h = df[df.ids["subject"].isin(sub_id)]
-
-    # 3665 appears in both 5H and 5.6H, so removing 5H experiment id for 3665 info from
-    # 5.6H protocol.
-    fil_protemics_data1_56h = protemics_56h[
-        ~(
-            (protemics_56h[("ids", "experiment")] == "3665HY82_1")
-            | (protemics_56h[("ids", "experiment")] == "3665HY82_2")
-            | (protemics_56h[("ids", "experiment")] == "3665HY82_3")
-        )
-    ]
-    # Merging data
-    mppg56h_sleepdebt = pd.merge(
-        left=fil_protemics_data1_56h,
-        right=df_debt,
-        on=[("profile", "mins_from_admission")],
-        how="inner",
-    )
-
-    print("data dimension after merging sleep debt 56H", mppg56h_sleepdebt.shape)
-    return mppg56h_sleepdebt
+    return empty_df

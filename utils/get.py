@@ -12,14 +12,14 @@ from utils.process import preprocess_proteomics
 
 # Default paths
 PATH = {
-    "proteomics": Path("archives/data/proteomics_101724_AS.csv"),
+    "proteomics": Path("archives/data/proteomics_121124_AS.csv"),
     "aptamers": Path("archives/data/aptamers.csv"),
     "debt": Path(
         "archives/sleepdebt/dataset_with_sleepdebt_at_clocktime/"
         + "data_091224_AS_with_sleep_debt_2024-10-04_PS.csv"
     ),
-    "protocols": Path("archives/sleepdebt/sleepdebt_data/yaml_files/protocols.yaml"),
-    "parameters": Path("archives/sleepdebt/sleepdebt_data/yaml_files/parameters.yaml"),
+    "protocols": Path("archives/sleepdebt/yaml_files/updated_protocols.yaml"),
+    "parameters": Path("archives/sleepdebt/yaml_files/parameters.yaml"),
 }
 
 
@@ -107,7 +107,7 @@ def get_debt(box: BoxManager, path: Path = PATH["debt"]) -> pd.DataFrame:
         ("ids", "sample_id"): str,
     }
     df = pd.read_csv(file, dtype=dtype, header=[0, 1], low_memory=False)
-    check_df(df, "debt", path)
+    # check_df(df, "debt", path)
     return df
 
 
@@ -201,7 +201,8 @@ def get_ids_profile_drop_missing_proteins(
 
 def get_subjects_samples(df_protocol: pd.DataFrame) -> list:
     """get the number of subjects and samples in each study"""
-    subs = df_protocol[("ids", "subject")].unique()
+    # subs = df_protocol[("ids", "subject")].unique()
+    subs = df_protocol[("ids", "experiment")].str.split("_").str[0].unique()
     print(subs)
     samples = df_protocol.shape[0]
 

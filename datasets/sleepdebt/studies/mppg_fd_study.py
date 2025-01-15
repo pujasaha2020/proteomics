@@ -9,6 +9,7 @@ This fact is taken care of while merging the sleep debt data with the proteomics
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from box.manager import BoxManager
@@ -30,12 +31,12 @@ def get_mppg_fd(
     }
 
     sub_admission_date = {
-        "3453": "2021-12-30",  # 3453HY52---> "2021-12-30", 3453HY73 :"2022-01-01"
-        "3536": "2021-12-31",  # 3536HY52----> "2021-12-31", 3536HY83: "2022-01-01"
-        "3552": "2022-01-01",  # 3552HY62----> "2022-01-01", 3552HY73 : "2022-01-01"
-        "2056": "2022-01-01",
-        "26P2": "2022-01-01",
-        "3557": "2022-01-01",
+        "3453": "2021-12-26",  # "2021-12-30",  # 3453HY52---> "2021-12-30", 3453HY73 :"2022-01-01"
+        "3536": "2021-12-26",  # 3536HY52----> "2021-12-30", 3536HY83: "2022-01-01"
+        "3552": "2021-12-28",  # 3552HY62----> "2022-01-01", 3552HY73 : "2022-01-01"
+        "2056": "2021-12-28",
+        "26P2": "2021-12-28",
+        "3557": "2021-12-28",
     }
 
     df_id_admit_time = pd.DataFrame(
@@ -78,7 +79,7 @@ def get_mppg_fd(
             ["3453HY73_1", "3453HY73_2", "3453HY73_3", "3453HY73_4"]
         ),
         ("profile", "date"),
-    ] = "2022-01-01"
+    ] = "2021-12-28"
 
     protemics_data1.loc[
         protemics_data1[("ids", "experiment")].isin(
@@ -92,7 +93,7 @@ def get_mppg_fd(
             ["3536HY83_1", "3536HY83_2", "3536HY83_1"]
         ),
         ("profile", "date"),
-    ] = "2022-01-01"
+    ] = "2021-12-28"
 
     protemics_data1.loc[
         protemics_data1[("ids", "experiment")].isin(
@@ -142,6 +143,7 @@ def get_mppg_fd(
 def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
     """
     This function calculates the sleep debt at the time of blood collection"""
+
     exp_id = [
         "3453HY73",
         "3557HY61",
@@ -157,7 +159,7 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
 
     for key in exp_id:
         print(key)
-        file = box.get_file(path / f"FD_{key}.csv")
+        file = box.get_file(path / f"mppg_fd_{key}.csv")
         sleep_debt_fd = pd.read_csv(file)
         sleep_debt_fd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
@@ -166,8 +168,8 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
             ("debt", "Chronic"),
             ("debt", "Acute"),
             ("debt", "status"),
-            ("transitions", "time_since_last_sleep"),
-            ("transitions", "time_since_last_awake"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
         ]
         sleep_debt_fd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
@@ -182,6 +184,7 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
         # because their sleep-wake schedule is little different although
         # they are in same protocol
         filtered_df = df[df[("ids", "experiment")].str.contains(key)]
+        print("filtered data dimension", filtered_df.shape)
 
         # Merging data
         fd_sleepdebt = pd.merge(
@@ -191,7 +194,10 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
             # right_on=[('profile','time')],
             how="inner",
         )
+        print("dimension of filtered data after merging", fd_sleepdebt.shape)
+
         empty_df = pd.concat([empty_df, fd_sleepdebt])
 
     print("data dimension after merging admission time by exp", empty_df.shape)
+
     return empty_df

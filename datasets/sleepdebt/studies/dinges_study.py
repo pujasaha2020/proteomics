@@ -79,8 +79,8 @@ def get_dinges(
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
-        ("transitions", "time_since_last_sleep"),
-        ("transitions", "time_since_last_awake"),
+        ("transitions", "waking_up"),
+        ("transitions", "falling_asleep"),
     ]
     sleep_debt_dinges.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 

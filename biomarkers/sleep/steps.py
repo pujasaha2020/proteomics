@@ -48,7 +48,7 @@ def preprocess_data(
     df.drop(df.loc[df["subject"].map(non_significant)].index, inplace=True)
     df.dropna(axis=1, how="all", inplace=True)
     proteins = list(set(proteins).intersection(df.columns))
-    return dict(map(lambda p: prepare_lme_data(p, df), proteins))
+    return dict(map(lambda p: prepare_lme_data(p, df), proteins[0:200]))
 
 
 def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]:
@@ -83,28 +83,51 @@ def prepare_lme_data(protein: str, df: pd.DataFrame) -> tuple[str, pd.DataFrame]
 
 def run_lme_sleep(data: pd.DataFrame) -> dict:
     """Run a linear mixed effect model for a protein"""
+    try:
+        # Fit the model
+        model = sm.MixedLM.from_formula(
+            "log_protein ~ 1 + acute + chronic + sleep",
+            data,
+            groups=data["subject"],
+            re_formula="1",
+        ).fit()
+        # Extract relevant results
+        results = {
+            ("infos", "#samples"): len(data),
+            ("infos", "#subjects"): data.subject.nunique(),
+            ("infos", "converge"): model.converged,
+            ("infos", "singularity"): False,
+            ("infos", "group_var"): model.cov_re.iloc[0, 0],
+        }
+        for key in ["acute", "chronic", "sleep"]:
+            results[(key, "param")] = model.params[key]
+            results[(key, "pvalue")] = model.pvalues[key]
+            results[(key, "[0.025")] = model.conf_int().loc[key, 0]
+            results[(key, "0.975]")] = model.conf_int().loc[key, 1]
 
-    # Fit the model
-    model = sm.MixedLM.from_formula(
-        "log_protein ~ 1 + acute + chronic + sleep",
-        data,
-        groups=data["subject"],
-        re_formula="1",
-    ).fit()
-    # Extract relevant results
-    results = {
-        ("infos", "#samples"): len(data),
-        ("infos", "#subjects"): data.subject.nunique(),
-        ("infos", "converge"): model.converged,
-        ("infos", "group_var"): model.cov_re.iloc[0, 0],
-    }
-    for key in ["acute", "chronic", "sleep"]:
-        results[(key, "param")] = model.params[key]
-        results[(key, "pvalue")] = model.pvalues[key]
-        results[(key, "[0.025")] = model.conf_int().loc[key, 0]
-        results[(key, "0.975]")] = model.conf_int().loc[key, 1]
-
-    return results
+        return results
+    except np.linalg.LinAlgError:
+        print("Skipping protein due to singular matrix.")
+        print(data.isna().sum())
+        return {
+            ("infos", "#samples"): len(data),
+            ("infos", "#subjects"): data.subject.nunique(),
+            ("infos", "converge"): True,
+            ("infos", "singularity"): True,
+            ("infos", "group_var"): np.nan,
+            ("acute", "param"): np.nan,
+            ("acute", "pvalue"): np.nan,
+            ("acute", "[0.025"): np.nan,
+            ("acute", "0.975]"): np.nan,
+            ("chronic", "param"): np.nan,
+            ("chronic", "pvalue"): np.nan,
+            ("chronic", "[0.025"): np.nan,
+            ("chronic", "0.975]"): np.nan,
+            ("sleep", "param"): np.nan,
+            ("sleep", "pvalue"): np.nan,
+            ("sleep", "[0.025"): np.nan,
+            ("sleep", "0.975]"): np.nan,
+        }
 
 
 def postprocess_results(

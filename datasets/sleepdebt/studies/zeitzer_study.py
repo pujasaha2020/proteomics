@@ -249,6 +249,7 @@ def get_zeitzer(
     exp_id = df_zeitzer_selected["subject"].unique()
     df_common = apply_debt_common_routine(protemics_data1, exp_id, box, path)
     zeitzer_sleepdebt = pd.concat([df_common, df_uncommon])
+
     print("shape after merging sleepdebt", zeitzer_sleepdebt.shape)
 
     return zeitzer_sleepdebt
@@ -263,6 +264,8 @@ def apply_debt_common_routine(
     """
     file = box.get_file(path / "Zeitzer.csv")
     sleep_debt_zeitzer = pd.read_csv(file)
+    sleep_debt_zeitzer.drop_duplicates(inplace=True)
+
     sleep_debt_zeitzer.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
     multi_level_columns = [
@@ -270,8 +273,8 @@ def apply_debt_common_routine(
         ("debt", "Chronic"),
         ("debt", "Acute"),
         ("debt", "status"),
-        ("transitions", "time_since_last_sleep"),
-        ("transitions", "time_since_last_awake"),
+        ("transitions", "waking_up"),
+        ("transitions", "falling_asleep"),
     ]
     sleep_debt_zeitzer.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
@@ -292,7 +295,6 @@ def apply_debt_common_routine(
         # right_on=[('profile','time')],
         how="inner",
     )
-    zeitzer_sleepdebt = zeitzer_sleepdebt.drop_duplicates()
     print(
         "data dimension for common subject after merging sleepdebt",
         zeitzer_sleepdebt.shape,
@@ -315,6 +317,7 @@ def apply_debt_uncommon_routine(
         print(key)
         file = box.get_file(path / f"Zeitzer_Uncommon_{key}.csv")
         sleep_debt_zeitzer = pd.read_csv(file)
+        sleep_debt_zeitzer.drop_duplicates(inplace=True)
         sleep_debt_zeitzer.drop(
             columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
         )
@@ -324,8 +327,8 @@ def apply_debt_uncommon_routine(
             ("debt", "Chronic"),
             ("debt", "Acute"),
             ("debt", "status"),
-            ("transitions", "time_since_last_sleep"),
-            ("transitions", "time_since_last_awake"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
         ]
         sleep_debt_zeitzer.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
@@ -354,6 +357,6 @@ def apply_debt_uncommon_routine(
         #   zeitzer_sleepdebt.shape,
         # )
         empty_df = pd.concat([empty_df, zeitzer_sleepdebt])
-        empty_df = empty_df.drop_duplicates()
     print("data dimension for uncommon subject after merging sleepdebt", empty_df.shape)
+
     return empty_df
