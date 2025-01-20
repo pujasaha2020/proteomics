@@ -25,9 +25,9 @@ from utils.save import save_to_csv
 BOX_PATH = {
     "proteomics": Path("archives/data/proteomics_121124_AS.csv"),
     "csvs": Path("archives/sleepdebt/adenosine/"),
-    "csvs_unified": Path("archives/sleepdebt/unified/"),
+    "csvs_unified_def2": Path("archives/sleepdebt/unified/def2/"),
+    "csvs_unified_def1": Path("archives/sleepdebt/unified/def1/"),
     "csv_final": Path("archives/sleepdebt/dataset_with_sleepdebt_at_clocktime/"),
-    "yaml_path": Path("archives/sleepdebt/sleepdebt_data/yaml_files/protocols.yaml"),
 }
 
 
@@ -91,21 +91,23 @@ if __name__ == "__main__":
     dinges_zeitzer = get_dinges_zeitzer(
         df_ids_prof_no_proteins,
         df,
-        BOX_PATH["csvs_unified"],
+        BOX_PATH["csvs_unified_def1"],
         box,
         dict_count,
     )
 
     mppg = get_mppg_ctl_csr(
-        df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count
+        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def1"], box, dict_count
     )
     print(dict_count)
 
-    fd = get_fd(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count)
+    fd = get_fd(df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def1"], box, dict_count)
     mri_5day = get_mri_day5(
-        df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count
+        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def1"], box, dict_count
     )
-    faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs_unified"], box, dict_count)
+    faa = get_faa(
+        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def1"], box, dict_count
+    )
 
     df_sleep_debt_unified = pd.concat([dinges_zeitzer, mppg, fd, mri_5day, faa])
 
@@ -183,6 +185,6 @@ if __name__ == "__main__":
         box,
         df_proteomics_with_sleep_debt,
         BOX_PATH["csv_final"]
-        / f"data_{split_string[1]}_{split_string[2]}_with_sleep_debt_{today}_PS.csv",
+        / f"data_{split_string[1]}_{split_string[2]}_with_sleep_debt_{today}_PS_unified_def1.csv",
         index=False,
     )

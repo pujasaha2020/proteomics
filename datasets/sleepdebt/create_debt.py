@@ -52,7 +52,7 @@ def create_debts(
     elif model == "unified":
         df = unified.calculate_debt(pro)
         df = unified.define_acute_chronic(df, pro.definition)
-        path = BOX_PATH["csvs_unified"] / f"{name}_{script_params["defi"]}.csv"
+        path = BOX_PATH["csvs_unified"] / f"def{script_params["defi"]}" / f"{name}.csv"
 
     else:
         raise ValueError("Invalid model type")
@@ -148,32 +148,32 @@ def run_protocols(
         "faa_csrn",
         "faa_csrd",
         "zeitzer",
-        #     "mppg_ctl_10H_3547HY",
-        #     "mppg_ctl_10H_3436HY",
-        #     "mppg_ctl_10H_3369HY42",
-        #     "mppg_ctl_10H_3552HY",
-        #     "mppg_ctl_8H_3776HY",
-        #     "mppg_ctl_8H_3789HY",
-        #     "mppg_ctl_8H_3547HY82",
-        #     "mppg_ctl_8H_3812HY83",
-        #     "mppg_csr_5H_3794HY",
-        #     "mppg_csr_5H_3776HY82",
-        #     "mppg_csr_5H_3665HY82",
-        #     "mppg_csr_5H_29W4HY83",
-        #     "mppg_csr_5H_3828HY",
-        #     "mppg_csr_56H_3608HY",
-        #     "mppg_csr_56H_3445HY",
-        #     "mppg_csr_56H_3665HY",
-        #     "mppg_csr_56H_3619HY",
-        #     "mppg_fd_3453HY73",
-        #     "mppg_fd_2056HY75",
-        #     "mppg_fd_3552HY62",
-        #     "mppg_fd_26P2HY83",
-        #     "mppg_fd_3453HY52",
-        #     "mppg_fd_3536HY83",
-        #     "mppg_fd_3536HY52",
-        #     "mppg_fd_3552HY73",
-        #     "mppg_fd_3557HY61",
+        "mppg_ctl_10H_3547HY",
+        "mppg_ctl_10H_3436HY",
+        "mppg_ctl_10H_3369HY42",
+        "mppg_ctl_10H_3552HY",
+        "mppg_ctl_8H_3776HY",
+        "mppg_ctl_8H_3789HY",
+        "mppg_ctl_8H_3547HY82",
+        "mppg_ctl_8H_3812HY83",
+        "mppg_csr_5H_3794HY",
+        "mppg_csr_5H_3776HY82",
+        "mppg_csr_5H_3665HY82",
+        "mppg_csr_5H_29W4HY83",
+        "mppg_csr_5H_3828HY",
+        "mppg_csr_56H_3608HY",
+        "mppg_csr_56H_3445HY",
+        "mppg_csr_56H_3665HY",
+        "mppg_csr_56H_3619HY",
+        "mppg_fd_3453HY73",
+        "mppg_fd_2056HY75",
+        "mppg_fd_3552HY62",
+        "mppg_fd_26P2HY83",
+        "mppg_fd_3453HY52",
+        "mppg_fd_3536HY83",
+        "mppg_fd_3536HY52",
+        "mppg_fd_3552HY73",
+        "mppg_fd_3557HY61",
     ]
 
     prot_list = make_protocol_list(protocols_for_debt)
@@ -210,12 +210,12 @@ def plot_selected_protocols(
         "faa_tsd",
         "faa_csrn",
         "faa_csrd",
-        # "mppg_ctl_10H_3547HY",
-        # "mppg_ctl_8H_3776HY",
-        # "mppg_csr_5H_3794HY",
-        # "mppg_csr_56H_3608HY",
-        # "mppg_fd_3453HY73",
-        # "mppg_fd_2056HY75",
+        "mppg_ctl_10H_3547HY",
+        "mppg_ctl_8H_3776HY",
+        "mppg_csr_5H_3794HY",
+        "mppg_csr_56H_3608HY",
+        "mppg_fd_3453HY73",
+        "mppg_fd_2056HY75",
     ]
 
     # protocol_lists = make_protocol_list(protocols_to_plot)
@@ -279,15 +279,7 @@ def plot_selected_protocols(
             ax.set_title(protocols["protocols"][protocol.name]["title"], fontsize=14)
 
         ax.set_xlabel("Time (days)", fontsize=16)
-        """
-        handles_labels = [
-            ax.get_legend_handles_labels(),
-            ax2.get_legend_handles_labels(),
-        ]
-        handles, labels = sum((h for h, l in handles_labels), []), sum(
-            (l for h, l in handles_labels), []
-        )
-        """
+
         if script_params["model"] == "adenosine":
             handles, labels = sum(
                 (ax.get_legend_handles_labels() for ax in [axes[0, 0], ax2]),
@@ -303,7 +295,9 @@ def plot_selected_protocols(
         fig.savefig(file)
         file.seek(0)
         box.save_file(
-            file, BOX_PATH["plots"] / f"sleep_debt_{script_params["model"]}_{i}.png"
+            file,
+            BOX_PATH["plots"]
+            / f"sleep_debt_{script_params["model"]}_def{script_params["defi"]}_{i}.png",
         )
 
         plt.close(fig)
@@ -327,7 +321,9 @@ def run_zeitzer(box: BoxManager, params: dict, model: str, defi: int):
         elif model == "unified":
             df = unified.calculate_debt(pro)
             df = unified.define_acute_chronic(df, pro.definition)
-            path = BOX_PATH["csvs_unified"] / f"Zeitzer_Uncommon_{sub}.csv"
+            path = (
+                BOX_PATH["csvs_unified"] / f"def{defi}" / f"Zeitzer_Uncommon_{sub}.csv"
+            )
 
         else:
             raise ValueError("Invalid model type")
