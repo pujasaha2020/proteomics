@@ -1,3 +1,3 @@
 # proteomics
 
-Please see the branch versions -- dev, feature/debt-plot, feature/plazzi
+Please see the branch versions feature/debt-plot, feature/plazzi
