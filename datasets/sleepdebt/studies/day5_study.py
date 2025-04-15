@@ -2,14 +2,14 @@
 This piece of code do the data processing for the "5day" sample.
  It reads the sleep debt data and merge it with the proteomics data.
 Procedure:
-1. make a dictionary of subject in "5day" study and 
+1. make a dictionary of subject in "5day" study and
              their admission time: "sub_admission_time"
-2. get the unique subject ids from the "5day" 
+2. get the unique subject ids from the "5day"
            sample: "df_id_admit_time[("ids", "subject")]"
-3. map the dictionary "sub_admission_time" with the 
-               "df_id_admit_time" : 
+3. map the dictionary "sub_admission_time" with the
+               "df_id_admit_time" :
                "df_id_admit_time[("profile", "adm_time")]"
-2. Filter the rows having study "5day_bsl", "5day_cr", "5day_reco" 
+2. Filter the rows having study "5day_bsl", "5day_cr", "5day_reco"
                    from the main dataset: "day5_data"
 3. Merge the "df_id_admit_time" with "day5_data" on subject ids: "protemics_data1"
 4. Add the date and admission_date_time columns to the "protemics_data1"
@@ -17,7 +17,7 @@ Procedure:
                     as we start the sleepdebt curve after 11 cycles of 24 hours.
 6. Read the sleep debt data from csv file(generated from "datasets/sleepdebt" code)
 7. Rename the columns of sleep debt data
-8. Merge the "protemics_data1" with 
+8. Merge the "protemics_data1" with
        "sleep_debt_day5" on "mins_from_admission": "day5_sleepdebt"
 9. Return the "day5_sleepdebt" data to run_analysis.py.
 
@@ -106,16 +106,30 @@ def get_5day(
     file = box.get_file(path / "5day.csv")
     sleep_debt_day5 = pd.read_csv(file)
     # for unified model only.
-    sleep_debt_day5.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
+    # sleep_debt_day5.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
 
-    multi_level_columns = [
-        ("profile", "time"),
-        ("debt", "Chronic"),
-        ("debt", "Acute"),
-        ("debt", "status"),
-        ("transitions", "waking_up"),
-        ("transitions", "falling_asleep"),
-    ]
+    # check if  "l_debt" and "s_debt " columns are present in the dataframe
+    if all(col in sleep_debt_day5.columns for col in ["l_debt", "s_debt"]):
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "l_debt"),
+            ("debt", "s_debt"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
+
+    else:
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
     sleep_debt_day5.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
     # Renaming column

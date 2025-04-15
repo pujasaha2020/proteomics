@@ -52,9 +52,9 @@ def get_mppg_ctl_csr(
 
     sub_samples = get_subjects_samples(protemics)
 
-    blood_time = round(get_time_per_subject(protemics), 2)
+    blood_time = get_time_per_subject(protemics)
 
-    fill_count_dict(dict_count, "mppg_8h", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "mppg_8h", sub_samples, blood_time)
 
     protemics = mppg_ctl_sample[mppg_ctl_sample.ids["subject"].isin(id_10h)]
 
@@ -67,9 +67,9 @@ def get_mppg_ctl_csr(
 
     sub_samples = get_subjects_samples(protemics)
 
-    blood_time = round(get_time_per_subject(protemics), 2)
+    blood_time = get_time_per_subject(protemics)
 
-    fill_count_dict(dict_count, "mppg_10h", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "mppg_10h", sub_samples, blood_time)
 
     print("=================================================================")
 
@@ -90,9 +90,9 @@ def get_mppg_ctl_csr(
     ]
 
     sub_samples = get_subjects_samples(protemics)
-    blood_time = round(get_time_per_subject(protemics), 2)
+    blood_time = get_time_per_subject(protemics)
 
-    fill_count_dict(dict_count, "mppg_5h", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "mppg_5h", sub_samples, blood_time)
 
     print("==============================================================")
 
@@ -110,9 +110,9 @@ def get_mppg_ctl_csr(
 
     sub_samples = get_subjects_samples(protemics)
 
-    blood_time = round(get_time_per_subject(protemics), 2)
+    blood_time = get_time_per_subject(protemics)
 
-    fill_count_dict(dict_count, "mppg_56h", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "mppg_56h", sub_samples, blood_time)
 
     print("===============================================")
     return pd.concat([mppg_ctl_sample, mppg_csr_sample])
@@ -128,9 +128,9 @@ def get_fd(
 
     mppg_fd_sample = get_mppg_fd(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(mppg_fd_sample)
-    blood_time = round(get_time_per_subject(mppg_fd_sample), 2)
+    blood_time = get_time_per_subject(mppg_fd_sample)
 
-    fill_count_dict(dict_count, "mppg_fd", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "mppg_fd", sub_samples, blood_time)
 
     print("===============================================")
 
@@ -147,9 +147,9 @@ def get_faa(
 
     faa_ctl_sample = get_faa_ctl(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(faa_ctl_sample)
-    blood_time = round(get_time_per_subject(faa_ctl_sample), 2)
+    blood_time = get_time_per_subject(faa_ctl_sample)
 
-    fill_count_dict(dict_count, "faa_ctl", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "faa_ctl", sub_samples, blood_time)
 
     print("===============================================")
 
@@ -157,25 +157,25 @@ def get_faa(
     sub_samples = get_subjects_samples(faa_tsd_sample)
 
     sub_samples = get_subjects_samples(faa_tsd_sample)
-    blood_time = round(get_time_per_subject(faa_tsd_sample), 2)
+    blood_time = get_time_per_subject(faa_tsd_sample)
 
-    fill_count_dict(dict_count, "faa_tsd", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "faa_tsd", sub_samples, blood_time)
 
     print("===============================================")
 
     faa_csrn_sample = get_faa_csrn(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(faa_csrn_sample)
-    blood_time = round(get_time_per_subject(faa_csrn_sample), 2)
+    blood_time = get_time_per_subject(faa_csrn_sample)
 
-    fill_count_dict(dict_count, "faa_csrn", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "faa_csrn", sub_samples, blood_time)
 
     print("===============================================")
 
     faa_csrd_sample = get_faa_csrd(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(faa_csrd_sample)
-    blood_time = round(get_time_per_subject(faa_csrd_sample), 2)
+    blood_time = get_time_per_subject(faa_csrd_sample)
 
-    fill_count_dict(dict_count, "faa_csrd", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "faa_csrd", sub_samples, blood_time)
 
     print("===============================================")
 
@@ -199,17 +199,17 @@ def get_mri_day5(
 
     mri_sample = get_mri(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(mri_sample)
-    blood_time = round(get_time_per_subject(mri_sample), 2)
+    blood_time = get_time_per_subject(mri_sample)
 
-    fill_count_dict(dict_count, "mri", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "mri", sub_samples, blood_time)
 
     print("===============================================")
 
     day5_sample = get_5day(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(day5_sample)
-    blood_time = round(get_time_per_subject(day5_sample), 2)
+    blood_time = get_time_per_subject(day5_sample)
 
-    fill_count_dict(dict_count, "5day", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "5day", sub_samples, blood_time)
 
     print("===============================================")
     return pd.concat([mri_sample, day5_sample])
@@ -226,22 +226,22 @@ def get_dinges_zeitzer(
 
     zeitzer_sample = get_zeitzer(df, box1, path_to_box)
     sub_samples = get_subjects_samples(zeitzer_sample)
-    blood_time = round(get_time_per_subject(zeitzer_sample), 2)
+    blood_time = get_time_per_subject(zeitzer_sample)
 
-    fill_count_dict(dict_count, "Zeitzer", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "Zeitzer", sub_samples, blood_time)
 
     print("===============================================")
 
     dinges_sample = get_dinges(df_ids_profile, box1, path_to_box)
     sub_samples = get_subjects_samples(dinges_sample)
-    blood_time = round(get_time_per_subject(dinges_sample), 2)
+    blood_time = get_time_per_subject(dinges_sample)
 
-    fill_count_dict(dict_count, "Dinges", sub_samples, list(blood_time))
+    fill_count_dict(dict_count, "Dinges", sub_samples, blood_time)
 
     return pd.concat([zeitzer_sample, dinges_sample])
 
 
-def fill_count_dict(dict_count: dict, name: str, sub_sample: list, blood_time: list):
+def fill_count_dict(dict_count: dict, name: str, sub_sample: list, blood_time: dict):
     """fill the count dictionary with study, subject count,
     sample count and blood collection time
     """

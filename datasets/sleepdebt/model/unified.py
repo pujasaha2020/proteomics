@@ -63,12 +63,20 @@ def simulate_unified(t_awake, t_sleep, initials, forced=False):
     t0 = wake_times[-1]
 
     sleep_times = np.linspace(t0, (t0 + t_sleep), t_sleep + 1)
+    # adding a patch for 0 TST for some protocols.
+    if t_sleep == 0:
+
+        return list(wake_times), s_awake, l_awake
 
     res_sleep = [sleep_new(i, t0=t0, s0=s0, l0=l0, fd=forced) for i in sleep_times]
 
     s_sleep, l_sleep = list(map(list, zip(*res_sleep)))
 
-    return list(wake_times) + list(sleep_times), s_awake + s_sleep, l_awake + l_sleep
+    return (
+        list(wake_times) + list(sleep_times),
+        s_awake + s_sleep,
+        l_awake + l_sleep,
+    )
 
 
 def calculate_debt(protocol: Protocol) -> pd.DataFrame:
@@ -80,7 +88,7 @@ def calculate_debt(protocol: Protocol) -> pd.DataFrame:
     for t_awake, t_sleep in zip(protocol.t_awake_l, protocol.t_sleep_l):
         fd = False
         # for FD protocol only
-        if "protocol8" in protocol.name:
+        if "fd" in protocol.name:
             fd = (t_awake + t_sleep) > 1440
         t1, s1, l1 = simulate_unified(
             t_awake,

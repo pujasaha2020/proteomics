@@ -1,7 +1,7 @@
 """
 This piece of code do the data processing for the "mppg CSR" sample.
 It reads the sleep debt data and merge it with the proteomics data.
-note: subjects have slightly different protocols than each other. 
+note: subjects have slightly different protocols than each other.
 This fact is taken care of while merging the sleep debt data with the proteomics data.
 """
 
@@ -20,15 +20,16 @@ def get_mppg_fd(
     """Subject 3453, 3536, 3552: multiple experiment, 3552 also participated
     in mppg control experiment
     """
+    """
+    # SP1 time and date
     sub_admission_time = {
-        "3453": "7:01",  # 3453HY52---> 7:01, 3453HY73 : 6:31
-        "3536": "7:30",  # 3536HY52----> 7:30, 3536HY83: 6:00
-        "3552": "6:31",  # 3552HY62----> 6:31, 3552HY73 : 6:32
-        "2056": "8:00",
-        "26P2": "5:59",
+        "3453": "7:01",  # 3453HY52---> 7:01, 3453HY73 : 7:31
+        "3536": "7:30",  # 3536HY52----> 7:30, 3536HY83: 7:00
+        "3552": "6:31",  # 3552HY62----> 6:31, 3552HY73 : 7:31
+        "2056": "8:59",
+        "26P2": "6:58",
         "3557": "8:06",
     }
-
     sub_admission_date = {
         "3453": "2021-12-26",  # "2021-12-30",  # 3453HY52---> "2021-12-30", 3453HY73 :"2022-01-01"
         "3536": "2021-12-26",  # 3536HY52----> "2021-12-30", 3536HY83: "2022-01-01"
@@ -36,6 +37,25 @@ def get_mppg_fd(
         "2056": "2021-12-28",
         "26P2": "2021-12-28",
         "3557": "2021-12-28",
+    }
+    """
+    # SP7/WP8 time
+    sub_admission_time = {
+        "3453": "7:00",  # 3453HY52---> 7:00, 3453HY73 : 6:30
+        "3536": "7:29",  # 3536HY52----> 7:29, 3536HY83: 5:59
+        "3552": "6:31",  # 3552HY62----> 6:31, 3552HY73 : 6:31
+        "2056": "7:59",
+        "26P2": "5:58",
+        "3557": "8:05",
+    }
+
+    sub_admission_date = {
+        "3453": "2021-12-30",  # "2021-12-30",  # 3453HY52---> "2021-12-30", 3453HY73 :"2022-01-01"
+        "3536": "2021-12-30",  # 3536HY52----> "2021-12-30", 3536HY83: "2022-01-01"
+        "3552": "2022-01-01",  # 3552HY62----> "2022-01-01", 3552HY73 : "2022-01-01"
+        "2056": "2022-01-01",
+        "26P2": "2022-01-01",
+        "3557": "2022-01-01",
     }
 
     df_id_admit_time = pd.DataFrame(
@@ -71,35 +91,35 @@ def get_mppg_fd(
             ["3453HY73_1", "3453HY73_2", "3453HY73_3", "3453HY73_4"]
         ),
         ("profile", "adm_time"),
-    ] = "6:31"
+    ] = "6:30"
 
     protemics_data1.loc[
         protemics_data1[("ids", "experiment")].isin(
             ["3453HY73_1", "3453HY73_2", "3453HY73_3", "3453HY73_4"]
         ),
         ("profile", "date"),
-    ] = "2021-12-28"
+    ] = "2022-01-01"
 
     protemics_data1.loc[
         protemics_data1[("ids", "experiment")].isin(
             ["3536HY83_1", "3536HY83_2", "3536HY83_1"]
         ),
         ("profile", "adm_time"),
-    ] = "6:00"
+    ] = "5:59"
 
     protemics_data1.loc[
         protemics_data1[("ids", "experiment")].isin(
             ["3536HY83_1", "3536HY83_2", "3536HY83_1"]
         ),
         ("profile", "date"),
-    ] = "2021-12-28"
+    ] = "2022-01-01"
 
     protemics_data1.loc[
         protemics_data1[("ids", "experiment")].isin(
-            ["3557HY73_1", "3557HY73_2", "3557HY73_3"]
+            ["3552HY73_1", "3552HY73_2", "3552HY73_3"]
         ),
         ("profile", "adm_time"),
-    ] = "6:32"
+    ] = "6:31"
 
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
@@ -160,16 +180,28 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
         print(key)
         file = box.get_file(path / f"mppg_fd_{key}.csv")
         sleep_debt_fd = pd.read_csv(file)
-        sleep_debt_fd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
+        # check if  "l_debt" and "s_debt " columns are present in the dataframe
+        if all(col in sleep_debt_fd.columns for col in ["l_debt", "s_debt"]):
+            multi_level_columns = [
+                ("profile", "time"),
+                ("debt", "Chronic"),
+                ("debt", "Acute"),
+                ("debt", "l_debt"),
+                ("debt", "s_debt"),
+                ("debt", "status"),
+                ("transitions", "waking_up"),
+                ("transitions", "falling_asleep"),
+            ]
 
-        multi_level_columns = [
-            ("profile", "time"),
-            ("debt", "Chronic"),
-            ("debt", "Acute"),
-            ("debt", "status"),
-            ("transitions", "waking_up"),
-            ("transitions", "falling_asleep"),
-        ]
+        else:
+            multi_level_columns = [
+                ("profile", "time"),
+                ("debt", "Chronic"),
+                ("debt", "Acute"),
+                ("debt", "status"),
+                ("transitions", "waking_up"),
+                ("transitions", "falling_asleep"),
+            ]
         sleep_debt_fd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
         # Renaming column
@@ -182,7 +214,7 @@ def apply_debt(df: pd.DataFrame, box: BoxManager, path: Path) -> pd.DataFrame:
         #  are different for different subject
         # because their sleep-wake schedule is little different although
         # they are in same protocol
-        filtered_df = df[df[("ids", "experiment")].str.contains(key)]
+        filtered_df = df[df[("ids", "experiment")].str.split("_").str[0] == key]
         print("filtered data dimension", filtered_df.shape)
 
         # Merging data

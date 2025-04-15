@@ -1,6 +1,6 @@
 """
-This scripts takes model name "Adenosine" or "unified" 
-and definition ("def_1", "def_2', "def_3") of acute and chronic sleep debt 
+This scripts takes model name "Adenosine" or "unified"
+and definition ("def_1", "def_2', "def_3") of acute and chronic sleep debt
 as input and runs the sleep debt model.
 """
 
@@ -12,10 +12,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from box.manager import BoxManager
-from datasets.sleepdebt.figure import (
-    plot_debt_vs_time_adenosine,
-    plot_debt_vs_time_unified,
-)
 from datasets.sleepdebt.model import adenosine, unified
 from datasets.sleepdebt.protocol import Protocol
 from utils.get import get_box, get_protocols, get_status
@@ -59,6 +55,9 @@ def create_debts(
     df["status"] = df["time"].apply(lambda x: get_status(x, pro.time_sequence()))
     df = get_transition(df)
 
+    # drop duplicates, duplicates arise due to the edge case of the time difference, i.e
+    # last value of awake is same as first value of sleep and vice versa.
+    df = df.drop_duplicates(subset=["time"], keep="first")
     save_to_csv(
         box,
         df,
@@ -103,32 +102,6 @@ def get_transition(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def plot_debts(
-    df: pd.DataFrame,
-    pro: Protocol,
-    protocols: dict,
-    script_params: dict,
-    ax: plt.Axes = None,
-) -> plt.Axes:
-    """Get plot for the protocols"""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(20, 5))
-    print(pro.time_sequence())
-    model = script_params["model"]
-
-    if model == "adenosine":
-        ax, ax2 = plot_debt_vs_time_adenosine(pro, df, ax, protocols)
-        return ax, ax2
-    elif model == "unified":
-        ax = plot_debt_vs_time_unified(pro, df, protocols, ax)
-        return ax
-    else:
-        raise ValueError("Invalid model type")
-
-    # ax.set_xlabel("Time (days)", fontsize=16)
-    # ax.set_ylabel(axis_title, fontsize=14)
-
-
 def run_protocols(
     box: BoxManager,
     protocols: dict,
@@ -138,7 +111,6 @@ def run_protocols(
     """Run sleep debt model for all protocols"""
     # model = script_params["model"]
     defi = script_params["defi"]
-    plot = script_params["plot"]
     protocols_for_debt = [
         "mri",
         "5day",
@@ -179,128 +151,15 @@ def run_protocols(
     prot_list = make_protocol_list(protocols_for_debt)
     protocol_objects = make_protocol_object_list(prot_list, defi)
 
-    df_protocols = {}
     for protocol in protocol_objects:
         name = protocols["protocols"][protocol.name]["dataset"]
         print(f"Running sleep debt model for {name}")
         t_ae_sl = make_sleep_wake_tuple(protocols, protocol.name)
         protocol.fill(t_ae_sl[0], t_ae_sl[1])
-        df = create_debts(box, protocol, protocols, params, script_params)
-        df_protocols[protocol.name] = df
-    if plot:
-        plot_selected_protocols(box, df_protocols, protocols, script_params)
-
-
-def plot_selected_protocols(
-    box: BoxManager, df_protocols: dict, protocols: dict, script_params: dict
-):
-    """plot selected protocols"""
-    global_min_max = {
-        "acute_min": min(df["Acute"].min() for df in df_protocols.values()),
-        "acute_max": max(df["Acute"].max() for df in df_protocols.values()),
-        "chronic_min": min(df["Chronic"].min() for df in df_protocols.values()),
-        "chronic_max": max(df["Chronic"].max() for df in df_protocols.values()),
-    }
-
-    protocols_to_plot = [
-        "mri",
-        "5day",
-        "dinges",
-        "faa_ctl",
-        "faa_tsd",
-        "faa_csrn",
-        "faa_csrd",
-        "mppg_ctl_10H_3547HY",
-        "mppg_ctl_8H_3776HY",
-        "mppg_csr_5H_3794HY",
-        "mppg_csr_56H_3608HY",
-        "mppg_fd_3453HY73",
-        "mppg_fd_2056HY75",
-    ]
-
-    # protocol_lists = make_protocol_list(protocols_to_plot)
-    protocol_objects = make_protocol_object_list(
-        make_protocol_list(protocols_to_plot), script_params["defi"]
-    )
-
-    for i in range(0, len(protocol_objects), 4):
-        fig, axes = plt.subplots(
-            4,
-            1,
-            figsize=(20, 5 * 4),
-            squeeze=False,
-        )  # use sharey=True to share y-axis
-
-        for idx, protocol in enumerate(protocol_objects[i : i + 4]):
-            print(f"Plotting {protocol.name}")
-            t_ae_sl = make_sleep_wake_tuple(protocols, protocol.name)
-            protocol.fill(t_ae_sl[0], t_ae_sl[1])
-            protocol.time_sequence()
-            if script_params["model"] == "adenosine":
-                ax, ax2 = plot_debts(
-                    df_protocols[protocol.name],
-                    protocol,
-                    protocols,
-                    script_params,
-                    axes[idx, 0],
-                )
-                ax.set_ylim(
-                    [
-                        global_min_max["chronic_min"],
-                        global_min_max["chronic_max"],
-                    ]
-                )
-                ax.set_yticks([])
-                ax.set_yticklabels([])
-                ax2.set_ylim(
-                    [
-                        global_min_max["acute_min"] - 50,
-                        global_min_max["acute_max"] + 50,
-                    ]
-                )
-                ax2.set_yticks([])
-                ax2.set_yticklabels([])
-            else:
-                ax = plot_debts(
-                    df_protocols[protocol.name],
-                    protocol,
-                    protocols,
-                    script_params,
-                    axes[idx, 0],
-                )
-                ax.set_ylim(
-                    [
-                        global_min_max["acute_min"] - 50,
-                        global_min_max["acute_max"] + 50,
-                    ]
-                )
-                ax.set_yticks([])
-                ax.set_yticklabels([])
-            ax.set_title(protocols["protocols"][protocol.name]["title"], fontsize=14)
-
-        ax.set_xlabel("Time (days)", fontsize=16)
-
-        if script_params["model"] == "adenosine":
-            handles, labels = sum(
-                (ax.get_legend_handles_labels() for ax in [axes[0, 0], ax2]),
-                start=([], []),
-            )
-
-            fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=14)
-
-        else:
-            handles, labels = ax.get_legend_handles_labels()
-            fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=14)
-        file = io.BytesIO()
-        fig.savefig(file)
-        file.seek(0)
-        box.save_file(
-            file,
-            BOX_PATH["plots"]
-            / f"sleep_debt_{script_params["model"]}_def{script_params["defi"]}_{i}.png",
-        )
-
-        plt.close(fig)
+        protocol.time_sequence()
+        if name == "mppg_csr_56H_3665HY":
+            print(protocol.time_sequence())
+        create_debts(box, protocol, protocols, params, script_params)
 
 
 def run_zeitzer(box: BoxManager, params: dict, model: str, defi: int):
@@ -330,6 +189,7 @@ def run_zeitzer(box: BoxManager, params: dict, model: str, defi: int):
 
         df["status"] = df["time"].apply(lambda x: get_status(x, pro.time_sequence()))
         df = get_transition(df)
+        df = df.drop_duplicates(subset=["time"], keep="first")
 
         save_to_csv(
             box,
@@ -366,7 +226,7 @@ def run_zeitzer(box: BoxManager, params: dict, model: str, defi: int):
         df_zeitzer(sub, t_awake_l, t_sleep_l, model)
 
 
-def main(model: str, defi: int, plot: bool, zeitzer: bool):
+def main(model: str, defi: int, zeitzer: bool):
     """
     Run sleep debt model for all protocols
     """
@@ -374,7 +234,7 @@ def main(model: str, defi: int, plot: bool, zeitzer: bool):
     protocols = get_protocols(box)
     params = make_parameters_dict(box)
 
-    script_params = {"model": model, "defi": defi, "plot": plot, "zeitzer": zeitzer}
+    script_params = {"model": model, "defi": defi, "zeitzer": zeitzer}
     run_protocols(box, protocols, params, script_params)
     if zeitzer:
         run_zeitzer(box, params, model, defi)
@@ -398,12 +258,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--plot",
-        action="store_true",
-        help="if specified it will plot the sleep debt",
-    )
-
-    parser.add_argument(
         "--zeitzer",
         action="store_true",
         help="Run sleep debt model for zeitzer uncommon subjects."
@@ -412,26 +266,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(**vars(args))
-
-
-"""
-handles1, labels1 = ax.get_legend_handles_labels()
-handles2, labels2 = ax2.get_legend_handles_labels()
-handles = handles1 + handles2
-labels = labels1 + labels2
-
-if script_params["model"] == "adenosine":
-    axis_title = "Adenosine/Receptor concentration (nM)"
-else:
-    axis_title = "Sleep Homeostat values % (impairment \u2192)"
-
-fig.text(
-    0.06,
-    0.5,
-    axis_title,
-    ha="center",
-    va="center",
-    rotation="vertical",
-    fontsize=14,
-)
-"""

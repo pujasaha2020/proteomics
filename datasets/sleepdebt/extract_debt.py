@@ -1,5 +1,5 @@
 """
-This scripts gets input from get.py, gets studies from get_studies.py and 
+This scripts gets input from get.py, gets studies from get_studies.py and
 saves the dataset with sleepdebt at specific time from both model
 as csv to BOX.
 """
@@ -68,7 +68,15 @@ if __name__ == "__main__":
     faa = get_faa(df_ids_prof_no_proteins, BOX_PATH["csvs"], box, dict_count)
     print(type(faa))
 
-    df_sleep_debt_adenosine = pd.concat([dinges_zeitzer, mppg, fd, mri_5day, faa])
+    df_sleep_debt_adenosine = pd.concat(
+        [
+            dinges_zeitzer,
+            mppg,
+            fd,
+            mri_5day,
+            faa,
+        ]
+    )
 
     columns_to_drop = [
         ("profile", "date"),
@@ -91,22 +99,22 @@ if __name__ == "__main__":
     dinges_zeitzer = get_dinges_zeitzer(
         df_ids_prof_no_proteins,
         df,
-        BOX_PATH["csvs_unified_def1"],
+        BOX_PATH["csvs_unified_def2"],
         box,
         dict_count,
     )
 
     mppg = get_mppg_ctl_csr(
-        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def1"], box, dict_count
+        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def2"], box, dict_count
     )
     print(dict_count)
 
-    fd = get_fd(df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def1"], box, dict_count)
+    fd = get_fd(df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def2"], box, dict_count)
     mri_5day = get_mri_day5(
-        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def1"], box, dict_count
+        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def2"], box, dict_count
     )
     faa = get_faa(
-        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def1"], box, dict_count
+        df_ids_prof_no_proteins, BOX_PATH["csvs_unified_def2"], box, dict_count
     )
 
     df_sleep_debt_unified = pd.concat([dinges_zeitzer, mppg, fd, mri_5day, faa])
@@ -114,7 +122,6 @@ if __name__ == "__main__":
     columns_to_drop = [
         ("profile", "date"),
         ("profile", "adm_time"),
-        ("profile", "mins_from_admission"),
         ("profile", "admission_date_time"),
         ("transitions", "waking_up"),
         ("transitions", "falling_asleep"),
@@ -185,6 +192,6 @@ if __name__ == "__main__":
         box,
         df_proteomics_with_sleep_debt,
         BOX_PATH["csv_final"]
-        / f"data_{split_string[1]}_{split_string[2]}_with_sleep_debt_{today}_PS_unified_def1.csv",
+        / f"data_{split_string[1]}_{split_string[2]}_with_sleep_debt_{today}_def2_PS.csv",
         index=False,
     )

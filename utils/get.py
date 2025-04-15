@@ -16,7 +16,7 @@ PATH = {
     "aptamers": Path("archives/data/aptamers.csv"),
     "debt": Path(
         "archives/sleepdebt/dataset_with_sleepdebt_at_clocktime/"
-        + "data_091224_AS_with_sleep_debt_2024-10-04_PS.csv"
+        + "data_121124_AS_with_sleep_debt_2025-04-14_def2_PS.csv"
     ),
     "protocols": Path("archives/sleepdebt/yaml_files/updated_protocols.yaml"),
     "parameters": Path("archives/sleepdebt/yaml_files/parameters.yaml"),
@@ -209,22 +209,27 @@ def get_subjects_samples(df_protocol: pd.DataFrame) -> list:
     return [len(subs), samples]
 
 
-def get_time_per_subject(df_protocol: pd.DataFrame) -> pd.Series:
+def get_time_per_subject(df_protocol: pd.DataFrame) -> dict:
     """
     get the blood collection time for each subject,
-    then consider subjects with the maximum number of samples.
+
     """
-    # time = (df_protocol[("profile", "mins_from_admission")] - 15840) / (60 * 24)
-    subject_counts = df_protocol[("ids", "subject")].value_counts()
+    subject_counts = df_protocol[("ids", "experiment")].str.split("_").str[0].unique()
     print(subject_counts)
 
-    # Find the maximum count
-    max_count = subject_counts.idxmax()
-    print(max_count)
-    # Find the subject with the maximum count
-    time = df_protocol[df_protocol[("ids", "subject")] == max_count][
-        ("profile", "mins_from_admission")
-    ] / (60 * 24)
-    # print(df_protocol[df_protocol[("ids", "subject")] == max_count].ids)
-
-    return time
+    # Find the time for each subject
+    dict_subject_time = {}
+    dict_subject_time = {
+        sub: list(
+            round(
+                df_protocol[
+                    df_protocol[("ids", "experiment")].str.split("_").str[0] == sub
+                ][("profile", "mins_from_admission")]
+                / (60 * 24),
+                2,
+            )
+        )
+        for sub in subject_counts
+    }
+    print(dict_subject_time)
+    return dict_subject_time

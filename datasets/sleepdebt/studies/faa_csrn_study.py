@@ -86,18 +86,28 @@ def get_faa_csrn(
     # Reading sleep debt data
     file = box.get_file(path / "faa_csrn.csv")
     sleep_debt_faa_csrn = pd.read_csv(file)
-    sleep_debt_faa_csrn.drop(
-        columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
-    )
+    # check if  "l_debt" and "s_debt " columns are present in the dataframe
+    if all(col in sleep_debt_faa_csrn.columns for col in ["l_debt", "s_debt"]):
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "l_debt"),
+            ("debt", "s_debt"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
 
-    multi_level_columns = [
-        ("profile", "time"),
-        ("debt", "Chronic"),
-        ("debt", "Acute"),
-        ("debt", "status"),
-        ("transitions", "waking_up"),
-        ("transitions", "falling_asleep"),
-    ]
+    else:
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
     sleep_debt_faa_csrn.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
     # Renaming column

@@ -22,13 +22,13 @@ def get_mppg_csr(
     it includes both sleep time of 5H and 5.6H
     """
     sub_admission_time = {
-        "3794": "6:02",  # "5:02",  # 5H
-        "3776": "5:28",  # 5H
-        "3665": "7:33",  # "6:33",  # 5H time. appears in both
+        "3794": "5:02",  # "5:02" SP7, "6:02" SP1 # 5H
+        "3776": "5:28",  # "6:28" SP1,  5:28 SP7 5H
+        "3665": "6:33",  # "6:33" SP7, "7:33" SP1 ,  # 5H time. appears in both
         # 5 H and 5.6 H. Will be corrected for 5.6H.
-        "29W4": "9:01",  # "8:01",  # 5H
-        "3828": "8:20",  # "7:20",  # 5H
-        "3608": "9:04",  # "9:04",  # 5.6H
+        "29W4": "8:01",  # "8:01" SP7, "9:01" SP1 ,   # 5H
+        "3828": "7:20",  # "7:20" SP7,  "8:02" SP1 # 5H
+        "3608": "9:04",  # "9:04"   # 5.6H
         "3619": "9:01",  # 5.6H
         "3445": "6:10",  # "6:10",  # 5.6H
     }
@@ -61,7 +61,7 @@ def get_mppg_csr(
     ] = "7:02"
 
     # Adding date and admission_date_time columns
-    protemics_data1[("profile", "date")] = "2021-12-28"  # "2022-01-01"
+    protemics_data1[("profile", "date")] = "2022-01-01"  # "2021-12-28"
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
     )
@@ -116,16 +116,28 @@ def merge_debt(
         print(key)
         file = box.get_file(path / f"mppg_csr_{protocol}_{key}.csv")
         sleep_debt_fd = pd.read_csv(file)
-        sleep_debt_fd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
+        # check if  "l_debt" and "s_debt " columns are present in the dataframe
+        if all(col in sleep_debt_fd.columns for col in ["l_debt", "s_debt"]):
+            multi_level_columns = [
+                ("profile", "time"),
+                ("debt", "Chronic"),
+                ("debt", "Acute"),
+                ("debt", "l_debt"),
+                ("debt", "s_debt"),
+                ("debt", "status"),
+                ("transitions", "waking_up"),
+                ("transitions", "falling_asleep"),
+            ]
 
-        multi_level_columns = [
-            ("profile", "time"),
-            ("debt", "Chronic"),
-            ("debt", "Acute"),
-            ("debt", "status"),
-            ("transitions", "waking_up"),
-            ("transitions", "falling_asleep"),
-        ]
+        else:
+            multi_level_columns = [
+                ("profile", "time"),
+                ("debt", "Chronic"),
+                ("debt", "Acute"),
+                ("debt", "status"),
+                ("transitions", "waking_up"),
+                ("transitions", "falling_asleep"),
+            ]
         sleep_debt_fd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
         # Renaming column

@@ -67,6 +67,9 @@ def calculate_debt(protocol: Protocol, model_params: dict) -> pd.DataFrame:
         atot.append(sol_atot.y[0])
         t0 = int(sol_atot.t[-1])
 
+        if t_sleep == 0:
+            continue
+
         t_range = np.linspace(t0, t0 + t_sleep, ((t0 + t_sleep) - t0) + 1)
         status = 1
         sol_atot = solve_ivp(

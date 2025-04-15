@@ -23,9 +23,9 @@ def get_mppg_ctl(
     sleep time of 8H and 10H
     """
     sub_admission_time = {
-        "3776": "7:02",  # "6:02",
-        "3789": "8:54",  # "7:54",
-        "3812": "10:03",  # "9:03",
+        "3776": "6:02",  # "6:02" SP7, "7:02" SP1
+        "3789": "7:54",  # "7:54" SP7, "8:54 SP1"
+        "3812": "9:03",  # "9:03" SP7, "10:03" SP1
         "3547": "8:00",  # "8:00",  # this time is for 10H protocol, will be corrected
         # for 8H protocol. Appears both in 8H and 10H protocol
         "3436": "7:53",  # "7:53",  # 10H protocol
@@ -58,10 +58,12 @@ def get_mppg_ctl(
         (protemics_data1[("ids", "experiment")] == "3547HY82_1")
         | (protemics_data1[("ids", "experiment")] == "3547HY82_2"),
         ("profile", "adm_time"),
-    ] = "8:01"  # "7:01"
+    ] = "7:01"  # "7:01" SP7, "8:01" SP1
 
     # Adding date and admission_date_time columns
-    protemics_data1[("profile", "date")] = "2021-12-28"  # "2022-01-01"
+    protemics_data1[("profile", "date")] = (
+        "2022-01-01"  # "2021-12-28" for SP1  "2022-01-01" SP7
+    )
     protemics_data1[("profile", "date")] = pd.to_datetime(
         protemics_data1[("profile", "date")]
     )
@@ -123,22 +125,34 @@ def merge_debt(
     for key in ids:
         print(key)
         file = box.get_file(path / f"mppg_ctl_{protocol}_{key}.csv")
-        sleep_debt_fd = pd.read_csv(file)
-        sleep_debt_fd.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
+        sleep_debt_ctl = pd.read_csv(file)
+        # check if  "l_debt" and "s_debt " columns are present in the dataframe
+        if all(col in sleep_debt_ctl.columns for col in ["l_debt", "s_debt"]):
+            multi_level_columns = [
+                ("profile", "time"),
+                ("debt", "Chronic"),
+                ("debt", "Acute"),
+                ("debt", "l_debt"),
+                ("debt", "s_debt"),
+                ("debt", "status"),
+                ("transitions", "waking_up"),
+                ("transitions", "falling_asleep"),
+            ]
 
-        multi_level_columns = [
-            ("profile", "time"),
-            ("debt", "Chronic"),
-            ("debt", "Acute"),
-            ("debt", "status"),
-            ("transitions", "waking_up"),
-            ("transitions", "falling_asleep"),
-        ]
-        sleep_debt_fd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
+        else:
+            multi_level_columns = [
+                ("profile", "time"),
+                ("debt", "Chronic"),
+                ("debt", "Acute"),
+                ("debt", "status"),
+                ("transitions", "waking_up"),
+                ("transitions", "falling_asleep"),
+            ]
+        sleep_debt_ctl.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
         # Renaming column
-        sleep_debt_fd.columns = pd.MultiIndex.from_tuples(
-            sleep_debt_fd.set_axis(sleep_debt_fd.columns.values, axis=1).rename(
+        sleep_debt_ctl.columns = pd.MultiIndex.from_tuples(
+            sleep_debt_ctl.set_axis(sleep_debt_ctl.columns.values, axis=1).rename(
                 columns={("profile", "time"): ("profile", "mins_from_admission")}
             )
         )
@@ -150,7 +164,7 @@ def merge_debt(
         # Merging data
         ctl_sleepdebt = pd.merge(
             left=filtered_df,
-            right=sleep_debt_fd,
+            right=sleep_debt_ctl,
             on=[("profile", "mins_from_admission")],
             # right_on=[('profile','time')],
             how="inner",

@@ -3,9 +3,9 @@ This piece of code do the data processing for the "zeitzer" sample.
  It reads the sleep debt data and merge it with the proteomics data.
 
 Zeitzer study has subjects with different sleep-wake schedules.
-Most of them have a common schedule like 966 minutes of wake time, 
+Most of them have a common schedule like 966 minutes of wake time,
 480 minutes of sleep time, and 540 minutes of wake time.
-But some subjects have different schedules. 
+But some subjects have different schedules.
 get_zeitzer_protocols: extracts the sleep-wake schedule for each subject.
 get_zeitzer: extracts the sleep debt at blood collection time or the time when
              proteomics data were available.
@@ -184,7 +184,7 @@ def get_zeitzer(
     )
 
     # Drop rows with missing values
-    df_zeitzer = df_zeitzer.dropna(subset=[("wake_up_time")])
+    df_zeitzer = df_zeitzer.dropna(subset=["wake_up_time"])
 
     df_zeitzer.rename(columns={"wake_up_time": "time"}, inplace=True)
 
@@ -266,16 +266,28 @@ def apply_debt_common_routine(
     sleep_debt_zeitzer = pd.read_csv(file)
     sleep_debt_zeitzer.drop_duplicates(inplace=True)
 
-    sleep_debt_zeitzer.drop(columns=["l_debt", "s_debt"], inplace=True, errors="ignore")
+    # check if  "l_debt" and "s_debt " columns are present in the dataframe
+    if all(col in sleep_debt_zeitzer.columns for col in ["l_debt", "s_debt"]):
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "l_debt"),
+            ("debt", "s_debt"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
 
-    multi_level_columns = [
-        ("profile", "time"),
-        ("debt", "Chronic"),
-        ("debt", "Acute"),
-        ("debt", "status"),
-        ("transitions", "waking_up"),
-        ("transitions", "falling_asleep"),
-    ]
+    else:
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
     sleep_debt_zeitzer.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
     # Renaming column
@@ -318,18 +330,28 @@ def apply_debt_uncommon_routine(
         file = box.get_file(path / f"Zeitzer_Uncommon_{key}.csv")
         sleep_debt_zeitzer = pd.read_csv(file)
         sleep_debt_zeitzer.drop_duplicates(inplace=True)
-        sleep_debt_zeitzer.drop(
-            columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
-        )
+        # check if  "l_debt" and "s_debt " columns are present in the dataframe
+        if all(col in sleep_debt_zeitzer.columns for col in ["l_debt", "s_debt"]):
+            multi_level_columns = [
+                ("profile", "time"),
+                ("debt", "Chronic"),
+                ("debt", "Acute"),
+                ("debt", "l_debt"),
+                ("debt", "s_debt"),
+                ("debt", "status"),
+                ("transitions", "waking_up"),
+                ("transitions", "falling_asleep"),
+            ]
 
-        multi_level_columns = [
-            ("profile", "time"),
-            ("debt", "Chronic"),
-            ("debt", "Acute"),
-            ("debt", "status"),
-            ("transitions", "waking_up"),
-            ("transitions", "falling_asleep"),
-        ]
+        else:
+            multi_level_columns = [
+                ("profile", "time"),
+                ("debt", "Chronic"),
+                ("debt", "Acute"),
+                ("debt", "status"),
+                ("transitions", "waking_up"),
+                ("transitions", "falling_asleep"),
+            ]
         sleep_debt_zeitzer.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
         # Renaming column

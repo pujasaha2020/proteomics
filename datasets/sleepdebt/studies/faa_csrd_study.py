@@ -82,17 +82,28 @@ def get_faa_csrd(
     # Reading sleep debt data
     file = box.get_file(path / "faa_csrd.csv")
     sleep_debt_faa_csrd = pd.read_csv(file)
-    sleep_debt_faa_csrd.drop(
-        columns=["l_debt", "s_debt"], inplace=True, errors="ignore"
-    )
-    multi_level_columns = [
-        ("profile", "time"),
-        ("debt", "Chronic"),
-        ("debt", "Acute"),
-        ("debt", "status"),
-        ("transitions", "waking_up"),
-        ("transitions", "falling_asleep"),
-    ]
+    # check if  "l_debt" and "s_debt " columns are present in the dataframe
+    if all(col in sleep_debt_faa_csrd.columns for col in ["l_debt", "s_debt"]):
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "l_debt"),
+            ("debt", "s_debt"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
+
+    else:
+        multi_level_columns = [
+            ("profile", "time"),
+            ("debt", "Chronic"),
+            ("debt", "Acute"),
+            ("debt", "status"),
+            ("transitions", "waking_up"),
+            ("transitions", "falling_asleep"),
+        ]
     sleep_debt_faa_csrd.columns = pd.MultiIndex.from_tuples(multi_level_columns)
 
     # Renaming column
@@ -111,14 +122,20 @@ def get_faa_csrd(
         how="inner",
     )
 
+    # remove the 2nd intervention ans so on.
+    faa_csrd_sleepdebt = faa_csrd_sleepdebt[
+        faa_csrd_sleepdebt[("ids", "experiment")].str.split("_").str[1] != "2"
+    ]
+
     print("shape after merging sleep debt", faa_csrd_sleepdebt.shape)
 
-    timing = [17436, 18936, 17196, 18876, 20376, 17306, 17461, 18961]
-
+    # timing = [17436, 18936, 17196, 18876, 20376, 17306, 17461, 18961]
+    """
     print(
         sleep_debt_faa_csrd[
             sleep_debt_faa_csrd[("profile", "mins_from_admission")].isin(timing)
         ]
     )
+    """
 
     return faa_csrd_sleepdebt
