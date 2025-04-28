@@ -73,13 +73,23 @@ def extract_top_coefficients(cv_results_zscore, data_training):
     best_score = -np.inf
     best_coef_df = None
     data_training = data_training.drop(columns=["fluid", "subject"], errors="ignore")
-
     # Loop over all estimators from the cross-validation results
+    common_features = None
     for i, model in enumerate(cv_results_zscore["estimator"]):
         # Access the logistic regression model from the pipeline
         lr_model = model.best_estimator_.named_steps["elasticnet"]
+        non_zero_mask = lr_model.coef_ != 0
+        non_zero_coefs = lr_model.coef_[non_zero_mask]
+        # aff all non-zero coefficient proteins in the list
+        # Get corresponding feature names
+        feature_names = data_training.columns  # make sure X_train is a DataFrame
+        selected_features = feature_names[non_zero_mask]
 
-        non_zero_coefs = lr_model.coef_[lr_model.coef_ != 0]
+        if common_features is None:
+            common_features = set(selected_features)
+        else:
+            common_features = common_features.intersection(set(selected_features))
+
         print(f"Fold {i+1}: {len(non_zero_coefs)} non-zero coefficients")
         # Calculate the score for the model to determine the best model
         current_score = model.best_score_
@@ -99,7 +109,7 @@ def extract_top_coefficients(cv_results_zscore, data_training):
         by="Absolute Coefficient", ascending=False
     ).head(10)
 
-    return best_coef_df, top_coef_df
+    return best_coef_df, top_coef_df, common_features
 
 
 def hyperparameters_tuning(
@@ -185,6 +195,7 @@ def hyperparameters_tuning(
     )
 
     testing_info = data_testing[["study", "sample_id", "s_debt", "mins_from_admission"]]
+    test_study = data_testing["study"]
     data_testing = data_testing.drop(
         columns=["study", "sample_id", "s_debt", "mins_from_admission"], errors="ignore"
     )
@@ -252,8 +263,6 @@ def hyperparameters_tuning(
     print("Mean Squared Error:", mse)
     print("Relative MSE:", relative_mse)
 
-    print("Relative MSE:", relative_mse)
-
     relative_error = abs((target_testing - target_test_pred) / target_testing)
     print("Relative Error:", relative_error)
 
@@ -262,6 +271,7 @@ def hyperparameters_tuning(
     data_testing["predicted"] = target_test_pred
     data_testing["relative_error"] = relative_error
     data_testing["true"] = target_testing
+    data_testing["study"] = test_study
 
     data_testing_with_prediction = pd.concat([data_testing, testing_info], axis=1)
 
@@ -288,9 +298,14 @@ def hyperparameters_tuning(
 
     # Call the function to extract top coefficients
 
-    best_coef_df, top_coef_df = extract_top_coefficients(
+    best_coef_df, top_coef_df, common_features = extract_top_coefficients(
         cv_results_zscore, data_training
     )
+
+    # Save the best coefficients DataFrame to a CSV file
+    # add list as column in a dataframe
+    non_zero_coefs_df = pd.DataFrame({"proteins": list(common_features)})
+    non_zero_coefs_df.to_csv(combination_path / "common_proteins_df.csv", index=False)
 
     # Call the function to plot the top coefficients
     plot_top_coefficients(top_coef_df, cfg, combination_path)
@@ -314,8 +329,8 @@ if __name__ == "__main__":
     config = Config(save=True, plot=True, explore=False)
 
     params = Params(
-        alphas=[round(x, 3) for x in np.linspace(0.04, 0.07, 20)],
-        l1_r=[round(x, 3) for x in np.linspace(0.1, 0.11, 20)],
+        alphas=[round(x, 3) for x in np.linspace(0.01, 0.1, 20)],
+        l1_r=[round(x, 3) for x in np.linspace(0.1, 0.9, 20)],
         n_splits_in_out=[3, 5],
         scoring="neg_mean_squared_error",
     )

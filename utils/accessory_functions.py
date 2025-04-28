@@ -665,10 +665,9 @@ def prepare_data_model(
     # df_final["total_debt"] = df_final["chronic"] + df_final["acute"]
 
     # Define the "proteins" columns to keep for the prediction
-    biomarkers = select_features_before_modeling()
-    # [col for col in df_final.columns if "-" in col]
-    cols = list(set(df_final.columns) & set(biomarkers))
-    cols = cols + [
+    biomarkers = [col for col in df_final.columns if "-" in col]
+
+    cols = biomarkers + [
         "fluid",
         "subject",
         "study",
