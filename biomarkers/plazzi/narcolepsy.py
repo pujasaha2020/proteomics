@@ -21,7 +21,13 @@ from statsmodels.stats.multitest import multipletests  # type: ignore
 from tqdm.contrib.concurrent import process_map
 
 from biomarkers.plazzi.figures import plot_box, plot_count, plot_density
-from biomarkers.plazzi.linear_regression import run_lm_sleep
+from biomarkers.plazzi.linear_regression import (
+    MSL_protein_with_no_nt1,
+    MSL_protein_with_nt1,
+    SOREM_protein_with_no_nt1,
+    SOREM_protein_with_nt1,
+    run_lm_sleep,
+)
 from box.manager import BoxManager
 from utils.get import get_box
 from utils.process import (
@@ -71,8 +77,9 @@ def get_protein_names(box) -> pd.DataFrame:
     return df_protein
 
 
+############## DO NOT USE THIS FUNCTION for GWAS PCA ######################
 def prepare_pca_data(df: pd.DataFrame, protein: str, pc_comp: int) -> pd.DataFrame:
-    """Prepare the data for PCA"""
+    """Prepare the data for PCA of proteins"""
     proteins_columns = df.filter(like="-").columns
     columns_to_drop = df.columns.difference(proteins_columns)
     columns_to_drop = [protein, *columns_to_drop]
@@ -98,19 +105,17 @@ def prepare_pca_data(df: pd.DataFrame, protein: str, pc_comp: int) -> pd.DataFra
     return (dict_pcs_variance, df_with_pcs)
 
 
+###########################################################
 def prepare_lm_data(
     protein: str, df: pd.DataFrame, pc_comp: int
 ) -> tuple[str, pd.DataFrame]:
     """Prepare the data for linear regression"""
     # dict_pcs_variance, df = prepare_pca_data(df, protein, pc_comp)
     # pcs = [f"PC{i}" for i in range(1, pc_comp + 1)]
-    relevant_cols = [
-        protein,
-        "study",
-        "Age",
-        "Gender",
-        "BMI",
-    ]
+    relevant_cols = [protein, "study", "Age", "Gender", "BMI", "MSL", "#SOREM"] + [
+        col for col in df.columns if col.startswith("PC")
+    ][0:pc_comp]
+
     data = df[relevant_cols].dropna(subset=relevant_cols, how="any")
     data.reset_index(drop=True, inplace=True)
     data.rename(columns={protein: "log_protein"}, inplace=True)
@@ -122,6 +127,7 @@ def preprocess_sample(
 ) -> pd.DataFrame:
     """Get the data for the analysis"""
     studies = ["plazzi_nt2", "plazzi_ctl", "plazzi_ih", "plazzi_nt1", "plazzi_seds"]
+    print(df_proteomics[("ids", "study")].unique())
     df_study = df_proteomics.loc[df_proteomics["ids"]["study"].isin(studies), :]
     print("shape of study data after study selection", df_study.shape)
     drop_samples_without_proteins(df_study)
@@ -130,7 +136,7 @@ def preprocess_sample(
     print("shape after dropping proteins without sample", df_study.shape)
     drop_proteins_with_missing_samples(df_study)
     print("shape after dropping proteins with any sample missing", df_study.shape)
-    log_normalize_proteins(df_study)
+    # log_normalize_proteins(df_study)
     if plot:
         # plot the variables in different groups
         density = plot_density(["Age", "BMI"], df_study)
@@ -161,7 +167,6 @@ def postprocess_results(box: BoxManager, results: pd.DataFrame, reference: str) 
                 results[(key, "pvalue")], alpha=0.05, method="fdr_bh"
             )[1]
     df_protein = get_protein_names(box)
-    print(df_protein.head)
     results = results.merge(df_protein, on=[("ids", "seq_id")], how="left")
 
     # Reindex the columns to ensure the new columns are in the desired order
@@ -179,7 +184,6 @@ def postprocess_results(box: BoxManager, results: pd.DataFrame, reference: str) 
         2, ("target", "TargetFullName"), results.pop(("target", "TargetFullName"))
     )
     results.insert(3, ("target", "TargetName"), results.pop(("target", "TargetName")))
-    results.head()
 
     study_col = [
         col for col in results.columns.get_level_values(0) if col.startswith("study")
@@ -194,10 +198,26 @@ def compare_groups(results: pd.DataFrame, test_grp: str) -> pd.DataFrame:
     """Compare the groups"""
     results.sort_values(by=[(test_grp, "pvalue_fdr")], inplace=True, ascending=True)
     results.reset_index(drop=True, inplace=True)
-    results = results[
-        ["ids", "target", "prot", test_grp, "dist", "Age", "Gender", "BMI"]
+    desired_columns = [
+        "ids",
+        "target",
+        "prot",
+        test_grp,
+        "Age",
+        "Gender",
+        "BMI",
+        "PC1",
+        "PC2",
+        "PC3",
+        "PC4",
+        "PC5",
     ]
-    # results = results.loc[results[(test_grp, "pvalue_fdr")] < 0.05, :]
+
+    # Keep only the columns that exist in the DataFrame
+    columns_to_use = [col for col in desired_columns if col in results.columns]
+
+    #   Subset the DataFrame
+    results = results[columns_to_use]
     return results
 
 
@@ -265,9 +285,15 @@ def run_analysis(
         ("ids", "subject"): str,
         ("ids", "experiment"): str,
         ("ids", "sample_id"): str,
+        ("ids", "somalogic"): str,
+        ("ids_1", "BMI"): float,
+        ("ids_1", "Age"): float,
+        ("ids_1", "Gender"): str,
+        ("latency", "MSL"): float,
+        ("latency", "#SOREM"): float,
     }
     df_proteomics = pd.read_csv(
-        "/Users/pujasaha/Desktop/Narcolepsy/merged_PSNov14th.csv",
+        "/Users/pujasaha/Desktop/Narcolepsy/GWAS_PCA_proteomics.csv",
         header=[0, 1],
         dtype=dtype,
         low_memory=False,
@@ -282,38 +308,52 @@ def run_analysis(
     )
 
     # get the protein columns only
-    df_protein = df_study["proteins"]
-    proteins = df_protein.columns
+
+    proteins = df_study.proteins.columns
     df_study = df_study.droplevel(0, axis=1)
 
     # impute "Age, "Gender" and "BMI" with mean of the group
     df_study["Age"] = df_study.groupby("study")["Age"].transform(
         lambda x: x.fillna(x.mean())
     )
+    print(df_study.loc[df_study["study"] == "plazzi_nt1", ["Gender"]])
+    print(df_study["sample_id"].dtypes)
     gender_dict = {
         "19678": "M",
         "19681": "M",
         "19667": "M",
         "19708": "M",
-        "20133": "M",
+        # "20133": "M",
         "DbID11461": "M",
         "21-405": "F",
         "18665": "F",
     }
-    df_study["Gender"] = df_study["sample_id"].map(gender_dict)
+    df_study["Gender"] = df_study["Gender"].fillna(
+        df_study["sample_id"].astype(str).map(gender_dict)
+    )
+
+    print(df_study.loc[df_study["study"] == "plazzi_nt1", ["Gender"]])
 
     df_study["BMI"] = df_study.groupby("study")["BMI"].transform(
         lambda x: x.fillna(x.mean())
     )
+    df_study["Gender"] = df_study["Gender"].map({"M": 1, "F": 0})
 
-    df_study["Gender"] = df_study["Gender"].replace({"M": 1, "F": 0})
+    # replace Nan in MSL and SOREM with
+    df_study["#SOREM"] = df_study.groupby("study")["#SOREM"].transform(
+        lambda x: x.fillna(x.median())
+    )
 
-    print(proteins)
+    # replace MSL with median of the group
+    df_study["MSL"] = df_study.groupby("study")["MSL"].transform(
+        lambda x: x.fillna(x.median())
+    )
+
     dict_protein_data = dict(
         map(lambda p: prepare_lm_data(p, df_study, pc_comp), proteins)
     )
     print("number of proteins", dict(list(dict_protein_data.items())[:3]))
-
+    """
     # Prepare a list of tuples with data and reference
     run_lm_sleep_with_ref = partial(run_lm_sleep, reference=reference, merge=merge)
 
@@ -329,11 +369,84 @@ def run_analysis(
         save_to_csv(
             box,
             value,
-            PATH["plazzi_results"] / f"biomarker_{test_grp}_{reference}.csv",
+            PATH["plazzi_results"]
+            / f"biomarker_{test_grp}_{reference}_adjusted_for_GWAS_pca.csv",
             index=False,
         )
-    if plot:
-        plot_significant_proteins(box, result_by_group, dict_protein_data)
+
+    """
+
+    results_MSL_protein = process_map(
+        MSL_protein_with_nt1,
+        dict_protein_data.values(),
+        dict_protein_data.keys(),
+        chunksize=4,
+    )
+    results_MSL_protein = pd.DataFrame.from_records(results_MSL_protein)
+    results_MSL_protein.columns = pd.MultiIndex.from_tuples(results_MSL_protein.columns)
+    # result_by_group = postprocess_results(box, results_MSL_protein, reference)
+    save_to_csv(
+        box,
+        results_MSL_protein,
+        PATH["plazzi_results"]
+        / "biomarker_with_nt1_MSL_protein_correlation_adjusted_for_GWAS_pca.csv",
+        index=False,
+    )
+
+    results_MSL_protein = process_map(
+        MSL_protein_with_no_nt1,
+        dict_protein_data.values(),
+        dict_protein_data.keys(),
+        chunksize=4,
+    )
+    results_MSL_protein = pd.DataFrame.from_records(results_MSL_protein)
+    results_MSL_protein.columns = pd.MultiIndex.from_tuples(results_MSL_protein.columns)
+
+    # result_by_group = postprocess_results(box, results_MSL_protein, reference)
+    save_to_csv(
+        box,
+        results_MSL_protein,
+        PATH["plazzi_results"]
+        / "biomarker_Nont1_MSL_protein_correlation_adjusted_for_GWAS_pca.csv",
+        index=False,
+    )
+    results_SOREM_protein = process_map(
+        SOREM_protein_with_nt1,
+        dict_protein_data.values(),
+        dict_protein_data.keys(),
+        chunksize=4,
+    )
+    results_SOREM_protein = pd.DataFrame.from_records(results_SOREM_protein)
+    results_SOREM_protein.columns = pd.MultiIndex.from_tuples(
+        results_SOREM_protein.columns
+    )
+    # result_by_group = postprocess_results(box, results_SOREM_protein, reference)
+    save_to_csv(
+        box,
+        results_SOREM_protein,
+        PATH["plazzi_results"]
+        / "biomarker_with_nt1_SOREM_protein_correlation_adjusted_for_GWAS_pca.csv",
+        index=False,
+    )
+
+    results_SOREM_protein = process_map(
+        SOREM_protein_with_no_nt1,
+        dict_protein_data.values(),
+        dict_protein_data.keys(),
+        chunksize=4,
+    )
+    results_SOREM_protein = pd.DataFrame.from_records(results_SOREM_protein)
+    results_SOREM_protein.columns = pd.MultiIndex.from_tuples(
+        results_SOREM_protein.columns
+    )
+    # result_by_group = postprocess_results(box, results_SOREM_protein, reference)
+    save_to_csv(
+        box,
+        results_SOREM_protein,
+        PATH["plazzi_results"]
+        / "biomarker_with_Nont1_SOREM_protein_correlation_adjusted_for_GWAS_pca.csv",
+        index=False,
+    )
 
 
 if __name__ == "__main__":
@@ -355,8 +468,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--pc_comp",
         type=int,
-        help="number of pca components",
-        default=4,
+        help="number of pca components of GWAS to use",
+        default=5,
     )
     parser.add_argument(
         "--merge",

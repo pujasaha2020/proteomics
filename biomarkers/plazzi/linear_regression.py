@@ -5,13 +5,16 @@ model  to test the protein expression between two groups
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+import statsmodels.formula.api as smf
 from scipy.stats import mannwhitneyu, shapiro
+from statsmodels.miscmodels.ordinal_model import OrderedModel
 
 
 def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str, merge: bool) -> dict:
     """Run a linear regression for a protein"""
 
     # place the group you want to make reference in the first position
+    data = data.drop([["MSL", "#SOREM"]], axis=1)
     studies = list(data["study"].unique())
     studies.remove(reference)
     studies.insert(0, reference)
@@ -35,8 +38,11 @@ def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str, merge: bool) 
         data_dummies = pd.get_dummies(data, columns=["study"], drop_first=True)
     for col in data_dummies.columns:
         if col.startswith("study"):
+
             data_dummies[col] = data_dummies[col].astype(int)
+
     y = data_dummies["log_protein"]
+
     # x_matrix = data_dummies[
     #    [col for col in data_dummies.columns if col.startswith("study")]
     # ]
@@ -54,14 +60,121 @@ def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str, merge: bool) 
         ["const"]
         + [col for col in data_dummies.columns if col.startswith("study")]
         + ["Age", "Gender", "BMI"]
+        + [col for col in data_dummies.columns if col.startswith("PC")]
     )
     for key in keys:
-
-        results[(key, "param")] = model.params[key]
-        results[(key, "pvalue")] = model.pvalues[key]
+        key_str = str(key)  # Ensure key is a string
+        results[(key_str, "param")] = model.params[key]
+        results[(key_str, "pvalue")] = model.pvalues[key]
 
     results[("dist", "normal")] = str(normal)
     # results = test_non_parametric(data, reference, results)
+    return results
+
+
+def MSL_protein_with_nt1(data: pd.DataFrame, protein: str) -> dict:
+
+    model = smf.ols(
+        "MSL~ log_protein + Age+Gender+BMI + PC1+PC2+PC3+PC4+PC5",
+        data=data,
+    ).fit()
+    results = {
+        ("ids", "seq_id"): protein,
+    }
+
+    keys = (
+        ["Intercept"]
+        + ["log_protein", "Age", "Gender", "BMI"]
+        + [col for col in data.columns if col.startswith("PC")]
+    )
+    for key in keys:
+        key_str = str(key)  # Ensure key is a string
+        results[(key_str, "param")] = model.params[key]
+        results[(key_str, "pvalue")] = model.pvalues[key]
+
+    # results[("dist", "normal")] = str(normal)
+
+    return results
+
+
+def MSL_protein_with_no_nt1(data: pd.DataFrame, protein: str) -> dict:
+
+    data = data[~(data["study"] == "plazzi_nt1")].copy()
+    model = smf.ols(
+        "MSL ~ log_protein+ Age+Gender+BMI + PC1+PC2+PC3+PC4+PC5",
+        data=data,
+    ).fit()
+    results = {
+        ("ids", "seq_id"): protein,
+    }
+
+    keys = (
+        ["Intercept"]
+        + ["log_protein", "Age", "Gender", "BMI"]
+        + [col for col in data.columns if col.startswith("PC")]
+    )
+    for key in keys:
+        key_str = str(key)  # Ensure key is a string
+        results[(key_str, "param")] = model.params[key]
+        results[(key_str, "pvalue")] = model.pvalues[key]
+
+    # results[("dist", "normal")] = str(normal)
+
+    return results
+
+
+def SOREM_protein_with_nt1(data: pd.DataFrame, protein: str) -> dict:
+
+    data["SOREM"] = data["#SOREM"].astype(int)
+    model = OrderedModel(
+        data["SOREM"],
+        data[
+            ["log_protein", "Age", "Gender", "BMI", "PC1", "PC2", "PC3", "PC4", "PC5"]
+        ],
+        distr="logit",
+    ).fit(method="bfgs", disp=0)
+    results = {
+        ("ids", "seq_id"): protein,
+    }
+
+    keys = ["log_protein", "Age", "Gender", "BMI"] + [
+        col for col in data.columns if col.startswith("PC")
+    ]
+    for key in keys:
+        key_str = str(key)  # Ensure key is a string
+        results[(key_str, "param")] = model.params[key]
+        results[(key_str, "pvalue")] = model.pvalues[key]
+
+    # results[("dist", "normal")] = str(normal)
+
+    return results
+
+
+def SOREM_protein_with_no_nt1(data: pd.DataFrame, protein: str) -> dict:
+
+    data = data[~(data["study"] == "plazzi_nt1")].copy()
+    data["SOREM"] = data["#SOREM"].astype(int)
+    model = OrderedModel(
+        data["SOREM"],
+        data[
+            ["log_protein", "Age", "Gender", "BMI", "PC1", "PC2", "PC3", "PC4", "PC5"]
+        ],
+        distr="logit",
+    ).fit(method="bfgs", disp=0)
+    results = {
+        ("ids", "seq_id"): protein,
+    }
+
+    keys = ["log_protein", "Age", "Gender", "BMI"] + [
+        col for col in data.columns if col.startswith("PC")
+    ]
+    for key in keys:
+        key_str = str(key)  # Ensure key is a string
+        results[(key_str, "param")] = model.params[key]
+        results[(key_str, "pvalue")] = model.pvalues[key]
+
+    # results[("dist", "normal")] = str(normal)
+
     return results
 
 
