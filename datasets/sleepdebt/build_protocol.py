@@ -269,7 +269,20 @@ def update_protocol_yml_fd(subject, data, blood_time, sp, cycle):
             + "MPPG_P1_Sleep_Analysis_03-19-19_for_Puja_2024-11-21.xlsx",
             sheet_name=subject,
         )
+
         tst_values = mppg_duffy["Total Sleep Time (TST) mins RECALC"].dropna().tolist()
+
+        # for subject 26P2HY83 and 3536HY83, the TST values are available until SP27. TST for rest of the
+        # days are estimated from a Linear Mixed Model (LMM) using the TST data from the rest of the data.
+        if subject == "26P2HY83":
+
+            SP_28_36 = [429.1, 433.4, 437.8, 442.2, 446.5, 450.9, 455.3, 459.7, 464.0]
+            tst_values = tst_values + SP_28_36
+
+        if subject == "3536HY83":
+
+            SP_28_36 = [479.4, 483.8, 488.2, 492.5, 496.9, 501.3, 505.6, 510.0, 514.4]
+            tst_values = tst_values + SP_28_36
 
         for i, value in enumerate(tst_values[sp : len(tst_values)], start=1):
 

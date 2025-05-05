@@ -188,6 +188,9 @@ if __name__ == "__main__":
         index=False,
     )
 
+    df_proteomics_with_sleep_debt.drop_duplicates(
+        subset=[("ids", "sample_id")], inplace=True
+    )
     save_to_csv(
         box,
         df_proteomics_with_sleep_debt,
