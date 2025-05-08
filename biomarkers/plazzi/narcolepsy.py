@@ -353,7 +353,7 @@ def run_analysis(
         map(lambda p: prepare_lm_data(p, df_study, pc_comp), proteins)
     )
     print("number of proteins", dict(list(dict_protein_data.items())[:3]))
-    """
+
     # Prepare a list of tuples with data and reference
     run_lm_sleep_with_ref = partial(run_lm_sleep, reference=reference, merge=merge)
 
@@ -447,6 +447,7 @@ def run_analysis(
         / "biomarker_with_Nont1_SOREM_protein_correlation_adjusted_for_GWAS_pca.csv",
         index=False,
     )
+    """
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ def run_lm_sleep(data: pd.DataFrame, protein: str, reference: str, merge: bool) 
     """Run a linear regression for a protein"""
 
     # place the group you want to make reference in the first position
-    data = data.drop([["MSL", "#SOREM"]], axis=1)
+    data = data.drop(["MSL", "#SOREM"], axis=1)
     studies = list(data["study"].unique())
     studies.remove(reference)
     studies.insert(0, reference)
