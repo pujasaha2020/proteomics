@@ -66,7 +66,7 @@ def plot_adenosine(
 
     for i in range(0, len(protocols), 4):
         fig, axes = plt.subplots(
-            4,
+            2,
             1,
             figsize=(40, 5 * 4),
             squeeze=False,
@@ -81,13 +81,14 @@ def plot_adenosine(
             pro.fill(t_ae_sl[0], t_ae_sl[1])
             pro.time_sequence()
             ax, ax2 = plot_debt_vs_time_adenosine(pro, df, axes[idx, 0], protocol_dict)
-            ax.set_title(protocol_dict["protocols"][pro.name]["title"], fontsize=24)
+            ax.set_title(protocol_dict["protocols"][pro.name]["title"], fontsize=30)
 
-        ax.set_xlabel("Time (days)", fontsize=24)
+        ax.set_xlabel("Time (days)", fontsize=30)
+
         handles_labels = [ax.get_legend_handles_labels() for ax in [axes[0, 0], ax2]]
         handles = [h for hl in handles_labels for h in hl[0]]
         labels = [l for hl in handles_labels for l in hl[1]]
-        fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=24)
+        fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=35)
         file = io.BytesIO()
         fig.savefig(file)
         file.seek(0)
@@ -106,7 +107,7 @@ def plot_unified(box: BoxManager, protocols: list, defi: int):
 
     for i in range(0, len(protocols), 4):
         fig, axes = plt.subplots(
-            4,
+            2,
             1,
             figsize=(40, 5 * 4),
             squeeze=False,
@@ -121,14 +122,24 @@ def plot_unified(box: BoxManager, protocols: list, defi: int):
             t_ae_sl = make_sleep_wake_tuple(protocol_dict, pro.name)
             pro.fill(t_ae_sl[0], t_ae_sl[1])
             pro.time_sequence()
-            ax = plot_debt_vs_time_unified(pro, df, axes[idx, 0], protocol_dict)
-            ax.set_title(protocol_dict["protocols"][pro.name]["title"], fontsize=14)
+            ax = plot_debt_vs_time_unified(pro, df, axes[idx, 0], protocol_dict, defi)
+            ax.set_title(protocol_dict["protocols"][pro.name]["title"], fontsize=30)
 
-        ax.set_xlabel("Time (days)", fontsize=16)
+        ax.set_xlabel("Time (days)", fontsize=30)
+        # ax.set_ylabel("Sleep Homeostat values % (impairment \u2192)", fontsize=30, )
+        fig.text(
+            0.04,
+            0.5,
+            "Sleep Homeostat Values % (impairment →)",
+            va="center",
+            rotation="vertical",
+            fontsize=35,
+        )
+
         handles_labels = [ax.get_legend_handles_labels() for ax in [axes[0, 0]]]
         handles = [h for hl in handles_labels for h in hl[0]]
         labels = [l for hl in handles_labels for l in hl[1]]
-        fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=14)
+        fig.legend(handles, labels, loc="upper center", ncol=4, fontsize=30)
         file = io.BytesIO()
         fig.savefig(file)
         file.seek(0)

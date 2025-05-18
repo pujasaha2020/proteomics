@@ -357,6 +357,7 @@ def update_prediction_plot(pred_subject, fluid_type):
     Input("pred-study-dropdown", "value"),
     Input("pred-subject-dropdown", "value"),
     Input("fluid-dropdown", "value"),
+    prevent_initial_call=True,
 )
 def update_time_plot(study, pred_subject, fluid_type):
     """

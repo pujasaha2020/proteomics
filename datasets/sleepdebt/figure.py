@@ -37,9 +37,9 @@ def plot_debt_vs_time_adenosine(
         label="Acute",
         color="red",
     )
-    ax2.set_ylabel("Acute", color="red", fontsize=24)
+    ax2.set_ylabel("Acute", color="red", fontsize=30)
 
-    ax.set_ylabel("Chronic", color="green", fontsize=24)
+    ax.set_ylabel("Chronic", color="green", fontsize=30)
 
     # ax.grid()
     # ax.set_title(get_title(pro, protocols), fontsize=16)
@@ -136,28 +136,36 @@ def plot_debt_vs_time_adenosine(
 
 # def get_plot(pro, df_sleep_debt, t, time_count, definition, ax=None):
 def plot_debt_vs_time_unified(
-    pro: Protocol, df: pd.DataFrame, ax: plt.Axes, protocol_data: dict
+    pro: Protocol, df: pd.DataFrame, ax: plt.Axes, protocol_data: dict, definition: int
 ) -> plt.Axes:
     """getting the plot for the sleep debt for unified model"""
-
-    ax.plot(
-        df["time"] / (60.0 * 24),
-        df["Chronic"],
-        label="Sleep debt (chronic)",
-        color="black",
-    )
+    if definition == 1:
+        ax.plot(
+            df["time"] / (60.0 * 24),
+            df["Chronic"],
+            label="Sleep debt (chronic)",
+            color="black",
+        )
+    else:
+        ax.plot(
+            df["time"] / (60.0 * 24),
+            df["Chronic"],
+            label="Sleep debt (chronic)/Sleep debt (L)",
+            color="green",
+        )
     ax.plot(
         df["time"] / (60.0 * 24),
         df["Acute"],
         label="Sleep debt (acute)",
         color="red",
     )
-    ax.plot(
-        df["time"] / (60.0 * 24),
-        df["l_debt"],
-        label="Sleep debt (L)",
-        color="green",
-    )
+    if definition == 1:
+        ax.plot(
+            df["time"] / (60.0 * 24),
+            df["l_debt"],
+            label="Sleep debt (L)",
+            color="green",
+        )
     ax.plot(
         df["time"] / (60.0 * 24),
         df["s_debt"],
@@ -166,7 +174,7 @@ def plot_debt_vs_time_unified(
         linestyle="--",
     )
 
-    ax.set_ylabel("Sleep Homeostat values % (impairment \u2192)", fontsize=10)
+    # ax.set_ylabel("Sleep Homeostat values % (impairment \u2192)", fontsize=30)
 
     substrs = {"5H", "56H", "8H", "10H", "FD"}
     print(pro.name)
@@ -209,7 +217,7 @@ def plot_debt_vs_time_unified(
                 ha="center",
                 va="center",
                 rotation="vertical",
-                fontsize=10,
+                fontsize=15,
             )
 
     xcoords = get_blood_collection_time(pro, protocol_data)

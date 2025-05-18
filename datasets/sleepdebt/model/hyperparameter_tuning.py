@@ -13,6 +13,7 @@ import seaborn as sns  # type: ignore
 
 # Machine Learning Libraries
 import sklearn  # type: ignore
+from sklearn.compose import TransformedTargetRegressor
 from sklearn.linear_model import ElasticNet, Ridge  # type: ignore
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GridSearchCV  # type: ignore
@@ -84,6 +85,9 @@ def extract_top_coefficients(cv_results_zscore, data_training):
         # Get corresponding feature names
         feature_names = data_training.columns  # make sure X_train is a DataFrame
         selected_features = feature_names[non_zero_mask]
+        # Create a DataFrame with feature names and their coefficients
+        selected_features_df = pd.DataFrame({"Feature": selected_features})
+        selected_features_df.to_csv(f"coef_fold_{i}.csv", index=False)
 
         if common_features is None:
             common_features = set(selected_features)
@@ -205,6 +209,7 @@ def hyperparameters_tuning(
 
     # Define a custom normalizer that takes the plasma and group into account.
     # Use weighted_zscore_normalization instead of zscore_normalization
+
     lr_zscore = make_pipeline(
         WeightedZScoreNormalizer(),
         ElasticNet(max_iter=8000),
@@ -212,6 +217,7 @@ def hyperparameters_tuning(
 
     cv_in = OrderedGroupKFold(n_splits=parameters.n_splits_in_out[0])
     cv_out = OrderedGroupKFold(n_splits=parameters.n_splits_in_out[1])
+
     # Define GridSearchCV with the weighted Z-score normalization
     grid_search_zscore = GridSearchCV(
         lr_zscore,
@@ -319,7 +325,7 @@ def hyperparameters_tuning(
         pd.DataFrame(best_coef_df).to_csv(combination_path / "best_coef_df.csv")
         top_coef_df.to_csv(combination_path / "top_coef_df.csv")
         data_testing_with_prediction.to_csv(
-            combination_path / "data_testing_with_prediction.csv", index=False
+            combination_path / "data_testing_with_prediction_May8th.csv", index=False
         )
 
     return cv_results_zscore, scores_matrix, best_coef_df, top_coef_df
