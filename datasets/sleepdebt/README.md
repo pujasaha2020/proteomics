@@ -20,9 +20,9 @@ To run adenosine/unified model:
 python datasets/sleepdebt/create_debt.py  --model "unified" --defi 2 --zeitzer
 ```
 
-use "--model" specify the model you want to run "adenosine" (D) or "unified"
-use "--defi" for the definition (1 or 2) you want to run for "unified" model, default is 2.
-use "--zeitzer" if you want to run the Zeitzer subjects having different sleep-wake schedule. The zeitzer subjects having same schedule run without this tag.
+- use "--model" specify the model you want to run "adenosine" (D) or "unified"
+- use "--defi" for the definition (1 or 2) you want to run for "unified" model, default is 2.
+- use "--zeitzer" if you want to run the Zeitzer subjects having different sleep-wake schedule. The zeitzer subjects having same schedule run without this tag.
 
 No need to provide "--defi" and "--model" for adenosine model.
 
@@ -41,9 +41,9 @@ To plot:
 python datasets/sleepdebt/plotting.py  --model "unified" --defi 2 --protocol "mri" "5day"
 ```
 
-use "--model" specify the model you want to run "adenosine" (D) or "unified"
-use "--defi" for the definition (1 or 2) you want to run for "unified" model, default is 2. Otherwise no need to mention definition.
-use --protocol pass the list of protocols you want to run.
+- use "--model" specify the model you want to run "adenosine" (D) or "unified"
+- use "--defi" for the definition (1 or 2) you want to run for "unified" model, default is 2. Otherwise no need to mention definition.
+- use --protocol pass the list of protocols you want to run.
 
 - All the curves you generate will be stored in
   `results/sleepdebt/curves/`
