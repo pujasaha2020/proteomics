@@ -131,6 +131,8 @@ def plot_debt_vs_time_adenosine(
             labels=np.arange(0, int(max(df["time"]) / (60.0 * 24) - 11) + 1),
         )
 
+    ax.tick_params(axis="both", which="major", labelsize=30)
+    ax2.tick_params(axis="both", which="major", labelsize=30)
     return ax, ax2
 
 
@@ -249,6 +251,8 @@ def plot_debt_vs_time_unified(
             ticks=np.arange(11, int(max(df["time"]) / (60.0 * 24)) + 1),
             labels=np.arange(0, int(max(df["time"]) / (60.0 * 24) - 11) + 1),
         )
+
+    ax.tick_params(axis="both", which="major", labelsize=30)
 
     return ax
 

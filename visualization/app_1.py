@@ -10,16 +10,16 @@ df = pd.read_csv(
     "/Users/pujasaha/Desktop/Git_Oct1/proteomics/hyperparameters_tuning/alpha_0.04-0.07_l1_0.1-0.11/prot_processed.csv"
 )  # update this
 df_prediction = pd.read_csv(
-    "/Users/pujasaha/Desktop/Git_Oct1/proteomics/hyperparameters_tuning/alpha_0.04-0.07_l1_0.1-0.11/data_testing_with_prediction.csv"
+    "/Users/pujasaha/Desktop/Git_Oct1/proteomics/hyperparameters_tuning/alpha_0.04-0.07_l1_0.1-0.11/data_testing_with_prediction_May8th_resample.csv"
 )  # update thi
 protein_cols = [col for col in df.columns if "-" in col]
 
-studies = sorted(df["study"].unique().tolist())
+studies = df["study"].unique().tolist()
 # extract studied in test data
-studies_pre = sorted(df_prediction["study"].unique().tolist())
-subjects = sorted(df["subject"].unique().tolist())
-fluids = sorted(df["fluid"].unique().tolist())
-subject_testing = sorted(df_prediction["subject"].unique().tolist())
+studies_pre = df_prediction["study"].unique().tolist()
+subjects = df["subject"].unique().tolist()
+fluids = df["fluid"].unique().tolist()
+subject_testing = df_prediction["subject"].unique().tolist()
 
 # Initialize Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)

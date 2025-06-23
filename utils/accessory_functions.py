@@ -13,10 +13,12 @@ import numpy as np
 import pandas as pd  # type: ignore
 import seaborn as sns  # type: ignore
 from openpyxl.styles import numbers
-from sklearn.base import BaseEstimator, TransformerMixin  # type: ignore
+from sklearn.base import RegressorMixin  # type: ignore
+from sklearn.base import BaseEstimator, TransformerMixin, clone
 from sklearn.model_selection import BaseCrossValidator  # type: ignore
 from sklearn.model_selection._split import GroupsConsumerMixin  # type: ignore
 from sklearn.preprocessing import RobustScaler  # type: ignore
+from sklearn.utils import resample
 from sklearn.utils.validation import _num_samples, indexable  # type: ignore
 
 from utils.get import get_box
@@ -110,53 +112,142 @@ def select_features_before_modeling():
     return biomarkers
 
 
-class WeightedZScoreNormalizer(BaseEstimator, TransformerMixin):
+class ResampleRegressor(BaseEstimator, RegressorMixin):
     """
-    Normalize the data using the z-score normalization method for each plasma type,
-    with weighting by group (subject) to prevent subjects with more samples from dominating.
-    Parameters:"""
+    A custom regressor that resamples the data to balance the target variable
+    before fitting a base estimator. It oversamples the tails of the distribution
+    to create a more balanced dataset for regression tasks.
+    """
 
-    def __init__(self):
-        # Expected to be a Series-like object
+    def __init__(
+        self, base_estimator, low_thresh=0.2, high_thresh=0.8, upsample_ratio=1.0
+    ):
+        self.base_estimator = base_estimator
+        self.low_thresh = low_thresh
+        self.high_thresh = high_thresh
+        self.upsample_ratio = (
+            upsample_ratio  # 1.0 = balance with common; >1.0 = oversample more
+        )
+
+    def get_params(self, deep=True):
+        params = super().get_params(deep=deep)
+        if deep and hasattr(self.base_estimator, "get_params"):
+            base_params = self.base_estimator.get_params(deep=deep)
+            for key, value in base_params.items():
+                params[f"base_estimator__{key}"] = value
+        return params
+
+    def set_params(self, **params):
+        base_estimator_params = {}
+        for key in list(params.keys()):
+            if key.startswith("base_estimator__"):
+                base_key = key.replace("base_estimator__", "")
+                base_estimator_params[base_key] = params.pop(key)
+        if base_estimator_params:
+            self.base_estimator.set_params(**base_estimator_params)
+        super().set_params(**params)
+        return self
+
+    def fit(self, X, y):
+        # Combine X and y
+        df = pd.DataFrame(X).copy()
+        df["s_debt"] = y
+
+        # Compute thresholds
+        low_val = df["s_debt"].quantile(self.low_thresh)
+        high_val = df["s_debt"].quantile(self.high_thresh)
+
+        # Identify rare and common samples
+        low_rare = df[df["s_debt"] < low_val]
+        high_rare = df[df["s_debt"] > high_val]
+        common = df[(df["s_debt"] >= low_val) & (df["s_debt"] <= high_val)]
+
+        # Number of samples to upsample to
+        n_samples = int(
+            self.upsample_ratio * len(common) // 2
+        )  # divide by 2 to split between low/high
+
+        # Upsample both tails
+        low_upsampled = resample(
+            low_rare,
+            replace=True,
+            n_samples=min(n_samples, len(low_rare)),
+            random_state=42,
+        )
+        high_upsampled = resample(
+            high_rare,
+            replace=True,
+            n_samples=min(n_samples, len(high_rare)),
+            random_state=42,
+        )
+
+        # Combine resampled data
+        df_resampled = pd.concat([common, low_upsampled, high_upsampled]).reset_index(
+            drop=True
+        )
+        X_resampled = df_resampled.drop(columns="s_debt")
+        y_resampled = df_resampled["s_debt"]
+
+        if hasattr(self.base_estimator, "fit"):
+            self.model_ = clone(self.base_estimator)
+            self.model_.fit(X_resampled, y_resampled)
+        else:
+            raise ValueError("Base estimator does not support fit()")
+
+        return self
+
+    def predict(self, X):
+        return self.model_.predict(X)
+
+
+class WeightedZScoreNormalizer(BaseEstimator, TransformerMixin):
+    call_counter = 0  # Class-level counter to track number of fit calls
+
+    def __init__(self, verbose=True):
+        self.verbose = verbose
         self.scalers = {}
 
     def fit(self, X, y=None):
+        # WeightedZScoreNormalizer.call_counter += 1
+        # call_id = WeightedZScoreNormalizer.call_counter
+        """
+        if self.verbose:
+            print(f"\n[Fit Call {call_id}] START")
+            print(
+                f"[Fit Call {call_id}] BEFORE DROP → shape: {X.shape}, columns: {list(X.columns[:5])}..."
+            )
+        """
+        X = X.copy()
 
-        plasmas = X["fluid"]
-        groups = X["subject"]
+        try:
+            plasmas = X["fluid"].loc[X.index]
+            groups = X["subject"].loc[X.index]
+        except KeyError as e:
+            raise
 
-        # Remove the plasma_types and groups columns from X
         X = X.drop(columns=["fluid", "subject"], errors="ignore")
 
-        X = X.copy()
-        indices = X.index
-
         if groups is not None:
-            groups_subset = groups.loc[indices]
-            group_counts = groups_subset.value_counts()
+            group_counts = groups.value_counts()
             group_weights = 1.0 / group_counts
-            group_weights = group_weights * len(X) / group_weights.sum()
-            sample_weights = groups_subset.map(group_weights)
+            group_weights *= len(groups) / group_weights.sum()
+            sample_weights = groups.map(group_weights)
         else:
-            sample_weights = pd.Series(1.0, index=indices)
+            sample_weights = pd.Series(1.0, index=X.index)
 
         for plasma in np.unique(plasmas):
             mask = plasmas == plasma
 
-            # Get samples and weights for this plasma type
-            X_plasma = X[mask]
+            X_plasma = X.loc[mask]
             weights_plasma = sample_weights[mask]
 
-            # Calculate weighted mean and std
             weighted_mean = np.average(X_plasma, weights=weights_plasma, axis=0)
-            weighted_mean = pd.Series(weighted_mean, index=X.columns)
+            weighted_mean = pd.Series(weighted_mean, index=X_plasma.columns)
+
             weighted_var = np.average(
-                (X_plasma - weighted_mean) ** 2,
-                weights=weights_plasma,
-                axis=0,
+                (X_plasma - weighted_mean) ** 2, weights=weights_plasma, axis=0
             )
-            weighted_std = np.sqrt(weighted_var)
-            weighted_std = pd.Series(weighted_std, index=X.columns)
+            weighted_std = pd.Series(np.sqrt(weighted_var), index=X_plasma.columns)
 
             self.scalers[plasma] = {
                 "mean": weighted_mean,
@@ -166,17 +257,15 @@ class WeightedZScoreNormalizer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
-        plasmas = X["fluid"]
-        # Remove the plasma_types column from X
+        X = X.copy()
+        plasmas = X["fluid"].loc[X.index]
         X = X.drop(columns=["fluid", "subject"], errors="ignore")
         X_scaled = X.copy()
 
         for plasma in np.unique(plasmas):
             mask = plasmas == plasma
-
             mean = self.scalers[plasma]["mean"]
             std = self.scalers[plasma]["std"]
-
             X_scaled.loc[mask] = (X.loc[mask] - mean) / std
 
         return X_scaled
