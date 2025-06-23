@@ -14,14 +14,15 @@ Unified Model: https://www.sciencedirect.com/science/article/pii/S00225193130018
 
 Scripts in this folder, calculate sleepdebt at every minute from two different models: adenosine and unified.
 
-To run adenosine model:
+To run adenosine/unified model:
 
 ```shell
-python datasets/sleepdebt/create_debt.py  --plot --zeitzer
+python datasets/sleepdebt/create_debt.py  --model "unified" --defi 2 --zeitzer
 ```
 
-use "--plot" if you want to plot the sleep debt curves.
-use "--zeitzer" if you want to run the Zeitzer subjects having different sleep-wake schedule. Th subjects having same schedule will with out this tag.
+use "--model" specify the model you want to run "adenosine" (D) or "unified"
+use "--defi" for the definition (1 or 2) you want to run for "unified" model, default is 2.
+use "--zeitzer" if you want to run the Zeitzer subjects having different sleep-wake schedule. The zeitzer subjects having same schedule run without this tag.
 
 No need to provide "--defi" and "--model" for adenosine model.
 
@@ -29,28 +30,25 @@ No need to provide "--defi" and "--model" for adenosine model.
 
 - The output of the models are stored in box.
 - All the csv files containing sleep debt at every minute are stored in
-  `archives/sleepdebt/sleepdebt_data/`
-- All the plots of sleep debt curves are stored in
-  `results/sleepdebt/sleepdebt_curves/`
+  `archives/sleepdebt/`
+  in separate folders for different models.
 
-To run unified model:
+**How to plot sleep deprivation for different protocols**
+
+To plot:
 
 ```shell
-python datasets/sleepdebt/create_debt.py --model "unified" --defi  2 --plot --zeitzer
+python datasets/sleepdebt/plotting.py  --model "unified" --defi 2 --protocol "mri" "5day"
 ```
 
-use "--plot" if you want to plot the sleep debt curves.
-use "--zeitzer" if you want to run the Zeitzer subjects having different sleep-wake schudule. Th subjects having same schedule will with out this tag.
+use "--model" specify the model you want to run "adenosine" (D) or "unified"
+use "--defi" for the definition (1 or 2) you want to run for "unified" model, default is 2. Otherwise no need to mention definition.
+use --protocol pass the list of protocols you want to run.
 
-"--defi" has two options, 1 or 2 for unified model.
+- All the curves you generate will be stored in
+  `results/sleepdebt/curves/`
 
-**What to expect from `sleepdebt_calculation.py' (unified model)**
-
-- The output of the models are stored in box.
-- All the csv files containing sleep debt at every minute are stored in
-  `archives/sleepdebt/sleepdebt_data/`
-- All the plots of sleep debt curves are stored in
-  `results/sleepdebt/sleepDebt_curves/`
+NOTE:for some protocols the curve is subject specific please see the available options inside the script.
 
 ## Step 2: Prepare sleepdebt dataset for Biomarker and prediction analysis
 
@@ -71,9 +69,9 @@ Each of them structure the data and then apply the sleep debt at the time when p
 
 - The final output dataframe from this script will have : "ids", "infos", "profile" , "adenosine", "unified". **Note**: no proteomics here.
 - The dataset is named as `data_{input_version}_with_sleep_debt_{date_of_generation}_PS.csv`. The file will be saved to box at:
-  `archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/`.
+  `archives/sleepdebt/dataset_with_sleepdebt_at_clocktime/`.
 - This scripts also create a file that contains, count of subjects and samples, blood times of the subject with the maximum number of samples.  
-  this file (`count_{input_version}_{date_of_generation}_PS.csv`) is also saved: `archives/sleepdebt/sleepdebt_data/dataset_with_sleepdebt_at_clocktime/`
+  this file (`count_{input_version}_{date_of_generation}_PS.csv`) is also saved: `archives/sleepdebt/dataset_with_sleepdebt_at_clocktime/`
 
 **IMPORTANT**: once you run `extract_debt.py` on new/updated dataset,
 gets the number of subjects and samples in each study from `count_{input*version}_{date_of_generation}_PS.csv`.
@@ -89,6 +87,6 @@ For question, comments and bug please contact Puja Saha @ puja2023@stanford.edu 
 
 if you need to update your protocol yaml files, you can use this scripts:
 
-`archives/sleepdebt/sleepdebt_data/build_protocol.py`
+`build_protocol.py`
 
 detail can be found inside the script. You can add new functions here to generate new protocol or sleep/wake schedule.
