@@ -38,11 +38,11 @@ No need to provide "--defi" and "--model" for adenosine model.
 To plot:
 
 ```shell
-python datasets/sleepdebt/plotting.py  --model "unified" --defi 2 --protocol "mri" "5day"
+python datasets/sleepdebt/plotting.py  --model "both" --defi 2 --protocol "mri" "5day"
 ```
 
-- use "--model" specify the model you want to run "adenosine" (D) or "unified"
-- use "--defi" for the definition (1 or 2) you want to run for "unified" model, default is 2. Otherwise no need to mention definition.
+- use "--model" specify the model you want to run "adenosine" or "unified" or "both" (D)
+- use "--defi" for the definition (1 or 2) you want to run for "unified" model, default is 2.
 - use --protocol pass the list of protocols you want to run.
 
 - All the curves you generate will be stored in
